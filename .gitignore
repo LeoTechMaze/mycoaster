@@ -1,0 +1,18 @@
+# Environment
+.env
+*.env.local
+
+# Firebase
+firebase-service-account.json
+
+# Node
+node_modules/
+dist/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
