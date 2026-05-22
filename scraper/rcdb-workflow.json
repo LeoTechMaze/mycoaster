@@ -1,0 +1,307 @@
+{
+  "name": "RCDB Scraper — Parks & Coasters",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 3 * * *"
+            }
+          ]
+        }
+      },
+      "id": "node-schedule",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "countries-field",
+              "name": "countries",
+              "value": "={{ [{ \"name\": \"Brazil\", \"location_id\": \"26724\" }] }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-set-countries",
+      "name": "Set Countries",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [320, 300]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "countries",
+        "options": {}
+      },
+      "id": "node-split-countries",
+      "name": "Split Countries",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [540, 300]
+    },
+    {
+      "parameters": {
+        "url": "=https://rcdb.com/r.htm?ot=2&ol={{ $json.location_id }}&page=1",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          },
+          "timeout": 10000
+        }
+      },
+      "id": "node-fetch-page1",
+      "name": "Fetch Listing Page 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [760, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract total number of pages from the listing header\n// Header pattern: \"Found: 212 (Page 1 of 9)\"\nconst html = $input.first().json.data || '';\nconst location_id = $('Split Countries').item.json.location_id;\nconst country_name = $('Split Countries').item.json.name;\n\nconst pageMatch = html.match(/Page\\s+\\d+\\s+of\\s+(\\d+)/);\nconst totalPages = pageMatch ? parseInt(pageMatch[1]) : 1;\n\nconst foundMatch = html.match(/Found:\\s*([\\d,]+)/);\nconst totalFound = foundMatch ? parseInt(foundMatch[1].replace(',', '')) : 0;\n\nconsole.log(`[${country_name}] Total pages: ${totalPages}, Total coasters: ${totalFound}`);\n\nreturn [{\n  json: {\n    location_id,\n    country_name,\n    totalPages,\n    totalFound\n  }\n}];"
+      },
+      "id": "node-extract-total-pages",
+      "name": "Extract Total Pages",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [980, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate array of all page URLs for this country\nconst { location_id, country_name, totalPages } = $input.first().json;\n\nconst pages = [];\nfor (let page = 1; page <= totalPages; page++) {\n  pages.push({\n    url: `https://rcdb.com/r.htm?ot=2&ol=${location_id}&page=${page}`,\n    page,\n    location_id,\n    country_name\n  });\n}\n\nconsole.log(`[${country_name}] Generated ${pages.length} page URLs`);\nreturn pages.map(p => ({ json: p }));"
+      },
+      "id": "node-gen-page-urls",
+      "name": "Generate Page URLs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 300]
+    },
+    {
+      "parameters": {
+        "amount": 500,
+        "unit": "milliseconds"
+      },
+      "id": "node-wait-listing",
+      "name": "Wait 500ms (listing)",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [1420, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          },
+          "timeout": 10000
+        }
+      },
+      "id": "node-fetch-listing-page",
+      "name": "Fetch Listing Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1640, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse one listing page and extract coaster + park pairs\n// Each table row has: coaster name/link in col 2, park name/link in col 3\n//\n// HTML pattern per row (simplified):\n//   <td ...><a href=\"/1657.htm\">Alpen Blitz</a></td>\n//   <td ...><a href=\"/4946.htm\">Playcenter São Paulo</a></td>\n\nconst html = $input.first().json.data || '';\nconst page = $input.first().json.page || '?';\nconst country_name = $input.first().json.country_name || '';\n\nconst results = [];\n\n// Match table rows in the results table.\n// The listing table rows contain two consecutive links: coaster href then park href.\n// Strategy: find all <tr> blocks that contain exactly the coaster+park pattern.\n// Pattern: two <a href=\"/NNN.htm\"> within a <tr>, where the second is the park.\n\n// Extract all <tr>...</tr> blocks\nconst rowRegex = /<tr[^>]*>([\\s\\S]*?)<\\/tr>/gi;\nlet rowMatch;\n\nwhile ((rowMatch = rowRegex.exec(html)) !== null) {\n  const row = rowMatch[1];\n  // Find all links /NNN.htm within this row\n  const linkRegex = /href=\"\\/(\\d+)\\.htm\"[^>]*>([^<]+)<\\/a>/g;\n  const links = [];\n  let linkMatch;\n  while ((linkMatch = linkRegex.exec(row)) !== null) {\n    links.push({ rcdb_id: linkMatch[1], name: linkMatch[2].trim() });\n  }\n\n  // A valid coaster row has at least 2 links: coaster (index 0) + park (index 1)\n  // Additional links (city, state, country) may follow — we only need the first two\n  if (links.length >= 2) {\n    const coaster = links[0];\n    const park = links[1];\n    // Sanity check: skip navigation rows where names look like single words (About, Search, etc)\n    // Real coaster names are usually longer or have spaces — but don't over-filter.\n    // Instead, rely on the fact that listing rows always have at least 2 href=/NNN.htm links.\n    results.push({\n      coaster_rcdb_id: coaster.rcdb_id,\n      coaster_name: coaster.name,\n      park_rcdb_id: park.rcdb_id,\n      park_name: park.name,\n      country_name\n    });\n  }\n}\n\nconsole.log(`[${country_name}] Page ${page}: extracted ${results.length} coaster/park pairs`);\nreturn results.map(r => ({ json: r }));"
+      },
+      "id": "node-parse-listing-page",
+      "name": "Parse Listing Page",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1860, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Collect all coaster+park pairs from all pages and deduplicate\n// Output 0: unique parks to fetch\n// We store coasters in a global variable approach — \n// in n8n, we use the aggregate approach: all items arrive here together\n// after the loop completes.\n\nconst allItems = $input.all();\n\nconst coastersMap = {};\nconst parksMap = {};\n\nfor (const item of allItems) {\n  const d = item.json;\n  if (!d.coaster_rcdb_id || !d.park_rcdb_id) continue;\n\n  coastersMap[d.coaster_rcdb_id] = {\n    coaster_rcdb_id: d.coaster_rcdb_id,\n    coaster_name: d.coaster_name,\n    park_rcdb_id: d.park_rcdb_id\n  };\n\n  parksMap[d.park_rcdb_id] = {\n    rcdb_id: d.park_rcdb_id,\n    name: d.park_name\n  };\n}\n\nconst parks = Object.values(parksMap);\nconst coasters = Object.values(coastersMap);\n\nconsole.log(`Deduplicated: ${parks.length} unique parks, ${coasters.length} unique coasters`);\n\n// Store coasters list in each park item so it can be accessed later\n// n8n doesn't have shared state, so we attach coasters as metadata on first park\n// and empty array on the rest — the coaster upsert node handles the full list independently.\n\n// Return parks as main output; coasters are emitted via output index 1\nreturn [\n  parks.map(p => ({ json: { ...p, _all_coasters: coasters } })),\n];"
+      },
+      "id": "node-deduplicate",
+      "name": "Deduplicate Parks & Coasters",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2080, 300]
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "seconds"
+      },
+      "id": "node-wait-park",
+      "name": "Wait 1s (park page)",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [2300, 300]
+    },
+    {
+      "parameters": {
+        "url": "=https://rcdb.com/{{ $json.rcdb_id }}.htm",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          },
+          "timeout": 10000
+        }
+      },
+      "id": "node-fetch-park-page",
+      "name": "Fetch Park Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2520, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse park page and extract: name, city, country, lat, lng\n// Passes through rcdb_id and _all_coasters for downstream nodes.\n\nconst item = $input.first().json;\n\nif (item.error || !item.data) {\n  const rcdb_id = $('Deduplicate Parks & Coasters').item.json.rcdb_id;\n  console.error(`[Park ${rcdb_id}] HTTP error:`, item.error || 'no data');\n  return [{ json: { rcdb_id, name: null, city: null, country: null, latitude: null, longitude: null, _error: true } }];\n}\n\nconst html = item.data;\nconst rcdb_id = $('Deduplicate Parks & Coasters').item.json.rcdb_id;\nconst _all_coasters = $('Deduplicate Parks & Coasters').item.json._all_coasters || [];\n\n// Extract name from <h1>\nconst nameMatch = html.match(/<h1>([^<]+)<\\/h1>/);\nconst name = nameMatch ? nameMatch[1].trim() : null;\n\n// Extract lat/lng from Google Maps link\n// Pattern: maps.google.com/maps/place/{lat},{lng}/@{lat},{lng},...\nconst coordMatch = html.match(/maps\\.google\\.com\\/maps\\/place\\/(-?\\d+\\.\\d+),(-?\\d+\\.\\d+)/);\nconst latitude = coordMatch ? parseFloat(coordMatch[1]) : null;\nconst longitude = coordMatch ? parseFloat(coordMatch[2]) : null;\n\n// Extract city and country from location breadcrumb links\n// Pattern: <a href=\"/location.htm?id=NNN\">City</a>, <a href=\"/location.htm?id=NNN\">State</a>, <a href=\"/location.htm?id=NNN\">Country</a>\n// or without state: <a href=\"/location.htm?id=NNN\">City</a>, <a href=\"/location.htm?id=NNN\">Country</a>\n\nconst locationLinkRegex = /location\\.htm\\?id=\\d+\">([^<]+)<\\/a>/g;\nconst locationParts = [];\nlet locMatch;\nwhile ((locMatch = locationLinkRegex.exec(html)) !== null) {\n  locationParts.push(locMatch[1].trim());\n}\n\n// locationParts order: [city, (state?), country]\nlet city = null;\nlet country = null;\nif (locationParts.length >= 3) {\n  city = locationParts[0];\n  country = locationParts[locationParts.length - 1]; // last element is always country\n} else if (locationParts.length === 2) {\n  city = locationParts[0];\n  country = locationParts[1];\n} else if (locationParts.length === 1) {\n  country = locationParts[0];\n}\n\nconsole.log(`[Park ${rcdb_id}] name=${name}, city=${city}, country=${country}, lat=${latitude}, lng=${longitude}`);\n\nreturn [{\n  json: {\n    rcdb_id,\n    name,\n    city,\n    country,\n    latitude,\n    longitude,\n    _all_coasters,\n    synced_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "node-parse-park-page",
+      "name": "Parse Park Page",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2740, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO parks (id, name, city, country, latitude, longitude, rcdb_id, synced_at)\nVALUES (\n  gen_random_uuid(),\n  $1, $2, $3, $4, $5, $6, NOW()\n)\nON CONFLICT (rcdb_id) DO UPDATE SET\n  name       = EXCLUDED.name,\n  city       = EXCLUDED.city,\n  country    = EXCLUDED.country,\n  latitude   = EXCLUDED.latitude,\n  longitude  = EXCLUDED.longitude,\n  synced_at  = NOW()\nWHERE\n  parks.name      IS DISTINCT FROM EXCLUDED.name      OR\n  parks.city      IS DISTINCT FROM EXCLUDED.city      OR\n  parks.country   IS DISTINCT FROM EXCLUDED.country   OR\n  parks.latitude  IS DISTINCT FROM EXCLUDED.latitude  OR\n  parks.longitude IS DISTINCT FROM EXCLUDED.longitude;",
+        "additionalFields": {
+          "queryParams": "={{ [$json.name, $json.city, $json.country, $json.latitude, $json.longitude, $json.rcdb_id] }}"
+        },
+        "options": {}
+      },
+      "id": "node-upsert-park",
+      "name": "Upsert Park",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [2960, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// After all parks are upserted, emit all coasters for upsert.\n// _all_coasters is attached to the first park item — we collect from all items\n// and deduplicate again in case multiple parks carried the list.\n\nconst allItems = $input.all();\n\nconst coastersMap = {};\nfor (const item of allItems) {\n  const coasters = item.json._all_coasters || [];\n  for (const c of coasters) {\n    if (c.coaster_rcdb_id) {\n      coastersMap[c.coaster_rcdb_id] = c;\n    }\n  }\n}\n\nconst coasters = Object.values(coastersMap);\nconsole.log(`Emitting ${coasters.length} coasters for upsert`);\nreturn coasters.map(c => ({ json: c }));"
+      },
+      "id": "node-emit-coasters",
+      "name": "Emit Coasters",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3180, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO coasters (id, name, park_id, rcdb_id, synced_at)\nSELECT\n  gen_random_uuid(),\n  $1,\n  p.id,\n  $2,\n  NOW()\nFROM parks p\nWHERE p.rcdb_id = $3\nON CONFLICT (rcdb_id) DO UPDATE SET\n  name      = EXCLUDED.name,\n  park_id   = EXCLUDED.park_id,\n  synced_at = NOW()\nWHERE\n  coasters.name    IS DISTINCT FROM EXCLUDED.name    OR\n  coasters.park_id IS DISTINCT FROM EXCLUDED.park_id;",
+        "additionalFields": {
+          "queryParams": "={{ [$json.coaster_name, $json.coaster_rcdb_id, $json.park_rcdb_id] }}"
+        },
+        "options": {}
+      },
+      "id": "node-upsert-coaster",
+      "name": "Upsert Coaster",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [3400, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Final summary log\nconst results = $input.all();\nconst errors = results.filter(r => r.json.error);\nconsole.log(`[RCDB Scraper] Completed. Total coaster upserts: ${results.length}, errors: ${errors.length}`);\nreturn [{ json: { done: true, total: results.length, errors: errors.length, timestamp: new Date().toISOString() } }];"
+      },
+      "id": "node-summary",
+      "name": "Summary Log",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3620, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Error handler: log structured error and continue\nconst err = $input.first().json;\nconsole.error('[RCDB Scraper Error]', JSON.stringify({\n  message: err.message || 'Unknown error',\n  node: err.node || 'unknown',\n  timestamp: new Date().toISOString(),\n  data: err\n}, null, 2));\nreturn [{ json: { error: true, message: err.message || 'unknown', timestamp: new Date().toISOString() } }];"
+      },
+      "id": "node-error-handler",
+      "name": "Error Handler",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2960, 540]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [[{ "node": "Set Countries", "type": "main", "index": 0 }]]
+    },
+    "Set Countries": {
+      "main": [[{ "node": "Split Countries", "type": "main", "index": 0 }]]
+    },
+    "Split Countries": {
+      "main": [[{ "node": "Fetch Listing Page 1", "type": "main", "index": 0 }]]
+    },
+    "Fetch Listing Page 1": {
+      "main": [[{ "node": "Extract Total Pages", "type": "main", "index": 0 }]]
+    },
+    "Extract Total Pages": {
+      "main": [[{ "node": "Generate Page URLs", "type": "main", "index": 0 }]]
+    },
+    "Generate Page URLs": {
+      "main": [[{ "node": "Wait 500ms (listing)", "type": "main", "index": 0 }]]
+    },
+    "Wait 500ms (listing)": {
+      "main": [[{ "node": "Fetch Listing Page", "type": "main", "index": 0 }]]
+    },
+    "Fetch Listing Page": {
+      "main": [[{ "node": "Parse Listing Page", "type": "main", "index": 0 }]]
+    },
+    "Parse Listing Page": {
+      "main": [[{ "node": "Deduplicate Parks & Coasters", "type": "main", "index": 0 }]]
+    },
+    "Deduplicate Parks & Coasters": {
+      "main": [[{ "node": "Wait 1s (park page)", "type": "main", "index": 0 }]]
+    },
+    "Wait 1s (park page)": {
+      "main": [[{ "node": "Fetch Park Page", "type": "main", "index": 0 }]]
+    },
+    "Fetch Park Page": {
+      "main": [[{ "node": "Parse Park Page", "type": "main", "index": 0 }]]
+    },
+    "Parse Park Page": {
+      "main": [[{ "node": "Upsert Park", "type": "main", "index": 0 }]]
+    },
+    "Upsert Park": {
+      "main": [
+        [{ "node": "Emit Coasters", "type": "main", "index": 0 }],
+        [{ "node": "Error Handler", "type": "main", "index": 0 }]
+      ]
+    },
+    "Emit Coasters": {
+      "main": [[{ "node": "Upsert Coaster", "type": "main", "index": 0 }]]
+    },
+    "Upsert Coaster": {
+      "main": [[{ "node": "Summary Log", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveExecutionProgress": true,
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "tags": ["rcdb", "scraper", "mycoaster"]
+}
