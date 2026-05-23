@@ -12,13 +12,13 @@
           ]
         }
       },
-      "id": "node-schedule",
+      "id": "c63765d6-d528-4a79-a227-395e780315b6",
       "name": "Schedule Trigger",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        112,
-        304
+        41904,
+        9024
       ]
     },
     {
@@ -28,20 +28,20 @@
             {
               "id": "countries-field",
               "name": "countries",
-              "value": "={{ [\n{ \"name\": \"Brazil\", \"location_id\": \"26724\"}\n] }}",
+              "value": "={{[\n  // { \"name\": \"Afghanistan\", \"location_id\": \"60335\" },\n  // { \"name\": \"Albania\", \"location_id\": \"57482\" },\n  // { \"name\": \"Algeria\", \"location_id\": \"56673\" },\n  // { \"name\": \"Andorra\", \"location_id\": \"60413\" },\n  // { \"name\": \"Angola\", \"location_id\": \"57249\" },\n  // { \"name\": \"Argentina\", \"location_id\": \"26752\" },\n  // { \"name\": \"Armenia\", \"location_id\": \"56805\" },\n  // { \"name\": \"Australia\", \"location_id\": \"26796\" },\n  // { \"name\": \"Austria\", \"location_id\": \"26307\" },\n  // { \"name\": \"Azerbaijan\", \"location_id\": \"57111\" },\n  // { \"name\": \"Bahrain\", \"location_id\": \"26690\" },\n  // { \"name\": \"Bangladesh\", \"location_id\": \"26660\" },\n  // { \"name\": \"Belarus\", \"location_id\": \"56904\" },\n  // { \"name\": \"Belgium\", \"location_id\": \"26250\" },\n  // { \"name\": \"Benin\", \"location_id\": \"65019\" },\n  // { \"name\": \"Bhutan\", \"location_id\": \"65705\" },\n  // { \"name\": \"Bolivia\", \"location_id\": \"63271\" },\n  // { \"name\": \"Bosnia and Herzegovina\", \"location_id\": \"61895\" },\n  // { \"name\": \"Botswana\", \"location_id\": \"57505\" },\n  // { \"name\": \"Brazil\", \"location_id\": \"26724\" },\n  // { \"name\": \"Brunei\", \"location_id\": \"26594\" },\n  // { \"name\": \"Bulgaria\", \"location_id\": \"26335\" },\n  // { \"name\": \"Burkina Faso\", \"location_id\": \"65194\" },\n  // { \"name\": \"Burundi\", \"location_id\": \"65227\" },\n  // { \"name\": \"Cambodia\", \"location_id\": \"57509\" },\n  // { \"name\": \"Cameroon\", \"location_id\": \"64759\" },\n   { \"name\": \"Canada\", \"location_id\": \"18\" },\n  // { \"name\": \"Cape Verde\", \"location_id\": \"65266\" },\n  // { \"name\": \"Central African Republic\", \"location_id\": \"65085\" },\n  // { \"name\": \"Chad\", \"location_id\": \"65103\" },\n  // { \"name\": \"Chile\", \"location_id\": \"26763\" },\n  // { \"name\": \"China\", \"location_id\": \"26380\" },\n  // { \"name\": \"Colombia\", \"location_id\": \"26758\" },\n  // { \"name\": \"Comoros\", \"location_id\": \"65262\" },\n  // { \"name\": \"Costa Rica\", \"location_id\": \"25843\" },\n  // { \"name\": \"Côte d'Ivoire\", \"location_id\": \"64993\" },\n  // { \"name\": \"Croatia\", \"location_id\": \"57153\" },\n  // { \"name\": \"Cuba\", \"location_id\": \"25831\" },\n  // { \"name\": \"Curaçao\", \"location_id\": \"61920\" },\n  // { \"name\": \"Cyprus\", \"location_id\": \"26038\" },\n  // { \"name\": \"Czechia\", \"location_id\": \"26352\" },\n  // { \"name\": \"Democratic Republic of the Congo\", \"location_id\": \"65057\" },\n  // { \"name\": \"Denmark\", \"location_id\": \"26269\" },\n  // { \"name\": \"Djibouti\", \"location_id\": \"64758\" },\n  // { \"name\": \"Dominican Republic\", \"location_id\": \"56858\" },\n  // { \"name\": \"Ecuador\", \"location_id\": \"26860\" },\n  // { \"name\": \"Egypt\", \"location_id\": \"26783\" },\n  // { \"name\": \"El Salvador\", \"location_id\": \"25849\" },\n  // { \"name\": \"Equatorial Guinea\", \"location_id\": \"65219\" },\n  // { \"name\": \"Eritrea\", \"location_id\": \"64739\" },\n  // { \"name\": \"Eswatini\", \"location_id\": \"65246\" },\n  // { \"name\": \"Estonia\", \"location_id\": \"26358\" },\n  // { \"name\": \"Ethiopia\", \"location_id\": \"64746\" },\n  // { \"name\": \"Finland\", \"location_id\": \"26285\" },\n  // { \"name\": \"France\", \"location_id\": \"26056\" },\n  // { \"name\": \"Gabon\", \"location_id\": \"64640\" },\n  // { \"name\": \"Georgia\", \"location_id\": \"56925\" },\n  // { \"name\": \"Germany\", \"location_id\": \"25853\" },\n  // { \"name\": \"Ghana\", \"location_id\": \"65008\" },\n  // { \"name\": \"Greece\", \"location_id\": \"26346\" },\n  // { \"name\": \"Greenland\", \"location_id\": \"66015\" },\n  // { \"name\": \"Guatemala\", \"location_id\": \"25826\" },\n  // { \"name\": \"Guinea\", \"location_id\": \"65038\" },\n  // { \"name\": \"Guinea-Bissau\", \"location_id\": \"65047\" },\n  // { \"name\": \"Guyana\", \"location_id\": \"63447\" },\n  // { \"name\": \"Haiti\", \"location_id\": \"60583\" },\n  // { \"name\": \"Honduras\", \"location_id\": \"59017\" },\n  // { \"name\": \"Hungary\", \"location_id\": \"26035\" },\n  // { \"name\": \"Iceland\", \"location_id\": \"65613\" },\n  // { \"name\": \"India\", \"location_id\": \"26597\" },\n  // { \"name\": \"Indonesia\", \"location_id\": \"26618\" },\n  // { \"name\": \"Iran\", \"location_id\": \"56800\" },\n  // { \"name\": \"Iraq\", \"location_id\": \"26711\" },\n  // { \"name\": \"Ireland\", \"location_id\": \"26338\" },\n  // { \"name\": \"Israel\", \"location_id\": \"26637\" },\n  // { \"name\": \"Italy\", \"location_id\": \"26123\" },\n  // { \"name\": \"Jamaica\", \"location_id\": \"56984\" },\n  // { \"name\": \"Japan\", \"location_id\": \"26417\" },\n  // { \"name\": \"Jordan\", \"location_id\": \"57494\" },\n  // { \"name\": \"Kazakhstan\", \"location_id\": \"26668\" },\n  // { \"name\": \"Kenya\", \"location_id\": \"64651\" },\n  // { \"name\": \"Kosovo\", \"location_id\": \"60357\" },\n  // { \"name\": \"Kuwait\", \"location_id\": \"26643\" },\n  // { \"name\": \"Kyrgyzstan\", \"location_id\": \"56947\" },\n  // { \"name\": \"Laos\", \"location_id\": \"65677\" },\n  // { \"name\": \"Latvia\", \"location_id\": \"60535\" },\n  // { \"name\": \"Lebanon\", \"location_id\": \"26676\" },\n  // { \"name\": \"Lesotho\", \"location_id\": \"65251\" },\n  // { \"name\": \"Liberia\", \"location_id\": \"64704\" },\n  // { \"name\": \"Libya\", \"location_id\": \"58906\" },\n  // { \"name\": \"Liechtenstein\", \"location_id\": \"60755\" },\n  // { \"name\": \"Lithuania\", \"location_id\": \"26368\" },\n  // { \"name\": \"Luxembourg\", \"location_id\": \"26343\" },\n  // { \"name\": \"Madagascar\", \"location_id\": \"65150\" },\n  // { \"name\": \"Malawi\", \"location_id\": \"62232\" },\n  // { \"name\": \"Malaysia\", \"location_id\": \"26564\" },\n  // { \"name\": \"Maldives\", \"location_id\": \"60800\" },\n  // { \"name\": \"Mali\", \"location_id\": \"65182\" },\n  // { \"name\": \"Malta\", \"location_id\": \"56931\" },\n  // { \"name\": \"Mauritania\", \"location_id\": \"64770\" },\n  // { \"name\": \"Mauritius\", \"location_id\": \"62206\" },\n  // { \"name\": \"Mexico\", \"location_id\": \"2\" },\n  // { \"name\": \"Moldova\", \"location_id\": \"60784\" },\n  // { \"name\": \"Monaco\", \"location_id\": \"63911\" },\n  // { \"name\": \"Mongolia\", \"location_id\": \"57065\" },\n  // { \"name\": \"Montenegro\", \"location_id\": \"63912\" },\n  // { \"name\": \"Morocco\", \"location_id\": \"56831\" },\n  // { \"name\": \"Mozambique\", \"location_id\": \"60416\" },\n  // { \"name\": \"Myanmar\", \"location_id\": \"26714\" },\n  // { \"name\": \"Namibia\", \"location_id\": \"64625\" },\n  // { \"name\": \"Nepal\", \"location_id\": \"26720\" },\n  // { \"name\": \"Netherlands\", \"location_id\": \"25963\" },\n  // { \"name\": \"New Zealand\", \"location_id\": \"26823\" },\n  // { \"name\": \"Nicaragua\", \"location_id\": \"62944\" },\n  // { \"name\": \"Niger\", \"location_id\": \"65173\" },\n  // { \"name\": \"Nigeria\", \"location_id\": \"56894\" },\n  // { \"name\": \"North Korea\", \"location_id\": \"26717\" },\n  // { \"name\": \"North Macedonia\", \"location_id\": \"62112\" },\n  // { \"name\": \"Norway\", \"location_id\": \"25996\" },\n  // { \"name\": \"Oman\", \"location_id\": \"26702\" },\n  // { \"name\": \"Pakistan\", \"location_id\": \"26705\" },\n  // { \"name\": \"Palestine\", \"location_id\": \"58904\" },\n  // { \"name\": \"Panama\", \"location_id\": \"25846\" },\n  // { \"name\": \"Paraguay\", \"location_id\": \"63609\" },\n  // { \"name\": \"Peru\", \"location_id\": \"26773\" },\n  // { \"name\": \"Philippines\", \"location_id\": \"26372\" },\n  // { \"name\": \"Poland\", \"location_id\": \"26361\" },\n  // { \"name\": \"Portugal\", \"location_id\": \"26320\" },\n  // { \"name\": \"Qatar\", \"location_id\": \"26414\" },\n  // { \"name\": \"Republic of the Congo\", \"location_id\": \"64978\" },\n  // { \"name\": \"Romania\", \"location_id\": \"56808\" },\n  // { \"name\": \"Russia\", \"location_id\": \"26680\" },\n  // { \"name\": \"Rwanda\", \"location_id\": \"62678\" },\n  // { \"name\": \"San Marino\", \"location_id\": \"63913\" },\n  // { \"name\": \"São Tomé and Príncipe\", \"location_id\": \"65289\" },\n  // { \"name\": \"Saudi Arabia\", \"location_id\": \"26648\" },\n  // { \"name\": \"Senegal\", \"location_id\": \"57145\" },\n  // { \"name\": \"Serbia\", \"location_id\": \"60246\" },\n  // { \"name\": \"Seychelles\", \"location_id\": \"57497\" },\n  // { \"name\": \"Sierra Leone\", \"location_id\": \"65032\" },\n  // { \"name\": \"Singapore\", \"location_id\": \"26663\" },\n  // { \"name\": \"Slovakia\", \"location_id\": \"60539\" },\n  // { \"name\": \"Slovenia\", \"location_id\": \"60524\" },\n  // { \"name\": \"Somalia\", \"location_id\": \"64720\" },\n  // { \"name\": \"South Africa\", \"location_id\": \"26778\" },\n  // { \"name\": \"South Korea\", \"location_id\": \"26572\" },\n  // { \"name\": \"South Sudan\", \"location_id\": \"65084\" },\n  // { \"name\": \"Spain\", \"location_id\": \"25940\" },\n  // { \"name\": \"Sri Lanka\", \"location_id\": \"56886\" },\n  // { \"name\": \"Sudan\", \"location_id\": \"26788\" },\n  // { \"name\": \"Suriname\", \"location_id\": \"63458\" },\n  // { \"name\": \"Sweden\", \"location_id\": \"26002\" },\n  // { \"name\": \"Switzerland\", \"location_id\": \"26041\" },\n  // { \"name\": \"Syria\", \"location_id\": \"57500\" },\n  // { \"name\": \"Taiwan\", \"location_id\": \"26551\" },\n  // { \"name\": \"Tajikistan\", \"location_id\": \"58932\" },\n  // { \"name\": \"Tanzania\", \"location_id\": \"57636\" },\n  // { \"name\": \"Thailand\", \"location_id\": \"26627\" },\n  // { \"name\": \"The Gambia\", \"location_id\": \"64791\" },\n  // { \"name\": \"Togo\", \"location_id\": \"62200\" },\n  // { \"name\": \"Trinidad and Tobago\", \"location_id\": \"62543\" },\n  // { \"name\": \"Tunisia\", \"location_id\": \"26791\" },\n  // { \"name\": \"Turkey\", \"location_id\": \"26304\" },\n  // { \"name\": \"Turkmenistan\", \"location_id\": \"26829\" },\n  // { \"name\": \"Uganda\", \"location_id\": \"58944\" },\n  // { \"name\": \"Ukraine\", \"location_id\": \"26355\" },\n  // { \"name\": \"United Arab Emirates\", \"location_id\": \"26693\" },\n  // { \"name\": \"United Kingdom\", \"location_id\": \"26828\" },\n  // { \"name\": \"United States\", \"location_id\": \"59\" },\n  // { \"name\": \"Uruguay\", \"location_id\": \"56855\" },\n  // { \"name\": \"Uzbekistan\", \"location_id\": \"26708\" },\n  // { \"name\": \"Venezuela\", \"location_id\": \"26766\" },\n  // { \"name\": \"Vietnam\", \"location_id\": \"26673\" },\n  // { \"name\": \"Western Sahara\", \"location_id\": \"64786\" },\n  // { \"name\": \"Yemen\", \"location_id\": \"57362\" },\n  // { \"name\": \"Zambia\", \"location_id\": \"62239\" },\n  // { \"name\": \"Zimbabwe\", \"location_id\": \"65208\" }\n]}}",
               "type": "array"
             }
           ]
         },
         "options": {}
       },
-      "id": "node-set-countries",
+      "id": "df810593-a878-4d7f-82ca-5fb0ee33f3f8",
       "name": "Set Countries",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        320,
-        304
+        42112,
+        9024
       ]
     },
     {
@@ -49,13 +49,13 @@
         "fieldToSplitOut": "countries",
         "options": {}
       },
-      "id": "node-split-countries",
+      "id": "7b675f08-3e1f-48a7-b530-ebcf92f034f8",
       "name": "Split Countries",
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        528,
-        304
+        42320,
+        9024
       ]
     },
     {
@@ -70,13 +70,13 @@
           "timeout": 10000
         }
       },
-      "id": "node-fetch-page1",
+      "id": "a827c171-eac1-49c9-844d-ab0e480ba412",
       "name": "Fetch Listing Page 1",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        912,
-        544
+        42704,
+        9264
       ],
       "continueOnFail": true
     },
@@ -84,39 +84,39 @@
       "parameters": {
         "jsCode": "const inputs = $input.all();\nconst splitItems = $('Split Countries').all();\n\nreturn inputs.map((item, index) => {\n  const html = item.json.data || '';\n  const splitItem = splitItems[index]?.json || {};\n  const location_id = splitItem.location_id;\n  const country_name = splitItem.name;\n\n  const pageMatch = html.match(/Page\\s+\\d+\\s+of\\s+(\\d+)/);\n  const totalPages = pageMatch ? parseInt(pageMatch[1]) : 1;\n\n  console.log(`[${country_name}] Total pages: ${totalPages}`);\n\n  return { json: { location_id, country_name, totalPages } };\n});"
       },
-      "id": "node-extract-total-pages",
+      "id": "8a5e489b-de5f-46ca-b76d-9bc18267bb5f",
       "name": "Extract Total Pages",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1152,
-        544
+        42944,
+        9264
       ]
     },
     {
       "parameters": {
         "jsCode": "return $input.all().flatMap(item => {\n  const { location_id, country_name, totalPages } = item.json;\n  const pages = [];\n\n  for (let page = 1; page <= totalPages; page++) {\n    pages.push({ json: { url: `https://rcdb.com/r.htm?ot=2&ol=${location_id}&page=${page}`, page, location_id, country_name } });\n  }\n\n  console.log(`[${country_name}] Generated ${pages.length} page URLs`);\n  return pages;\n});"
       },
-      "id": "node-gen-page-urls",
+      "id": "88b7465e-7ada-4180-a68c-43bb674dd9c9",
       "name": "Generate Page URLs",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1376,
-        544
+        43168,
+        9264
       ]
     },
     {
       "parameters": {
         "amount": 0.5
       },
-      "id": "node-wait-listing",
+      "id": "bc828236-2444-4555-a30f-e88160d716b5",
       "name": "Wait 500ms (listing)",
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        1568,
-        544
+        43360,
+        9264
       ],
       "webhookId": "534783f7-c2c1-4624-8540-58e11cc7215a"
     },
@@ -132,13 +132,13 @@
           "timeout": 10000
         }
       },
-      "id": "node-fetch-listing-page",
+      "id": "e25666c6-81f7-4305-bd5e-0ee22d2a9a98",
       "name": "Fetch Listing Page",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1776,
-        544
+        43568,
+        9264
       ],
       "continueOnFail": true
     },
@@ -146,13 +146,13 @@
       "parameters": {
         "jsCode": "const results = [];\n\nfor (const item of $input.all()) {\n  const html = item.json.data || '';\n  const page = item.json.page || '?';\n\n  // Match each table row\n  const rowRegex = /<tr[^>]*>([\\s\\S]*?)(?=<tr|<\\/tbody|<\\/table|$)/gi;\n  let rowMatch;\n\n  while ((rowMatch = rowRegex.exec(html)) !== null) {\n    const row = rowMatch[1];\n    // RCDB uses unquoted hrefs: href=/1234.htm\n    const linkRegex = /href=\\/(\\d+)\\.htm[^>]*>([^<]+)<\\/a>/g;\n    const links = [];\n    let linkMatch;\n\n    while ((linkMatch = linkRegex.exec(row)) !== null) {\n      links.push({ rcdb_id: linkMatch[1], name: linkMatch[2].trim() });\n    }\n\n    if (links.length >= 2) {\n      results.push({\n        coaster_rcdb_id: links[0].rcdb_id,\n        coaster_name: links[0].name,\n        park_rcdb_id: links[1].rcdb_id,\n        park_name: links[1].name\n      });\n    }\n  }\n}\n\nconsole.log(`Total coaster/park pairs: ${results.length}`);\nreturn results.map(r => ({ json: r }));"
       },
-      "id": "node-parse-listing-page",
+      "id": "0bbd5b83-9c1c-4047-9ef6-3ae8751081bb",
       "name": "Parse Listing Page",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1968,
-        544
+        43760,
+        9264
       ],
       "alwaysOutputData": true,
       "continueOnFail": true
@@ -161,26 +161,26 @@
       "parameters": {
         "jsCode": "const allItems = $input.all();\nconst coastersMap = {};\nconst parksMap = {};\nfor (const item of allItems) {\n  const d = item.json;\n  if (!d.coaster_rcdb_id || !d.park_rcdb_id) continue;\n  coastersMap[d.coaster_rcdb_id] = { coaster_rcdb_id: d.coaster_rcdb_id, coaster_name: d.coaster_name, park_rcdb_id: d.park_rcdb_id };\n  parksMap[d.park_rcdb_id] = { rcdb_id: d.park_rcdb_id, name: d.park_name };\n}\nconst parks = Object.values(parksMap);\nconst coasters = Object.values(coastersMap);\nconsole.log(`Deduplicated: ${parks.length} unique parks, ${coasters.length} unique coasters`);\nreturn parks.map(p => ({ json: { ...p, _all_coasters: coasters.filter(c => c.park_rcdb_id === p.rcdb_id) } }));"
       },
-      "id": "node-deduplicate",
+      "id": "8a7f65dd-6b36-49bd-b54f-f8fed5906e5f",
       "name": "Deduplicate Parks & Coasters",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2160,
-        544
+        43952,
+        9264
       ]
     },
     {
       "parameters": {
         "amount": 1
       },
-      "id": "node-wait-park",
+      "id": "7614d4f6-1689-4183-80bc-0c4e4e4d6ca4",
       "name": "Wait 1s (park page)",
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        2352,
-        544
+        44144,
+        9264
       ],
       "webhookId": "6fac2ef9-fb18-409b-abb6-aee2ee2be280"
     },
@@ -196,13 +196,13 @@
           "timeout": 10000
         }
       },
-      "id": "node-fetch-park-page",
+      "id": "2fd4c952-bccc-4ab1-87f8-2d7ffb488542",
       "name": "Fetch Park Page",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2560,
-        544
+        44352,
+        9264
       ],
       "continueOnFail": true
     },
@@ -210,57 +210,92 @@
       "parameters": {
         "jsCode": "const items = $input.all();\nconst dedupItems = $('Deduplicate Parks & Coasters').all();\n\n// RCDB status IDs confirmed by inspecting real park pages:\n//   id=93  → Operating          (e.g. rcdb.com/4546.htm)\n//   id=310 → Under Construction (e.g. rcdb.com/22331.htm)\n//   id=311 → SBNO               (e.g. rcdb.com/10339.htm)\n//   id=318 → Operated/Defunct   (e.g. rcdb.com/4946.htm)\n// Strategy: match the FIRST g.htm?id= in the HTML — that is always the\n// current official status shown right below the park name. Any later\n// occurrences (defunct coasters, historical SBNO entries) are ignored.\nconst STATUS_MAP = { '93': 'operating', '310': 'under_construction', '311': 'sbno', '318': 'defunct' };\n\n// Coaster status is derived from which section heading the coaster appears under\n// on the park page. The actual HTML uses <h4> tags:\n//   <h4>Defunct Roller Coasters: <a href=\"...\">4</a></h4>\n// Possible sections:\n//   \"Operating Roller Coasters\"          → 'operating'\n//   \"SBNO Roller Coasters\"               → 'sbno'\n//   \"Defunct Roller Coasters\"            → 'defunct'\n//   \"Roller Coasters Under Construction\" → 'under_construction'\nconst SECTION_STATUS_MAP = {\n  'operating roller coasters': 'operating',\n  'sbno roller coasters': 'sbno',\n  'defunct roller coasters': 'defunct',\n  'roller coasters under construction': 'under_construction',\n};\n\nreturn items.map((item, index) => {\n  const rawItem = item.json;\n  const dedupItem = dedupItems[index]?.json || {};\n\n  if (rawItem.error || !rawItem.data) {\n    const rcdb_id = dedupItem.rcdb_id;\n    console.error(`[Park ${rcdb_id}] HTTP error:`, rawItem.error || 'no data');\n    return { json: { rcdb_id, name: null, city: null, country: null, latitude: null, longitude: null, status: 'operating', coasterStatusMap: {}, _error: true } };\n  }\n\n  const html = rawItem.data;\n  const rcdb_id = dedupItem.rcdb_id;\n  const _all_coasters = dedupItem._all_coasters || [];\n\n  const nameMatch = html.match(/<h1>([^<]+)<\\/h1>/);\n  const name = nameMatch ? nameMatch[1].trim() : null;\n\n  const coordMatch = html.match(/google\\.com\\/maps\\/place\\/(-?\\d+\\.\\d+),(-?\\d+\\.\\d+)/);\n  const latitude = coordMatch ? parseFloat(coordMatch[1]) : null;\n  const longitude = coordMatch ? parseFloat(coordMatch[2]) : null;\n\n  const locationLinkRegex = /location\\.htm\\?id=\\d+\">([^<]+)<\\/a>/g;\n  const locationParts = [];\n  let locMatch;\n  while ((locMatch = locationLinkRegex.exec(html)) !== null) {\n    locationParts.push(locMatch[1].trim());\n  }\n\n  let city = null, country = null;\n  if (locationParts.length >= 3) { city = locationParts[0]; country = locationParts[locationParts.length - 1]; }\n  else if (locationParts.length === 2) { city = locationParts[0]; country = locationParts[1]; }\n  else if (locationParts.length === 1) { country = locationParts[0]; }\n\n  const firstStatusMatch = html.match(/g\\.htm\\?id=(\\d+)/);\n  const status = firstStatusMatch ? (STATUS_MAP[firstStatusMatch[1]] ?? 'operating') : 'operating';\n\n  // Build coasterStatusMap from raw HTML <h4> section headings.\n  // Strategy: find each <h4> containing \"Roller Coasters\", record its status,\n  // then collect all href=/{id}.htm links until the next <h4>, </section>, or <h3>.\n  const coasterStatusMap = {};\n  const sectionRegex = /<h4>([^<]*Roller Coasters[^<]*):.*?<\\/h4>([\\s\\S]*?)(?=<h4>|<\\/section>|<h3>|$)/gi;\n  const coasterLinkRegex = /href=\\/?(\\d+)\\.htm/g;\n  let sectionMatch;\n  while ((sectionMatch = sectionRegex.exec(html)) !== null) {\n    const headingKey = sectionMatch[1].trim().toLowerCase();\n    const sectionStatus = SECTION_STATUS_MAP[headingKey] ?? 'operating';\n    const sectionBody = sectionMatch[2];\n    coasterLinkRegex.lastIndex = 0;\n    let linkMatch;\n    while ((linkMatch = coasterLinkRegex.exec(sectionBody)) !== null) {\n      coasterStatusMap[linkMatch[1]] = sectionStatus;\n    }\n  }\n\n  console.log(`[Park ${rcdb_id}] name=${name}, city=${city}, country=${country}, lat=${latitude}, lng=${longitude}, status=${status}, coasters_with_status=${Object.keys(coasterStatusMap).length}`);\n\n  return { json: { rcdb_id, name, city, country, latitude, longitude, status, coasterStatusMap, _all_coasters, synced_at: new Date().toISOString() } };\n});"
       },
-      "id": "node-parse-park-page",
+      "id": "63d33733-c36c-4d68-9098-78ac56e805f1",
       "name": "Parse Park Page",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2768,
-        544
+        44560,
+        9264
       ],
       "continueOnFail": true
     },
     {
       "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "check-lat-null",
+              "leftValue": "={{ $json.latitude }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5bb554ee-f67c-4e8c-8e66-c4525aea0eba",
+      "name": "Needs Geocoding?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        44784,
+        9264
+      ]
+    },
+    {
+      "parameters": {
         "url": "=https://nominatim.openstreetmap.org/search?q={{ encodeURIComponent(($json.city ? $json.city + ', ' : '') + ($json.country || '')) }}&format=json&limit=1",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "MyCoasterApp/1.0 laercio.zdq@gmail.com"
+            }
+          ]
+        },
         "options": {
           "response": {
             "response": {
               "responseFormat": "json"
             }
           },
-          "timeout": 10000,
-          "headers": {
-            "parameters": [
-              {
-                "name": "User-Agent",
-                "value": "MyCoasterProject/1.0 (contact@techmazeinc.com)"
-              }
-            ]
-          }
+          "timeout": 10000
         }
       },
-      "id": "node-geocode-nominatim",
+      "id": "3bfb3daf-2924-4006-ac24-2cb5ab267f4e",
       "name": "Geocode via Nominatim",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        3024,
-        544
+        45008,
+        9152
       ],
       "continueOnFail": true
     },
     {
       "parameters": {
-        "jsCode": "const geocodeItems = $input.all();\nconst parkItems = $('Parse Park Page').all();\n\nreturn geocodeItems.map((geoItem, index) => {\n  const park = parkItems[index]?.json || {};\n  let latitude = park.latitude;\n  let longitude = park.longitude;\n\n  if (latitude === null || latitude === undefined) {\n    const geoData = Array.isArray(geoItem.json) ? geoItem.json[0] : null;\n    if (geoData && geoData.lat && geoData.lon) {\n      latitude = parseFloat(geoData.lat);\n      longitude = parseFloat(geoData.lon);\n      console.log(`[Park ${park.rcdb_id}] Geocoded via Nominatim: lat=${latitude}, lng=${longitude}`);\n    } else {\n      console.warn(`[Park ${park.rcdb_id}] Nominatim returned no results for city=${park.city}, country=${park.country}. Using 0,0 as fallback.`);\n      latitude = 0;\n      longitude = 0;\n    }\n  }\n\n  return {\n    json: {\n      ...park,\n      latitude,\n      longitude\n    }\n  };\n});"
+        "jsCode": "// This node receives items from two paths:\n// - input[0]: parks that went through Nominatim (latitude was null)\n// - input[1]: parks that already had coordinates (bypassed Nominatim)\n//\n// For Nominatim items, $input.item.json contains the raw geocode response\n// and we retrieve park data from 'Needs Geocoding?' TRUE branch.\n// For bypass items, $input.item.json is already the full park object.\n\nconst results = [];\n\n// Path 1: items that went through Nominatim (input index 0)\nconst nominatimItems = $input.all();\nconst needsGeocodingItems = $('Needs Geocoding?').all(); // TRUE branch output\n\n// We track which rcdb_ids came through the geocode path\nconst geocodedIds = new Set();\n\nfor (let i = 0; i < nominatimItems.length; i++) {\n  const geoItem = nominatimItems[i];\n  // Items from Nominatim path: geoItem.json is the geocode API response (array)\n  // We need the corresponding park from 'Needs Geocoding?' TRUE output\n  const park = needsGeocodingItems[i]?.json || {};\n\n  let latitude = park.latitude;\n  let longitude = park.longitude;\n\n  // latitude should be null here since this is the geocode path\n  if (latitude === null || latitude === undefined) {\n    const raw = geoItem.json;\n    const geoData = Array.isArray(raw) ? raw[0] : (raw?.lat ? raw : null);\n    if (geoData && geoData.lat && geoData.lon) {\n      latitude = parseFloat(geoData.lat);\n      longitude = parseFloat(geoData.lon);\n      console.log(`[Park ${park.rcdb_id}] Geocoded via Nominatim: lat=${latitude}, lng=${longitude}`);\n    } else {\n      console.warn(`[Park ${park.rcdb_id}] Nominatim returned no results for city=${park.city}, country=${park.country}. Using 0,0 as fallback.`);\n      latitude = 0;\n      longitude = 0;\n    }\n  }\n\n  geocodedIds.add(park.rcdb_id);\n  results.push({ json: { ...park, latitude, longitude } });\n}\n\nconsole.log(`Merge Coordinates: ${results.length} geocoded, passed through with existing coords handled upstream.`);\nreturn results;"
       },
-      "id": "node-merge-coordinates",
+      "id": "cb5f5d6c-ac05-4f37-9e74-b82223d5cca1",
       "name": "Merge Coordinates",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3232,
-        544
+        45232,
+        9216
       ],
       "continueOnFail": true
     },
@@ -395,13 +430,13 @@
         },
         "options": {}
       },
-      "id": "node-upsert-park",
+      "id": "d0fa051b-0806-4f25-a6b1-b1d48a43a28a",
       "name": "Upsert Park",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.5,
       "position": [
-        3440,
-        544
+        45264,
+        9488
       ],
       "credentials": {
         "postgres": {
@@ -415,13 +450,13 @@
       "parameters": {
         "jsCode": "const coastersMap = {};\nfor (const item of $input.all()) {\n  const coasters = item.json._all_coasters || [];\n  const coasterStatusMap = item.json.coasterStatusMap || {};\n  for (const c of coasters) {\n    if (c.coaster_rcdb_id) {\n      // Resolve status from the park page section headings; fallback to 'operating'\n      const status = coasterStatusMap[String(c.coaster_rcdb_id)] ?? 'operating';\n      coastersMap[c.coaster_rcdb_id] = { ...c, status };\n    }\n  }\n}\nconst coasters = Object.values(coastersMap);\nconsole.log(`Emitting ${coasters.length} coasters for upsert`);\nreturn coasters.map(c => ({ json: c }));"
       },
-      "id": "node-emit-coasters",
+      "id": "8b27de1a-3e78-41b7-96d6-a84ed913291b",
       "name": "Emit Coasters",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3824,
-        336
+        45616,
+        9056
       ]
     },
     {
@@ -432,13 +467,13 @@
           "queryReplacement": "={{ $json.coaster_name }}, {{ $json.coaster_rcdb_id }}, {{ $json.status }}, {{ $json.park_rcdb_id }}"
         }
       },
-      "id": "node-upsert-coaster",
+      "id": "49b624d6-ef2e-4190-88c9-3e8adfb75bdc",
       "name": "Upsert Coaster",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.5,
       "position": [
-        4016,
-        512
+        45808,
+        9232
       ],
       "credentials": {
         "postgres": {
@@ -450,39 +485,99 @@
     },
     {
       "parameters": {
-        "jsCode": "const results = $input.all();\nconst errors = results.filter(r => r.json.error);\nconsole.log(`[RCDB Scraper] Completed. Total: ${results.length}, errors: ${errors.length}`);\nreturn [{ json: { done: true, total: results.length, errors: errors.length, timestamp: new Date().toISOString() } }];"
+        "jsCode": "// Upsert Coaster uses executeQuery which returns 1 result item per execution,\n// not one per row. Use Emit Coasters count as the source of truth for how\n// many coasters were sent for upsert, and check upsert results for errors.\nconst emitCoasterItems = $('Emit Coasters').all();\nconst coasterResults = $input.all();\nconst parkResults = $('Upsert Park').all();\nconst mergeCoordResults = $('Merge Coordinates').all();\n\n// continueOnFail nodes surface errors as { error: '...' } on the item\nconst coasterErrors = coasterResults.filter(r => r.json.error);\nconst parkErrors = parkResults.filter(r => r.json.error);\nconst geocodeFallbacks = mergeCoordResults.filter(r => r.json.latitude === 0 && r.json.longitude === 0);\n\nconst summary = {\n  done: true,\n  parks_upserted: parkResults.length - parkErrors.length,\n  parks_errors: parkErrors.length,\n  coasters_upserted: emitCoasterItems.length,\n  coasters_errors: coasterErrors.length,\n  geocode_fallbacks: geocodeFallbacks.length,\n  timestamp: new Date().toISOString()\n};\n\nconsole.log(`[RCDB Scraper] Done.\n  Parks upserted: ${summary.parks_upserted} (${summary.parks_errors} errors)\n  Coasters upserted: ${summary.coasters_upserted} (${summary.coasters_errors} errors)\n  Geocode fallbacks (0,0): ${summary.geocode_fallbacks}\n  Timestamp: ${summary.timestamp}`);\n\nreturn [{ json: summary }];"
       },
-      "id": "node-summary",
+      "id": "043aafd4-efc9-4b3a-91a1-d066f680fb58",
       "name": "Summary Log",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4256,
-        512
+        46048,
+        9232
       ]
     },
     {
       "parameters": {
-        "jsCode": "const item = $input.first().json;\nconst execution = item.execution || {};\nconst error = execution.error || {};\n\nconsole.error('[RCDB Scraper Error]', JSON.stringify({\n  message: error.message || 'Unknown error',\n  node: execution.lastNodeExecuted || 'unknown',\n  timestamp: new Date().toISOString()\n}, null, 2));\n\nreturn [{\n  json: {\n    error: true,\n    message: error.message || 'unknown',\n    node: execution.lastNodeExecuted || 'unknown',\n    timestamp: new Date().toISOString()\n  }\n}];"
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#n8n_mycoaster",
+          "mode": "name"
+        },
+        "text": "=✅ *RCDB Scraper — Run complete*\n\n🏟️ Parks upserted: *{{ $json.parks_upserted }}* ({{ $json.parks_errors }} errors)\n🎢 Coasters upserted: *{{ $json.coasters_upserted }}* ({{ $json.coasters_errors }} errors)\n📍 Geocode fallbacks (0,0): *{{ $json.geocode_fallbacks }}*\n🕐 Finished at: {{  new Date($json.timestamp).toLocaleString('en-CA', { timeZone: 'America/Toronto', dateStyle: 'medium', timeStyle: 'short' }) }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
       },
-      "id": "node-error-handler",
+      "id": "527d6bde-483c-4be9-9d3c-dd4c12ddc046",
+      "name": "Slack — Run Summary",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        46272,
+        9232
+      ],
+      "webhookId": "c1e6e3c5-01d4-4cdb-babe-3b01d6367abe",
+      "credentials": {
+        "slackApi": {
+          "id": "xhCg4TlXNPMZpTcU",
+          "name": "Slack TechMaze_Bot"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\n// n8n passes error workflow data under item.execution and item.workflow\nconst execution = item.execution || {};\nconst error = execution.error || {};\nconst workflow = item.workflow || {};\n\nconst summary = {\n  error: true,\n  message: error.message || 'Unknown error',\n  node: execution.lastNodeExecuted || 'unknown',\n  execution_id: execution.id || 'unknown',\n  workflow_name: workflow.name || 'RCDB Scraper',\n  timestamp: new Date().toISOString()\n};\n\nconsole.error('[RCDB Scraper] Critical error:', JSON.stringify(summary, null, 2));\n\nreturn [{ json: summary }];"
+      },
+      "id": "396138dc-6a42-43d8-a4fb-e8c81e9219e5",
       "name": "Error Handler",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2912,
-        896
+        44704,
+        9616
       ]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#n8n_mycoaster",
+          "mode": "name"
+        },
+        "text": "=🚨 *RCDB Scraper — Critical failure*\n\n❌ Error: *{{ $json.message }}*\n🔴 Failed at node: `{{ $json.node }}`\n🆔 Execution ID: {{ $json.execution_id }}\n🕐 Time: {{ $json.timestamp }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "id": "bd8130e9-dec8-4964-906c-adab4a8921b7",
+      "name": "Slack — Error Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        44928,
+        9616
+      ],
+      "webhookId": "d673af90-9a0c-493d-b67b-d6d0a0dedec6",
+      "credentials": {
+        "slackApi": {
+          "id": "xhCg4TlXNPMZpTcU",
+          "name": "Slack TechMaze_Bot"
+        }
+      },
+      "continueOnFail": true
     },
     {
       "parameters": {},
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        3648,
-        336
+        45440,
+        9056
       ],
-      "id": "cc6f3e8e-2977-43f6-8d0e-b21f90c4f8ac",
+      "id": "762130de-f1a2-4405-b14c-8740ea10b89c",
       "name": "Merge"
     },
     {
@@ -490,10 +585,10 @@
       "type": "n8n-nodes-base.errorTrigger",
       "typeVersion": 1,
       "position": [
-        2656,
-        896
+        44448,
+        9616
       ],
-      "id": "1261eacc-f4bb-4392-8a2b-6fb976bb14ef",
+      "id": "218e8bcb-e318-46ca-aaca-644fc2518bb1",
       "name": "Error Trigger"
     }
   ],
@@ -635,7 +730,30 @@
       "main": [
         [
           {
+            "node": "Needs Geocoding?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Geocoding?": {
+      "main": [
+        [
+          {
             "node": "Geocode via Nominatim",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Upsert Park",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
             "type": "main",
             "index": 0
           }
@@ -677,8 +795,7 @@
             "type": "main",
             "index": 1
           }
-        ],
-        []
+        ]
       ]
     },
     "Emit Coasters": {
@@ -697,6 +814,28 @@
         [
           {
             "node": "Summary Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summary Log": {
+      "main": [
+        [
+          {
+            "node": "Slack — Run Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Handler": {
+      "main": [
+        [
+          {
+            "node": "Slack — Error Alert",
             "type": "main",
             "index": 0
           }
@@ -738,7 +877,7 @@
     "errorWorkflow": "ODfn4gK0Zo1stLsp",
     "availableInMCP": false
   },
-  "versionId": "f9388101-4f3e-4b0a-90e6-532c6e4e409b",
+  "versionId": "8dd178ba-d0d8-4e83-a3de-45fb54a13d4b",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "91276e02713cf9819d9cea976c9e5b35786534d683f489923542e0561dc33eb7"
