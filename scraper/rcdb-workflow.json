@@ -222,6 +222,50 @@
     },
     {
       "parameters": {
+        "url": "=https://nominatim.openstreetmap.org/search?q={{ encodeURIComponent(($json.city ? $json.city + ', ' : '') + ($json.country || '')) }}&format=json&limit=1",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 10000,
+          "headers": {
+            "parameters": [
+              {
+                "name": "User-Agent",
+                "value": "MyCoasterProject/1.0 (contact@techmazeinc.com)"
+              }
+            ]
+          }
+        }
+      },
+      "id": "node-geocode-nominatim",
+      "name": "Geocode via Nominatim",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3024,
+        544
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const geocodeItems = $input.all();\nconst parkItems = $('Parse Park Page').all();\n\nreturn geocodeItems.map((geoItem, index) => {\n  const park = parkItems[index]?.json || {};\n  let latitude = park.latitude;\n  let longitude = park.longitude;\n\n  if (latitude === null || latitude === undefined) {\n    const geoData = Array.isArray(geoItem.json) ? geoItem.json[0] : null;\n    if (geoData && geoData.lat && geoData.lon) {\n      latitude = parseFloat(geoData.lat);\n      longitude = parseFloat(geoData.lon);\n      console.log(`[Park ${park.rcdb_id}] Geocoded via Nominatim: lat=${latitude}, lng=${longitude}`);\n    } else {\n      console.warn(`[Park ${park.rcdb_id}] Nominatim returned no results for city=${park.city}, country=${park.country}. Using 0,0 as fallback.`);\n      latitude = 0;\n      longitude = 0;\n    }\n  }\n\n  return {\n    json: {\n      ...park,\n      latitude,\n      longitude\n    }\n  };\n});"
+      },
+      "id": "node-merge-coordinates",
+      "name": "Merge Coordinates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3232,
+        544
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
         "operation": "upsert",
         "schema": {
           "__rl": true,
@@ -345,7 +389,7 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.5,
       "position": [
-        3024,
+        3440,
         544
       ],
       "credentials": {
@@ -365,7 +409,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3392,
+        3824,
         336
       ]
     },
@@ -382,7 +426,7 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.5,
       "position": [
-        3584,
+        4016,
         512
       ],
       "credentials": {
@@ -402,7 +446,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3824,
+        4256,
         512
       ]
     },
@@ -424,7 +468,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        3232,
+        3648,
         336
       ],
       "id": "cc6f3e8e-2977-43f6-8d0e-b21f90c4f8ac",
@@ -577,6 +621,28 @@
       ]
     },
     "Parse Park Page": {
+      "main": [
+        [
+          {
+            "node": "Geocode via Nominatim",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Geocode via Nominatim": {
+      "main": [
+        [
+          {
+            "node": "Merge Coordinates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Coordinates": {
       "main": [
         [
           {
