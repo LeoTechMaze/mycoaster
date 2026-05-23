@@ -319,6 +319,28 @@ if (!city) {
   }
 }
 
+// Extrair status oficial do parque
+// O RCDB exibe o status logo abaixo do nome e localização via link g.htm?id=
+// A regra é simples: pegar o PRIMEIRO g.htm?id= que aparecer no HTML.
+// Esse é sempre o status atual do parque — qualquer ocorrência posterior
+// (coasters defunct, histórico SBNO) é ignorada automaticamente.
+//
+// IDs confirmados inspecionando páginas reais do RCDB:
+//   id=93  → Operating          (ex: rcdb.com/5008.htm)
+//   id=310 → Under Construction (ex: rcdb.com/22331.htm)
+//   id=311 → SBNO               (ex: rcdb.com/10339.htm)
+//   id=318 → Operated/Defunct   (ex: rcdb.com/4946.htm)
+const STATUS_MAP = {
+  '93':  'operating',
+  '310': 'under_construction',
+  '311': 'defunct',   // SBNO (Standing But Not Operating)
+  '318': 'defunct',   // Operated = parque encerrado
+};
+const firstStatusMatch = html.match(/g\.htm\?id=(\d+)/);
+const park_status = firstStatusMatch
+  ? (STATUS_MAP[firstStatusMatch[1]] ?? 'operating')
+  : 'operating';
+
 return [{
   json: {
     rcdb_id,
@@ -327,6 +349,7 @@ return [{
     longitude,
     city,
     country,
+    status: park_status,
     synced_at: new Date().toISOString()
   }
 }];
@@ -340,10 +363,10 @@ return [{
 - **Operação:** Execute Query
 
 ```sql
-INSERT INTO parks (id, name, city, country, latitude, longitude, rcdb_id, synced_at)
+INSERT INTO parks (id, name, city, country, latitude, longitude, rcdb_id, status, synced_at)
 VALUES (
   gen_random_uuid(),
-  $1, $2, $3, $4, $5, $6, NOW()
+  $1, $2, $3, $4, $5, $6, $7, NOW()
 )
 ON CONFLICT (rcdb_id) DO UPDATE SET
   name       = EXCLUDED.name,
@@ -351,13 +374,15 @@ ON CONFLICT (rcdb_id) DO UPDATE SET
   country    = EXCLUDED.country,
   latitude   = EXCLUDED.latitude,
   longitude  = EXCLUDED.longitude,
+  status     = EXCLUDED.status,
   synced_at  = NOW()
 WHERE
   parks.name      IS DISTINCT FROM EXCLUDED.name       OR
   parks.city      IS DISTINCT FROM EXCLUDED.city       OR
   parks.country   IS DISTINCT FROM EXCLUDED.country    OR
   parks.latitude  IS DISTINCT FROM EXCLUDED.latitude   OR
-  parks.longitude IS DISTINCT FROM EXCLUDED.longitude;
+  parks.longitude IS DISTINCT FROM EXCLUDED.longitude  OR
+  parks.status    IS DISTINCT FROM EXCLUDED.status;
 ```
 
 **Parâmetros:**
@@ -367,6 +392,7 @@ WHERE
 - `$4` → `{{ $json.latitude }}`
 - `$5` → `{{ $json.longitude }}`
 - `$6` → `{{ $json.rcdb_id }}`
+- `$7` → `{{ $json.status }}`
 
 ---
 

@@ -208,7 +208,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\nconst dedupItems = $('Deduplicate Parks & Coasters').all();\n\nreturn items.map((item, index) => {\n  const rawItem = item.json;\n  const dedupItem = dedupItems[index]?.json || {};\n\n  if (rawItem.error || !rawItem.data) {\n    const rcdb_id = dedupItem.rcdb_id;\n    console.error(`[Park ${rcdb_id}] HTTP error:`, rawItem.error || 'no data');\n    return { json: { rcdb_id, name: null, city: null, country: null, latitude: null, longitude: null, _error: true } };\n  }\n\n  const html = rawItem.data;\n  const rcdb_id = dedupItem.rcdb_id;\n  const _all_coasters = dedupItem._all_coasters || [];\n\n  const nameMatch = html.match(/<h1>([^<]+)<\\/h1>/);\n  const name = nameMatch ? nameMatch[1].trim() : null;\n\n  const coordMatch = html.match(/google\\.com\\/maps\\/place\\/(-?\\d+\\.\\d+),(-?\\d+\\.\\d+)/);\n  const latitude = coordMatch ? parseFloat(coordMatch[1]) : null;\n  const longitude = coordMatch ? parseFloat(coordMatch[2]) : null;\n\n  const locationLinkRegex = /location\\.htm\\?id=\\d+\">([^<]+)<\\/a>/g;\n  const locationParts = [];\n  let locMatch;\n  while ((locMatch = locationLinkRegex.exec(html)) !== null) {\n    locationParts.push(locMatch[1].trim());\n  }\n\n  let city = null, country = null;\n  if (locationParts.length >= 3) { city = locationParts[0]; country = locationParts[locationParts.length - 1]; }\n  else if (locationParts.length === 2) { city = locationParts[0]; country = locationParts[1]; }\n  else if (locationParts.length === 1) { country = locationParts[0]; }\n\n  console.log(`[Park ${rcdb_id}] name=${name}, city=${city}, country=${country}, lat=${latitude}, lng=${longitude}`);\n\n  return { json: { rcdb_id, name, city, country, latitude, longitude, _all_coasters, synced_at: new Date().toISOString() } };\n});"
+        "jsCode": "const items = $input.all();\nconst dedupItems = $('Deduplicate Parks & Coasters').all();\n\n// RCDB status IDs confirmed by inspecting real park pages:\n//   id=93  → Operating          (e.g. rcdb.com/5008.htm)\n//   id=310 → Under Construction (e.g. rcdb.com/22331.htm)\n//   id=311 → SBNO               (e.g. rcdb.com/10339.htm)\n//   id=318 → Operated/Defunct   (e.g. rcdb.com/4946.htm)\n// Strategy: match the FIRST g.htm?id= in the HTML — that is always the\n// current official status shown right below the park name. Any later\n// occurrences (defunct coasters, historical SBNO entries) are ignored.\nconst STATUS_MAP = { '93': 'operating', '310': 'under_construction', '311': 'defunct', '318': 'defunct' };\n\nreturn items.map((item, index) => {\n  const rawItem = item.json;\n  const dedupItem = dedupItems[index]?.json || {};\n\n  if (rawItem.error || !rawItem.data) {\n    const rcdb_id = dedupItem.rcdb_id;\n    console.error(`[Park ${rcdb_id}] HTTP error:`, rawItem.error || 'no data');\n    return { json: { rcdb_id, name: null, city: null, country: null, latitude: null, longitude: null, status: 'operating', _error: true } };\n  }\n\n  const html = rawItem.data;\n  const rcdb_id = dedupItem.rcdb_id;\n  const _all_coasters = dedupItem._all_coasters || [];\n\n  const nameMatch = html.match(/<h1>([^<]+)<\\/h1>/);\n  const name = nameMatch ? nameMatch[1].trim() : null;\n\n  const coordMatch = html.match(/google\\.com\\/maps\\/place\\/(-?\\d+\\.\\d+),(-?\\d+\\.\\d+)/);\n  const latitude = coordMatch ? parseFloat(coordMatch[1]) : null;\n  const longitude = coordMatch ? parseFloat(coordMatch[2]) : null;\n\n  const locationLinkRegex = /location\\.htm\\?id=\\d+\">([^<]+)<\\/a>/g;\n  const locationParts = [];\n  let locMatch;\n  while ((locMatch = locationLinkRegex.exec(html)) !== null) {\n    locationParts.push(locMatch[1].trim());\n  }\n\n  let city = null, country = null;\n  if (locationParts.length >= 3) { city = locationParts[0]; country = locationParts[locationParts.length - 1]; }\n  else if (locationParts.length === 2) { city = locationParts[0]; country = locationParts[1]; }\n  else if (locationParts.length === 1) { country = locationParts[0]; }\n\n  const firstStatusMatch = html.match(/g\\.htm\\?id=(\\d+)/);\n  const status = firstStatusMatch ? (STATUS_MAP[firstStatusMatch[1]] ?? 'operating') : 'operating';\n\n  console.log(`[Park ${rcdb_id}] name=${name}, city=${city}, country=${country}, lat=${latitude}, lng=${longitude}, status=${status}`);\n\n  return { json: { rcdb_id, name, city, country, latitude, longitude, status, _all_coasters, synced_at: new Date().toISOString() } };\n});"
       },
       "id": "node-parse-park-page",
       "name": "Parse Park Page",
@@ -288,6 +288,7 @@
             "country": "={{ $json.country }}",
             "city": "={{ $json.city }}",
             "rcdb_id": "={{ $json.rcdb_id }}",
+            "status": "={{ $json.status }}",
             "synced_at": "={{ $now.toISO() }}"
           },
           "matchingColumns": [
@@ -357,6 +358,16 @@
               "display": true,
               "type": "string",
               "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
               "removed": false
             },
             {
