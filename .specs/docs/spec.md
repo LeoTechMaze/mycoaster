@@ -60,8 +60,20 @@ Entusiastas de montanhas-russas e parques de diversão que querem rastrear coast
 
 ### Campos coletados
 
-- Park: `name`, `country`, `city`, `latitude`, `longitude`, `rcdb_id`
-- Coaster: `name`, `park_id`, `rcdb_id`
+- Park: `name`, `country`, `city`, `latitude`, `longitude`, `rcdb_id`, `status`
+- Coaster: `name`, `park_id`, `rcdb_id`, `status`
+
+### Status dos coasters e parques
+
+Valores possíveis: `operating`, `sbno`, `under_construction`, `defunct`
+
+- **operating** — em operação normal
+- **sbno** — Standing But Not Operating; fisicamente presente mas temporariamente parado (manutenção prolongada, pode voltar)
+- **under_construction** — em construção, ainda não aberto
+- **defunct** — permanentemente encerrado
+
+O status do parque é extraído do primeiro link `g.htm?id=` da página do parque no RCDB.  
+O status de cada coaster é derivado da seção em que aparece na página do parque (`<h4>Operating Roller Coasters`, `<h4>SBNO Roller Coasters`, etc.).
 
 ---
 

@@ -32,9 +32,8 @@ city            string
 latitude        float
 longitude       float
 rcdb_id         string unique
-status          string default 'operating'  -- 'operating' | 'under_construction' | 'defunct'
+status          string default 'operating'  -- 'operating' | 'sbno' | 'under_construction' | 'defunct'
                                             -- sincronizado via scraper RCDB (g.htm?id= da página do parque)
-                                            -- defunct cobre tanto Defunct quanto SBNO
 ai_summary      jsonb nullable  -- { summary: string, tags: [...], generated_at: timestamp }
 synced_at       timestamp
 ```
@@ -46,6 +45,8 @@ id              uuid PK
 park_id         uuid FK → parks.id
 name            string
 rcdb_id         string unique
+status          string default 'operating'  -- 'operating' | 'sbno' | 'under_construction' | 'defunct'
+                                            -- derivado da seção da página do parque no RCDB
 ai_summary      jsonb nullable  -- { summary: string, tags: [...], generated_at: timestamp }
 synced_at       timestamp
 ```

@@ -3,7 +3,7 @@
 ## Phase 0 — Foundation (P0, runs in parallel)
 **Goal:** Infrastructure ready, data populated before any app screen is tested.
 
-- [x] PostgreSQL schema — all 9 migrations created
+- [x] PostgreSQL schema — all 12 migrations created (includes status on parks + coasters)
 - [x] Credit trigger (PL/pgSQL)
 - [x] Express server bootstrap (health check, middleware stack)
 - [x] Auth middleware (JWT)

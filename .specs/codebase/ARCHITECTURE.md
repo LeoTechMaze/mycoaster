@@ -29,7 +29,8 @@
 │  n8n Scraper (self-hosted)  │
 │  Daily @ 03:00 UTC          │
 │  RCDB → upsert parks +      │
-│  coasters via rcdb_id       │
+│  coasters (name, location,  │
+│  status) via rcdb_id        │
 └─────────────────────────────┘
 ```
 

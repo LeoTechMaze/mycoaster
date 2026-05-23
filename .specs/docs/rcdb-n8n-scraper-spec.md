@@ -246,7 +246,7 @@ Para cada `<tr>` da tabela de resultados:
 ```javascript
 const allItems = $input.all();
 
-// Coletar todos os coasters
+// Coletar todos os coasters e parques únicos da listing
 const coastersMap = {};
 const parksMap = {};
 
@@ -254,6 +254,7 @@ for (const item of allItems) {
   const { coaster_rcdb_id, coaster_name, park_rcdb_id, park_name } = item.json;
   
   if (coaster_rcdb_id && coaster_name) {
+    // Status ainda não resolvido aqui — será preenchido após fetch das páginas de parque (Node 11b)
     coastersMap[coaster_rcdb_id] = { rcdb_id: coaster_rcdb_id, name: coaster_name, park_rcdb_id };
   }
   if (park_rcdb_id && park_name) {
@@ -261,12 +262,10 @@ for (const item of allItems) {
   }
 }
 
-// Retorna dois outputs: um para parques, outro para coasters
-// Output 0: lista de park_ids únicos para fetch
-// Output 1: todos os coasters coletados (para upsert posterior)
+// Output 0: lista de park_ids únicos para fetch das páginas de parque
+// Os coasters serão resolvidos com status no Node 11b, após os parques serem processados
 return [
   Object.values(parksMap).map(p => ({ json: p })),
-  // coasters ficam em memória até parques serem processados
 ];
 ```
 
@@ -326,20 +325,57 @@ if (!city) {
 // (coasters defunct, histórico SBNO) é ignorada automaticamente.
 //
 // IDs confirmados inspecionando páginas reais do RCDB:
-//   id=93  → Operating          (ex: rcdb.com/5008.htm)
+//   id=93  → Operating          (ex: rcdb.com/4546.htm)
 //   id=310 → Under Construction (ex: rcdb.com/22331.htm)
 //   id=311 → SBNO               (ex: rcdb.com/10339.htm)
 //   id=318 → Operated/Defunct   (ex: rcdb.com/4946.htm)
 const STATUS_MAP = {
   '93':  'operating',
   '310': 'under_construction',
-  '311': 'defunct',   // SBNO (Standing But Not Operating)
-  '318': 'defunct',   // Operated = parque encerrado
+  '311': 'sbno',      // Standing But Not Operating — manutenção prolongada, pode retornar
+  '318': 'defunct',   // Operated = parque encerrado permanentemente
 };
 const firstStatusMatch = html.match(/g\.htm\?id=(\d+)/);
 const park_status = firstStatusMatch
   ? (STATUS_MAP[firstStatusMatch[1]] ?? 'operating')
   : 'operating';
+
+// Extrair status de cada coaster a partir das seções da página do parque.
+// O HTML real do RCDB usa <h4> (não markdown ####), com a estrutura:
+//   <h4>Defunct Roller Coasters: <a href="...">4</a></h4>
+//   seguida por uma tabela com links <a href=/511.htm>Nome</a>
+//
+// Seções possíveis:
+//   "Operating Roller Coasters"          → 'operating'
+//   "SBNO Roller Coasters"               → 'sbno'
+//   "Defunct Roller Coasters"            → 'defunct'
+//   "Roller Coasters Under Construction" → 'under_construction'
+//
+// Estratégia: encontrar cada <h4> com "Roller Coasters", registrar seu status,
+// depois coletar todos os links href=/{id}.htm até o próximo <h4>, </section> ou <h3>.
+const SECTION_STATUS_MAP = {
+  'operating roller coasters':          'operating',
+  'sbno roller coasters':               'sbno',
+  'defunct roller coasters':            'defunct',
+  'roller coasters under construction': 'under_construction',
+};
+
+const coasterStatusMap = {};
+const sectionRegex = /<h4>([^<]*Roller Coasters[^<]*):.*?<\/h4>([\s\S]*?)(?=<h4>|<\/section>|<h3>|$)/gi;
+const coasterLinkRegex = /href=\/?(\d+)\.htm/g;
+
+let sectionMatch;
+while ((sectionMatch = sectionRegex.exec(html)) !== null) {
+  const headingKey = sectionMatch[1].trim().toLowerCase();
+  const sectionStatus = SECTION_STATUS_MAP[headingKey] ?? 'operating';
+  const sectionBody = sectionMatch[2];
+
+  coasterLinkRegex.lastIndex = 0;
+  let linkMatch;
+  while ((linkMatch = coasterLinkRegex.exec(sectionBody)) !== null) {
+    coasterStatusMap[linkMatch[1]] = sectionStatus;
+  }
+}
 
 return [{
   json: {
@@ -350,10 +386,47 @@ return [{
     city,
     country,
     status: park_status,
+    coasterStatusMap,   // { "291": "operating", "292": "sbno", "293": "defunct", ... }
     synced_at: new Date().toISOString()
   }
 }];
 ```
+
+---
+
+### Node 11b: Code — Resolver status dos coasters via coasterStatusMap
+
+Após todos os parques serem fetched e processados pelo Node 11, consolidar os `coasterStatusMap` de cada parque e resolver o status de cada coaster coletado no Node 9.
+
+- **Tipo:** Code (JavaScript)
+
+```javascript
+const allParkItems = $input.all();
+
+// Consolidar todos os coasterStatusMaps em um único lookup global
+// { "291": "operating", "292": "sbno", "293": "defunct", ... }
+const globalCoasterStatusMap = {};
+for (const item of allParkItems) {
+  const map = item.json.coasterStatusMap ?? {};
+  Object.assign(globalCoasterStatusMap, map);
+}
+
+// Recuperar lista de coasters coletados no Node 9
+// (passados via $node["Node 9 — Deduplica park IDs"].json ou equivalente)
+const allCoasters = Object.values($node["Node 9 — Deduplica park IDs"].json.coastersMap ?? {});
+
+// Aplicar status resolvido a cada coaster; fallback: 'operating'
+return allCoasters.map(c => ({
+  json: {
+    coaster_name:    c.name,
+    coaster_rcdb_id: c.rcdb_id,
+    park_rcdb_id:    c.park_rcdb_id,
+    status:          globalCoasterStatusMap[String(c.rcdb_id)] ?? 'operating',
+  }
+}));
+```
+
+> **Nota de implementação n8n:** o acesso ao Node 9 via `$node[...]` requer que o nome do nó seja exato. Alternativamente, use uma variável de fluxo (Set node) para armazenar `coastersMap` antes do split de parques, e recupere-a aqui.
 
 ---
 
@@ -398,31 +471,35 @@ WHERE
 
 ### Node 13: PostgreSQL — Upsert coasters
 
-Após todos os parques terem sido inseridos/atualizados, fazer upsert dos coasters resolvendo o `park_id` pelo `park_rcdb_id`:
+Após todos os parques terem sido inseridos/atualizados e os status dos coasters resolvidos (Node 11b), fazer upsert dos coasters resolvendo o `park_id` pelo `park_rcdb_id`:
 
 ```sql
-INSERT INTO coasters (id, name, park_id, rcdb_id, synced_at)
+INSERT INTO coasters (id, name, park_id, rcdb_id, status, synced_at)
 SELECT
   gen_random_uuid(),
   $1,
   p.id,
   $2,
+  $3,
   NOW()
 FROM parks p
-WHERE p.rcdb_id = $3
+WHERE p.rcdb_id = $4
 ON CONFLICT (rcdb_id) DO UPDATE SET
   name      = EXCLUDED.name,
   park_id   = EXCLUDED.park_id,
+  status    = EXCLUDED.status,
   synced_at = NOW()
 WHERE
-  coasters.name    IS DISTINCT FROM EXCLUDED.name OR
-  coasters.park_id IS DISTINCT FROM EXCLUDED.park_id;
+  coasters.name    IS DISTINCT FROM EXCLUDED.name    OR
+  coasters.park_id IS DISTINCT FROM EXCLUDED.park_id OR
+  coasters.status  IS DISTINCT FROM EXCLUDED.status;
 ```
 
 **Parâmetros:**
 - `$1` → `{{ $json.coaster_name }}`
 - `$2` → `{{ $json.coaster_rcdb_id }}`
-- `$3` → `{{ $json.park_rcdb_id }}`
+- `$3` → `{{ $json.status }}`
+- `$4` → `{{ $json.park_rcdb_id }}`
 
 ---
 

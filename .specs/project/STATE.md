@@ -7,7 +7,7 @@ _Persistent memory: decisions, blockers, lessons, deferred ideas. Updated each s
 ## Current Status
 **Date:** 2026-05-22
 **Active Phase:** Phase 0 (Foundation) + Phase 1 (MVP) starting
-**Codebase maturity:** Backend skeleton complete. No routes yet. No app yet.
+**Codebase maturity:** Backend skeleton complete. No routes yet. No app yet. Status field added to both `parks` and `coasters` (migrations run). DB populated with parks and coasters from RCDB (Brazil scope, all statuses correct).
 
 ---
 
@@ -26,6 +26,7 @@ _Persistent memory: decisions, blockers, lessons, deferred ideas. Updated each s
 | Geo queries | lat/lng floats + btree index | No Google Maps API dependency |
 | React Native | No Expo | Full native module control |
 | Scraper | n8n self-hosted | Built-in scheduling, retries, logs |
+| Coaster/park status | 4 values: `operating`, `sbno`, `under_construction`, `defunct` | `sbno` (Standing But Not Operating) is distinct from `defunct` — SBNO means temporarily closed, may return; defunct means permanently closed. Sourced from RCDB g.htm?id= (parks) and section headings (coasters). |
 | Object storage | TBD (S3 or R2) | Not yet decided |
 
 ---
@@ -34,7 +35,7 @@ _Persistent memory: decisions, blockers, lessons, deferred ideas. Updated each s
 
 - **B-001:** Object storage decision (S3 vs R2) — blocks photo upload route (Phase 3)
 - **B-002:** Firebase Admin SDK not initialized in codebase — blocks `POST /auth/login`
-- **B-003:** n8n scraper not yet run against real RCDB — no data in DB; blocks app testing
+- ~~**B-003:** n8n scraper not yet run against real RCDB~~ ✅ RESOLVED 2026-05-22 — scraper run against Brazil scope, parks and coasters populated with correct status values.
 
 ---
 
@@ -47,7 +48,7 @@ _Persistent memory: decisions, blockers, lessons, deferred ideas. Updated each s
 - **C-005** 🟡 Geo proximity: btree index on floats is approximate bounding box only
 - **C-006** 🟡 `reviews` table missing check constraint for coaster_id/park_id mutual exclusivity
 - **C-007** 🟡 `reviews.updated_at` not auto-updated on UPDATE — needs trigger or route discipline
-- **C-008** 🟡 n8n workflow JSON not tested against live RCDB yet
+- **C-008** 🟡 n8n workflow JSON not tested against live RCDB yet (status extraction from section headings is new — needs a real run to validate regex against live HTML)
 - **C-011** 🟢 `knex.schema.raw()` vs `knex.raw()` inconsistency in migrations
 
 ---
@@ -79,5 +80,5 @@ _Persistent memory: decisions, blockers, lessons, deferred ideas. Updated each s
 4. Install input validation library (recommend `zod`)
 5. Build `POST /auth/login` route
 6. Build all Phase 1 API routes
-7. Run n8n scraper against Brazil scope (validate + populate DB)
+7. ~~Run n8n scraper against Brazil scope~~ ✅ Done
 8. Start React Native app scaffold

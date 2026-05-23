@@ -17,3 +17,4 @@
 | Resumos e tags              | IA batch, JSONB cacheado | Processamento periódico evita custo de tokens em tempo real; threshold mínimo de 10 reviews |
 | Armazenamento de fotos      | Object storage (S3/R2)   | Escalável, custo controlado com limite de uploads por usuário                               |
 | Badges no banco             | Strings em inglês        | Preparado para i18n; tradução para PT-BR e outros idiomas via app                           |
+| Status de coasters e parques | 4 valores: `operating`, `sbno`, `under_construction`, `defunct` | `sbno` (Standing But Not Operating) é distinto de `defunct` — SBNO = fechado temporariamente, pode retornar; defunct = encerrado permanentemente. Fonte: RCDB g.htm?id= (parques) e seções `<h4>` da página do parque (coasters). |

@@ -14,7 +14,10 @@ MyCoasterProject/
 │   │   ├── 20260515000006_create_photos.js
 │   │   ├── 20260515000007_create_photo_likes.js
 │   │   ├── 20260515000008_create_videos.js
-│   │   └── 20260515000009_create_credit_trigger.js
+│   │   ├── 20260515000009_create_credit_trigger.js
+│   │   ├── 20260522000001_add_status_to_parks.js
+│   │   ├── 20260522000002_update_parks_status_add_sbno.js
+│   │   └── 20260522000003_add_status_to_coasters.js
 │   ├── src/
 │   │   ├── config/
 │   │   │   ├── database.js       ← knex instance (singleton)
@@ -50,7 +53,7 @@ MyCoasterProject/
 
 | Area | Status |
 |---|---|
-| DB migrations (all 9) | ✅ Complete |
+| DB migrations (all 12) | ✅ Complete |
 | Credit trigger (PL/pgSQL) | ✅ Complete |
 | Express server bootstrap | ✅ Complete |
 | Auth middleware (JWT) | ✅ Complete |

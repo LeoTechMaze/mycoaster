@@ -39,10 +39,10 @@
 **Risk:** `reviews.updated_at` defaults to `now()` at insert time but won't auto-update on `PUT /reviews/:id` unless the route explicitly sets it. Easy to forget.
 **Recommendation:** Add a PL/pgSQL trigger to auto-set `updated_at = NOW()` on UPDATE, similar to the credit trigger pattern already established.
 
-### C-008: n8n workflow JSON not yet validated / tested
+### C-008: n8n workflow JSON not fully validated
 **Area:** `scraper/rcdb-workflow.json`
-**Risk:** The workflow spec is thorough, but the JSON in `/scraper/rcdb-workflow.json` hasn't been imported and tested against the live RCDB site. RCDB HTML structure could differ from what the spec assumes (CSS selectors, title format).
-**Recommendation:** Import the workflow into the n8n instance and run a test against Brazil scope (9 pages, ~50 parks) before running the global load.
+**Risk:** The workflow has been partially tested and the `coasterStatusMap` regex bug was found and fixed (initial regex matched markdown `####` instead of raw HTML `<h4>`). However, additional issues are still being identified and fixed — the workflow is not yet considered production-ready.
+**Recommendation:** Continue iterating on known issues before marking as complete.
 
 ## 🟢 Low Priority / Notes
 
