@@ -123,11 +123,32 @@ curl http://localhost:3000/health
 
 ---
 
-## Built with Claude Code
+## AI-Assisted Development Methodology
 
-This project is being built using **Claude Code** as an AI development partner — from architecture decisions and database schema design to code generation, CI/CD setup, and documentation.
+This project is built using **Claude Code** with two engineering practices that go beyond "AI autocomplete":
 
-Every phase is tracked in [METRICS.md](METRICS.md) with commit counts, lines of code, and estimated time savings vs. traditional development.
+### Spec-Driven Development
+Every feature starts as a written spec before a single line of code is written. The [`.specs/`](.specs/) directory contains 16 documents covering architecture, data model, API contracts, conventions, integrations, and technical concerns. Claude Code reads these specs as context on every session — decisions stay consistent across weeks and multiple sessions without re-explaining the codebase each time.
+
+```
+.specs/
+├── docs/          → spec.md, data-model.md, api.md, plan.md, decisions.md
+├── codebase/      → ARCHITECTURE.md, CONVENTIONS.md, STACK.md, CONCERNS.md
+└── project/       → ROADMAP.md, STATE.md, PROJECT.md
+```
+
+### Harness Engineering
+The Claude Code harness is configured with custom agents, skill files, and session hooks in [`.claude/`](.claude/). This defines how the AI agent plans, generates, and evaluates work — enforcing Git discipline, code conventions, and spec alignment automatically on every task.
+
+```
+.claude/
+├── AGENTS.md      → Planner / Generator / Evaluator agent contracts
+├── skills/        → /planner, /generator, /evaluator skill definitions
+└── init.sh        → Session bootstrap script
+```
+
+### Build Metrics
+Every phase is tracked in [METRICS.md](METRICS.md) with commit counts, lines of code, active sessions, and estimated time savings vs. traditional development.
 
 ---
 
