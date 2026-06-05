@@ -16,3 +16,7 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
+
+# Claude Code — session state (project config in .claude/ is tracked)
+.claude/progress.md
+.claude/logs/
