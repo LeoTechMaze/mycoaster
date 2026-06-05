@@ -1,46 +1,53 @@
-require("dotenv").config({
-  path: require("path").resolve(__dirname, "../../.env"),
+require('dotenv').config({
+  path: require('path').resolve(__dirname, '../../.env'),
 });
-require("express-async-errors");
+require('express-async-errors');
 
-const express = require("express");
-const helmet = require("helmet");
-const cors = require("cors");
+const env = require('./config/env');
+require('./config/firebase');
 
-const db = require("./config/database");
-const redis = require("./config/redis");
-const errorHandler = require("./middlewares/errorHandler");
+const express = require('express');
+const helmet = require('helmet');
+const cors = require('cors');
+const morgan = require('morgan');
+
+const db = require('./config/database');
+const redis = require('./config/redis');
+const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // ─── Global Middlewares ────────────────────────────────────────────────────
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
+app.use(morgan('dev'));
+
+// ─── Routes ────────────────────────────────────────────────────────────────
+app.use('/api/v1', require('./routes'));
 
 // ─── Health Check ──────────────────────────────────────────────────────────
-app.get("/health", async (_req, res) => {
+app.get('/health', async (_req, res) => {
   try {
-    await db.raw("SELECT 1");
+    await db.raw('SELECT 1');
     await redis.ping();
-    res.json({ status: "ok", postgres: "up", redis: "up" });
+    res.json({ status: 'ok', postgres: 'up', redis: 'up' });
   } catch (err) {
-    res.status(503).json({ status: "degraded", error: err.message });
+    res.status(503).json({ status: 'degraded', error: err.message });
   }
 });
 
 // ─── 404 ───────────────────────────────────────────────────────────────────
 app.use((_req, res) => {
-  res.status(404).json({ error: "Not found" });
+  res.status(404).json({ error: 'Not found' });
 });
 
 // ─── Global Error Handler ──────────────────────────────────────────────────
 app.use(errorHandler);
 
 // ─── Boot ──────────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log(`[API] Server running on port ${PORT}`);
+app.listen(env.PORT, () => {
+  console.log(`[API] Server running on port ${env.PORT} (${env.NODE_ENV})`);
 });
 
 module.exports = app;
