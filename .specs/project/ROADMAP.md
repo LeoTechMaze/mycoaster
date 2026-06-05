@@ -17,6 +17,14 @@
 - [ ] Setup CI/CD e ambiente de staging
 - [ ] Firebase Admin SDK initialized in API
 
+### Developer Tooling (parallel — before Phase 1 routes)
+
+- [x] Create `.claude/AGENTS.md` (Planner, Generator, Evaluator contracts + Git discipline)
+- [x] Create skills: `/planner`, `/generator`, `/evaluator` (`.claude/skills/`)
+- [x] Configure harness hooks: linter, type checker, tests/E2E, review agent, git guard
+- [x] Create `.claude/init.sh` bootstrap script
+- [x] Create `.claude/progress.md` session state template
+
 ## Phase 1 — MVP Launch (P0, requires Phase 0)
 
 **Goal:** Functional app that delivers value and starts accumulating reviews.
