@@ -1,70 +1,70 @@
-# Spec: RCDB Scraper — Workflow n8n
-**Projeto:** MyCoaster  
-**Task ClickUp:** [86b9zev0u — Configurar e implementar scraper RCDB](https://app.clickup.com/t/86b9zev0u)  
-**Workflow n8n:** https://techmaze-n8n.qokhkh.easypanel.host/workflow/ODfn4gK0Zo1stLsp  
-**Data:** 2026-05-16  
-**Status:** Pronto para implementação
+# Spec: RCDB Scraper — n8n Workflow
+**Project:** MyCoaster
+**ClickUp Task:** [86b9zev0u — Configure and implement RCDB scraper](https://app.clickup.com/t/86b9zev0u)
+**n8n Workflow:** https://techmaze-n8n.qokhkh.easypanel.host/workflow/ODfn4gK0Zo1stLsp
+**Date:** 2026-05-16
+**Status:** Ready for implementation
 
 ---
 
-## Objetivo
+## Goal
 
-Implementar um workflow n8n que faz scraping periódico do site RCDB (rcdb.com) e popula as tabelas `parks` e `coasters` no PostgreSQL via upsert, usando `rcdb_id` como chave de idempotência.
+Implement an n8n workflow that periodically scrapes the RCDB website (rcdb.com) and populates the `parks` and `coasters` tables in PostgreSQL via upsert, using `rcdb_id` as the idempotency key.
 
 ---
 
-## Como o site RCDB funciona
+## How RCDB Works
 
-### Estrutura de URLs
+### URL Structure
 
-O RCDB usa IDs numéricos sequenciais para **todas** as páginas:
+RCDB uses sequential numeric IDs for **all** pages:
 
 ```
-https://rcdb.com/1.htm       → pode ser um coaster (ex: Raptor)
-https://rcdb.com/4529.htm    → pode ser um parque (ex: Cedar Point)
+https://rcdb.com/1.htm       → may be a coaster (e.g. Raptor)
+https://rcdb.com/4529.htm    → may be a park (e.g. Cedar Point)
 ```
 
-O mesmo padrão `/{id}.htm` serve tanto para parques quanto para coasters. **Não há prefixo ou separação de namespace entre os dois tipos.**
+The same `/{id}.htm` pattern serves both parks and coasters. **There is no prefix or namespace separation between the two types.**
 
-### Como distinguir página de parque de página de coaster
+### Distinguishing Park Pages from Coaster Pages
 
-A distinção está no `<title>` da página:
+The distinction is in the `<title>` of the page:
 
-| Tipo | Formato do `<title>` | Exemplo |
-|------|---------------------|---------|
-| **Coaster** | `{Nome} - {Parque} ({Cidade}, {Estado}, {País})` | `Raptor - Cedar Point (Sandusky, Ohio, United States)` |
-| **Parque** | `{Nome} ({Cidade}, {Estado}, {País})` | `Cedar Point (Sandusky, Ohio, United States)` |
+| Type | `<title>` format | Example |
+|------|-----------------|---------|
+| **Coaster** | `{Name} - {Park} ({City}, {State}, {Country})` | `Raptor - Cedar Point (Sandusky, Ohio, United States)` |
+| **Park** | `{Name} ({City}, {State}, {Country})` | `Cedar Point (Sandusky, Ohio, United States)` |
 
-**Regra prática:** se o `<title>` contém ` - ` separando dois nomes, é um coaster. Se começa direto com o nome do parque seguido de parênteses, é um parque.
+**Practical rule:** if the `<title>` contains ` - ` separating two names, it's a coaster. If it starts directly with the park name followed by parentheses, it's a park.
 
 ---
 
-## Estratégia de scraping: listing pages (não iterar IDs sequencialmente)
+## Scraping Strategy: Listing Pages (not sequential ID iteration)
 
-### ❌ Abordagem ineficiente (NÃO usar)
+### ❌ Inefficient Approach (DO NOT use)
 
-Iterar `/1.htm`, `/2.htm`, `/3.htm`... até o ID mais alto (~23.000+). Isso geraria 23.000+ requisições desnecessárias, a maioria para coasters (que podem ser obtidos via páginas de parque).
+Iterating `/1.htm`, `/2.htm`, `/3.htm`... up to the highest ID (~23,000+). This would generate 23,000+ unnecessary requests, most for coasters (which can be obtained via park pages).
 
-### ✅ Abordagem correta: usar as listing pages do RCDB
+### ✅ Correct Approach: Use RCDB listing pages
 
-O RCDB oferece páginas de listagem paginadas que agregam coasters por filtro. A URL-chave é:
+RCDB provides paginated listing pages that aggregate coasters by filter. The key URL is:
 
 ```
 https://rcdb.com/r.htm?ot=2&ol={location_id}&page={n}
 ```
 
-- `ot=2` → tipo "Roller Coasters"
-- `ol={location_id}` → filtro por localização (país, estado, cidade)
-- `page={n}` → paginação (começa em 1, sem `page=` é a página 1)
+- `ot=2` → type "Roller Coasters"
+- `ol={location_id}` → filter by location (country, state, city)
+- `page={n}` → pagination (starts at 1; omitting `page=` returns page 1)
 
-#### IDs de localização relevantes
+#### Relevant Location IDs
 
-| País | `location_id` |
-|------|--------------|
-| Brasil | `26724` |
-| World (todos) | *(omitir `ol=`)* |
+| Country | `location_id` |
+|---------|--------------|
+| Brazil  | `26724`       |
+| World (all) | *(omit `ol=`)* |
 
-Exemplo para todos os coasters do Brasil:
+Example for all coasters in Brazil:
 ```
 https://rcdb.com/r.htm?ot=2&ol=26724&page=1
 https://rcdb.com/r.htm?ot=2&ol=26724&page=2
@@ -72,86 +72,86 @@ https://rcdb.com/r.htm?ot=2&ol=26724&page=2
 https://rcdb.com/r.htm?ot=2&ol=26724&page=9
 ```
 
-Brasil tem **212 coasters** distribuídos em **9 páginas** (~24 por página).
+Brazil has **212 coasters** across **9 pages** (~24 per page).
 
-Para cobertura global: **13.219 coasters** em **551 páginas**.
+For global coverage: **13,219 coasters** across **551 pages**.
 
 ---
 
-## O que cada tipo de página contém
+## What Each Page Type Contains
 
-### Listing page (`r.htm?ot=2&ol=...`)
+### Listing Page (`r.htm?ot=2&ol=...`)
 
-Cada linha da tabela contém:
-- **Nome do coaster** com link → `<a href="/1657.htm">Alpen Blitz</a>` → `rcdb_id = 1657`
-- **Nome do parque** com link → `<a href="/4946.htm">Playcenter São Paulo</a>` → `rcdb_id = 4946`
+Each table row contains:
+- **Coaster name** with link → `<a href="/1657.htm">Alpen Blitz</a>` → `rcdb_id = 1657`
+- **Park name** with link → `<a href="/4946.htm">Playcenter São Paulo</a>` → `rcdb_id = 4946`
 - Status (Operating, Defunct, Relocated, etc.)
 
-O cabeçalho da página indica total e paginação:
+The page header indicates total and pagination:
 ```
 Found: 212 (Page 1 of 9)
 ```
 
-### Página de parque (`/{park_id}.htm`)
+### Park Page (`/{park_id}.htm`)
 
-Contém:
-- **Nome do parque** → `<h1>Cedar Point</h1>`
-- **Localização** → links para cidade, estado/região, país (via `location.htm?id=...`)
-- **Latitude e longitude** → embutidas nas URLs do Google Maps no corpo da página:
+Contains:
+- **Park name** → `<h1>Cedar Point</h1>`
+- **Location** → links to city, state/region, country (via `location.htm?id=...`)
+- **Latitude and longitude** → embedded in Google Maps URLs in the page body:
   ```
   https://www.google.com/maps/place/41.481972,-82.684563/@41.481972,-82.684563,...
   ```
-  Regex para extração: `maps\.google\.com/maps/place/(-?\d+\.\d+),(-?\d+\.\d+)`
-- **Lista de coasters** — tabelas "Operating Roller Coasters" e "Defunct Roller Coasters" com links para cada coaster
+  Extraction regex: `maps\.google\.com/maps/place/(-?\d+\.\d+),(-?\d+\.\d+)`
+- **Coaster list** — "Operating Roller Coasters" and "Defunct Roller Coasters" tables with links to each coaster
 
-### Página de coaster (`/{coaster_id}.htm`)
+### Coaster Page (`/{coaster_id}.htm`)
 
-Contém:
-- **Nome do coaster** → `<h1>Raptor</h1>`
-- **Link para o parque** → `<a href="/4529.htm">Cedar Point</a>`
-- **Lat/lng próprio** (localização da atração dentro do parque) → mesmo padrão de Google Maps
-- Dados técnicos (altura, velocidade, comprimento — **fora do escopo do MVP**)
+Contains:
+- **Coaster name** → `<h1>Raptor</h1>`
+- **Link to park** → `<a href="/4529.htm">Cedar Point</a>`
+- **Own lat/lng** (location of the attraction within the park) → same Google Maps pattern
+- Technical data (height, speed, length — **out of MVP scope**)
 
 ---
 
-## Fluxo do workflow n8n
+## n8n Workflow
 
-### Visão geral
+### Overview
 
 ```
 Schedule Trigger
     ↓
-Para cada país alvo (Brasil + futuramente outros):
+For each target country (Brazil + others in the future):
     ↓
-Fetch listing page (página 1) → extrair total de páginas
+Fetch listing page (page 1) → extract total pages
     ↓
-Loop por todas as páginas → coletar pares (coaster_rcdb_id, park_rcdb_id, coaster_name)
+Loop through all pages → collect pairs (coaster_rcdb_id, park_rcdb_id, coaster_name)
     ↓
-Deduplica park_rcdb_ids únicos
+Deduplicate unique park_rcdb_ids
     ↓
-Para cada park_id único → fetch park page → extrair name, city, country, lat, lng
+For each unique park_id → fetch park page → extract name, city, country, lat, lng
     ↓
-Upsert parks no PostgreSQL (conflict on rcdb_id)
+Upsert parks into PostgreSQL (conflict on rcdb_id)
     ↓
-Upsert coasters no PostgreSQL (conflict on rcdb_id)
+Upsert coasters into PostgreSQL (conflict on rcdb_id)
 ```
 
 ---
 
-## Nodes do workflow (configuração detalhada)
+## Workflow Nodes (detailed configuration)
 
 ### Node 1: Schedule Trigger
 
-- **Tipo:** Schedule Trigger
-- **Configuração:** Cron `0 3 * * *` (todo dia às 3h UTC)
-- Para execução manual de carga inicial: executar via "Execute workflow" no painel
+- **Type:** Schedule Trigger
+- **Configuration:** Cron `0 3 * * *` (every day at 03:00 UTC)
+- For manual initial load: run via "Execute workflow" in the panel
 
 ---
 
-### Node 2: Set — Definir países alvo
+### Node 2: Set — Define target countries
 
-- **Tipo:** Set
-- **Output:** array `countries` com os location_ids a processar
+- **Type:** Set
+- **Output:** `countries` array with location_ids to process
 
 ```json
 {
@@ -161,41 +161,41 @@ Upsert coasters no PostgreSQL (conflict on rcdb_id)
 }
 ```
 
-> Para expansão global futura: adicionar mais entradas ao array.
+> For future global expansion: add more entries to the array.
 
 ---
 
-### Node 3: Split In Batches — iterar por país
+### Node 3: Split In Batches — iterate by country
 
-- **Tipo:** SplitInBatches
-- Processa um país por vez
+- **Type:** SplitInBatches
+- Processes one country at a time
 
 ---
 
-### Node 4: HTTP Request — Fetch página 1 da listing
+### Node 4: HTTP Request — Fetch listing page 1
 
-- **Tipo:** HTTP Request
+- **Type:** HTTP Request
 - **URL:** `https://rcdb.com/r.htm?ot=2&ol={{ $json.location_id }}&page=1`
-- **Método:** GET
-- **Response:** HTML completo
+- **Method:** GET
+- **Response:** Full HTML
 
 ---
 
-### Node 5: HTML Extract — Extrair total de páginas
+### Node 5: HTML Extract — Extract total pages
 
-- **Tipo:** HTML Extract
-- **Seletor CSS:** `#report p` (ou o elemento que contém "Found: X (Page 1 of Y)")
-- **Regex no texto extraído:** `Page 1 of (\d+)` → capturar número total de páginas
+- **Type:** HTML Extract
+- **CSS selector:** `#report p` (or the element containing "Found: X (Page 1 of Y)")
+- **Regex on extracted text:** `Page 1 of (\d+)` → capture total page count
 
-Alternativamente, extrair o link da última página do paginador:
-- Seletor: `a[href*="page="]` (último link de paginação)
-- Extrair número máximo de `page=` nos hrefs
+Alternatively, extract the last page link from the paginator:
+- Selector: `a[href*="page="]` (last pagination link)
+- Extract maximum `page=` number from hrefs
 
 ---
 
-### Node 6: Code — Gerar array de URLs de todas as páginas
+### Node 6: Code — Generate URL array for all pages
 
-- **Tipo:** Code (JavaScript)
+- **Type:** Code (JavaScript)
 
 ```javascript
 const totalPages = parseInt($input.first().json.totalPages);
@@ -215,38 +215,38 @@ return urls.map(u => ({ json: u }));
 
 ---
 
-### Node 7: HTTP Request — Fetch cada página da listing (com throttle)
+### Node 7: HTTP Request — Fetch each listing page (with throttle)
 
-- **Tipo:** HTTP Request
+- **Type:** HTTP Request
 - **URL:** `{{ $json.url }}`
-- **Rate limiting:** adicionar nó **Wait** de 1-2 segundos entre chamadas para não sobrecarregar o RCDB
-- **On Error:** Continuar (log e seguir para próxima página)
+- **Rate limiting:** add a **Wait** node of 1–2 seconds between calls to avoid overloading RCDB
+- **On Error:** Continue (log and move to next page)
 
 ---
 
-### Node 8: HTML Extract — Extrair coasters e parques da listing
+### Node 8: HTML Extract — Extract coasters and parks from listing
 
-- **Tipo:** HTML Extract
-- **Extração de cada linha** da tabela de resultados:
+- **Type:** HTML Extract
+- **Extract each row** from the results table:
 
-Para cada `<tr>` da tabela de resultados:
+For each `<tr>` in the results table:
 - **Coaster name:** `td:nth-child(2) a` → `.text()`
-- **Coaster rcdb_id:** `td:nth-child(2) a` → atributo `href` → regex `/(\d+)\.htm/` → grupo 1
+- **Coaster rcdb_id:** `td:nth-child(2) a` → `href` attribute → regex `/(\d+)\.htm/` → group 1
 - **Park name:** `td:nth-child(3) a` → `.text()`
-- **Park rcdb_id:** `td:nth-child(3) a` → atributo `href` → regex `/(\d+)\.htm/` → grupo 1
+- **Park rcdb_id:** `td:nth-child(3) a` → `href` attribute → regex `/(\d+)\.htm/` → group 1
 
-> **Nota:** o `ot=2` inclui todos os coasters (operando + desativados). Para filtrar apenas operando, adicionar `&ex` na URL: `r.htm?ot=2&ol=26724&ex`. Recomendado para o MVP para reduzir volume, mas pode ser ajustado depois.
+> **Note:** `ot=2` includes all coasters (operating + defunct). To filter only operating, add `&ex` to the URL: `r.htm?ot=2&ol=26724&ex`. Recommended for MVP to reduce volume, adjustable later.
 
 ---
 
-### Node 9: Code — Deduplica park IDs únicos
+### Node 9: Code — Deduplicate unique park IDs
 
-- **Tipo:** Code (JavaScript)
+- **Type:** Code (JavaScript)
 
 ```javascript
 const allItems = $input.all();
 
-// Coletar todos os coasters e parques únicos da listing
+// Collect all coasters and unique parks from the listing
 const coastersMap = {};
 const parksMap = {};
 
@@ -254,7 +254,7 @@ for (const item of allItems) {
   const { coaster_rcdb_id, coaster_name, park_rcdb_id, park_name } = item.json;
   
   if (coaster_rcdb_id && coaster_name) {
-    // Status ainda não resolvido aqui — será preenchido após fetch das páginas de parque (Node 11b)
+    // Status not yet resolved here — will be filled after fetching park pages (Node 11b)
     coastersMap[coaster_rcdb_id] = { rcdb_id: coaster_rcdb_id, name: coaster_name, park_rcdb_id };
   }
   if (park_rcdb_id && park_name) {
@@ -262,8 +262,8 @@ for (const item of allItems) {
   }
 }
 
-// Output 0: lista de park_ids únicos para fetch das páginas de parque
-// Os coasters serão resolvidos com status no Node 11b, após os parques serem processados
+// Output 0: list of unique park_ids for fetching park pages
+// Coasters will have status resolved in Node 11b, after parks are processed
 return [
   Object.values(parksMap).map(p => ({ json: p })),
 ];
@@ -271,45 +271,45 @@ return [
 
 ---
 
-### Node 10: HTTP Request — Fetch cada página de parque
+### Node 10: HTTP Request — Fetch each park page
 
-- **Tipo:** HTTP Request
+- **Type:** HTTP Request
 - **URL:** `https://rcdb.com/{{ $json.rcdb_id }}.htm`
-- **Rate limiting:** Wait 1-2 segundos entre chamadas
-- **On Error:** Continuar (registrar erro, seguir para próximo parque)
+- **Rate limiting:** Wait 1–2 seconds between calls
+- **On Error:** Continue (log error, move to next park)
 
 ---
 
-### Node 11: HTML Extract + Code — Extrair dados do parque
+### Node 11: HTML Extract + Code — Extract park data
 
-- **Tipo:** Code (JavaScript) — processar o HTML retornado
+- **Type:** Code (JavaScript) — process the returned HTML
 
 ```javascript
-const html = $input.first().json.data; // HTML da página do parque
+const html = $input.first().json.data; // HTML from park page
 const rcdb_id = $input.first().json.rcdb_id;
 
-// Extrair nome (h1)
+// Extract name (h1)
 const nameMatch = html.match(/<h1>([^<]+)<\/h1>/);
 const name = nameMatch ? nameMatch[1].trim() : null;
 
-// Extrair lat/lng do link Google Maps
-// Padrão: maps.google.com/maps/place/{lat},{lng}/@{lat},{lng}
+// Extract lat/lng from Google Maps link
+// Pattern: maps.google.com/maps/place/{lat},{lng}/@{lat},{lng}
 const coordMatch = html.match(/maps\.google\.com\/maps\/place\/(-?\d+\.\d+),(-?\d+\.\d+)/);
 const latitude = coordMatch ? parseFloat(coordMatch[1]) : null;
 const longitude = coordMatch ? parseFloat(coordMatch[2]) : null;
 
-// Extrair localização (cidade, estado/região, país)
-// Os links de localização têm o padrão /location.htm?id=...
-// O texto do breadcrumb de localização: "Cidade, Estado, País"
+// Extract location (city, state/region, country)
+// Location links follow the pattern /location.htm?id=...
+// Location breadcrumb text: "City, State, Country"
 const locationMatch = html.match(/location\.htm\?id=\d+">([^<]+)<\/a>,\s*<a[^>]*location\.htm\?id=\d+">([^<]+)<\/a>,\s*<a[^>]*location\.htm\?id=\d+">([^<]+)<\/a>/);
 let city = null, country = null;
 if (locationMatch) {
   city = locationMatch[1].trim();
-  // locationMatch[2] é estado/região (ignorar para MVP)
+  // locationMatch[2] is state/region (ignored for MVP)
   country = locationMatch[3].trim();
 }
 
-// Fallback: para parques com apenas cidade e país (sem estado)
+// Fallback: for parks with only city and country (no state)
 if (!city) {
   const simpleMatch = html.match(/location\.htm\?id=\d+">([^<]+)<\/a>,\s*<a[^>]*location\.htm\?id=\d+">([^<]+)<\/a>/);
   if (simpleMatch) {
@@ -318,41 +318,41 @@ if (!city) {
   }
 }
 
-// Extrair status oficial do parque
-// O RCDB exibe o status logo abaixo do nome e localização via link g.htm?id=
-// A regra é simples: pegar o PRIMEIRO g.htm?id= que aparecer no HTML.
-// Esse é sempre o status atual do parque — qualquer ocorrência posterior
-// (coasters defunct, histórico SBNO) é ignorada automaticamente.
+// Extract official park status
+// RCDB displays status just below the name and location via g.htm?id= link
+// Rule: take the FIRST g.htm?id= that appears in the HTML.
+// That is always the current park status — any later occurrences
+// (defunct coasters, SBNO history) are automatically ignored.
 //
-// IDs confirmados inspecionando páginas reais do RCDB:
-//   id=93  → Operating          (ex: rcdb.com/4546.htm)
-//   id=310 → Under Construction (ex: rcdb.com/22331.htm)
-//   id=311 → SBNO               (ex: rcdb.com/10339.htm)
-//   id=318 → Operated/Defunct   (ex: rcdb.com/4946.htm)
+// Confirmed IDs from inspecting real RCDB pages:
+//   id=93  → Operating          (e.g. rcdb.com/4546.htm)
+//   id=310 → Under Construction (e.g. rcdb.com/22331.htm)
+//   id=311 → SBNO               (e.g. rcdb.com/10339.htm)
+//   id=318 → Operated/Defunct   (e.g. rcdb.com/4946.htm)
 const STATUS_MAP = {
   '93':  'operating',
   '310': 'under_construction',
-  '311': 'sbno',      // Standing But Not Operating — manutenção prolongada, pode retornar
-  '318': 'defunct',   // Operated = parque encerrado permanentemente
+  '311': 'sbno',      // Standing But Not Operating — extended maintenance, may return
+  '318': 'defunct',   // Operated = permanently closed park
 };
 const firstStatusMatch = html.match(/g\.htm\?id=(\d+)/);
 const park_status = firstStatusMatch
   ? (STATUS_MAP[firstStatusMatch[1]] ?? 'operating')
   : 'operating';
 
-// Extrair status de cada coaster a partir das seções da página do parque.
-// O HTML real do RCDB usa <h4> (não markdown ####), com a estrutura:
+// Extract each coaster's status from park page sections.
+// Real RCDB HTML uses <h4> (not markdown ####), structured as:
 //   <h4>Defunct Roller Coasters: <a href="...">4</a></h4>
-//   seguida por uma tabela com links <a href=/511.htm>Nome</a>
+//   followed by a table with links <a href=/511.htm>Name</a>
 //
-// Seções possíveis:
+// Possible sections:
 //   "Operating Roller Coasters"          → 'operating'
 //   "SBNO Roller Coasters"               → 'sbno'
 //   "Defunct Roller Coasters"            → 'defunct'
 //   "Roller Coasters Under Construction" → 'under_construction'
 //
-// Estratégia: encontrar cada <h4> com "Roller Coasters", registrar seu status,
-// depois coletar todos os links href=/{id}.htm até o próximo <h4>, </section> ou <h3>.
+// Strategy: find each <h4> with "Roller Coasters", record its status,
+// then collect all href=/{id}.htm links until the next <h4>, </section> or <h3>.
 const SECTION_STATUS_MAP = {
   'operating roller coasters':          'operating',
   'sbno roller coasters':               'sbno',
@@ -394,16 +394,16 @@ return [{
 
 ---
 
-### Node 11b: Code — Resolver status dos coasters via coasterStatusMap
+### Node 11b: Code — Resolve coaster status via coasterStatusMap
 
-Após todos os parques serem fetched e processados pelo Node 11, consolidar os `coasterStatusMap` de cada parque e resolver o status de cada coaster coletado no Node 9.
+After all parks are fetched and processed by Node 11, consolidate the `coasterStatusMap` from each park and resolve the status of each coaster collected in Node 9.
 
-- **Tipo:** Code (JavaScript)
+- **Type:** Code (JavaScript)
 
 ```javascript
 const allParkItems = $input.all();
 
-// Consolidar todos os coasterStatusMaps em um único lookup global
+// Consolidate all coasterStatusMaps into a single global lookup
 // { "291": "operating", "292": "sbno", "293": "defunct", ... }
 const globalCoasterStatusMap = {};
 for (const item of allParkItems) {
@@ -411,11 +411,11 @@ for (const item of allParkItems) {
   Object.assign(globalCoasterStatusMap, map);
 }
 
-// Recuperar lista de coasters coletados no Node 9
-// (passados via $node["Node 9 — Deduplica park IDs"].json ou equivalente)
-const allCoasters = Object.values($node["Node 9 — Deduplica park IDs"].json.coastersMap ?? {});
+// Retrieve list of coasters collected in Node 9
+// (passed via $node["Node 9 — Deduplicate park IDs"].json or equivalent)
+const allCoasters = Object.values($node["Node 9 — Deduplicate park IDs"].json.coastersMap ?? {});
 
-// Aplicar status resolvido a cada coaster; fallback: 'operating'
+// Apply resolved status to each coaster; fallback: 'operating'
 return allCoasters.map(c => ({
   json: {
     coaster_name:    c.name,
@@ -426,14 +426,14 @@ return allCoasters.map(c => ({
 }));
 ```
 
-> **Nota de implementação n8n:** o acesso ao Node 9 via `$node[...]` requer que o nome do nó seja exato. Alternativamente, use uma variável de fluxo (Set node) para armazenar `coastersMap` antes do split de parques, e recupere-a aqui.
+> **n8n implementation note:** accessing Node 9 via `$node[...]` requires the exact node name. Alternatively, use a flow variable (Set node) to store `coastersMap` before the park split, and retrieve it here.
 
 ---
 
 ### Node 12: PostgreSQL — Upsert parks
 
-- **Tipo:** Postgres
-- **Operação:** Execute Query
+- **Type:** Postgres
+- **Operation:** Execute Query
 
 ```sql
 INSERT INTO parks (id, name, city, country, latitude, longitude, rcdb_id, status, synced_at)
@@ -458,7 +458,7 @@ WHERE
   parks.status    IS DISTINCT FROM EXCLUDED.status;
 ```
 
-**Parâmetros:**
+**Parameters:**
 - `$1` → `{{ $json.name }}`
 - `$2` → `{{ $json.city }}`
 - `$3` → `{{ $json.country }}`
@@ -471,7 +471,7 @@ WHERE
 
 ### Node 13: PostgreSQL — Upsert coasters
 
-Após todos os parques terem sido inseridos/atualizados e os status dos coasters resolvidos (Node 11b), fazer upsert dos coasters resolvendo o `park_id` pelo `park_rcdb_id`:
+After all parks have been inserted/updated and coaster statuses resolved (Node 11b), upsert coasters resolving `park_id` from `park_rcdb_id`:
 
 ```sql
 INSERT INTO coasters (id, name, park_id, rcdb_id, status, synced_at)
@@ -495,7 +495,7 @@ WHERE
   coasters.status  IS DISTINCT FROM EXCLUDED.status;
 ```
 
-**Parâmetros:**
+**Parameters:**
 - `$1` → `{{ $json.coaster_name }}`
 - `$2` → `{{ $json.coaster_rcdb_id }}`
 - `$3` → `{{ $json.status }}`
@@ -503,53 +503,53 @@ WHERE
 
 ---
 
-### Node 14: Error Handler — Log de erros
+### Node 14: Error Handler — Error logging
 
-- Cada bloco HTTP Request deve ter um caminho de erro que:
-  1. Registra o `rcdb_id` que falhou e a mensagem de erro
-  2. Continua o fluxo sem interromper o workflow inteiro
-- Usar nó **Set** para estruturar o log e **Postgres** (tabela `scraper_errors`) ou simplesmente `console.log` via nó **Code**
-
----
-
-## Resumo de requests por execução
-
-| Escopo | Requests listing | Requests park pages | Total estimado |
-|--------|-----------------|--------------------|----|
-| Brasil apenas | ~9 | ~50 parques únicos | ~60 |
-| Global (operating) | ~276 | ~4.673 parques | ~4.950 |
-| Global (todos) | ~551 | ~6.504 parques | ~7.055 |
-
-> Para a carga inicial, rodar o workflow manualmente com o escopo global. Para updates diários, o volume é baixo porque o upsert só atualiza quando há diferença real.
+- Each HTTP Request block must have an error path that:
+  1. Logs the `rcdb_id` that failed and the error message
+  2. Continues the flow without interrupting the entire workflow
+- Use a **Set** node to structure the log and **Postgres** (a `scraper_errors` table) or simply `console.log` via a **Code** node
 
 ---
 
-## Recomendações de rate limiting
+## Request Volume per Execution
 
-- **Entre pages da listing:** 500ms de delay
-- **Entre fetches de páginas de parque:** 1-2 segundos de delay
-- **Timeout por request:** 10 segundos
-- **Retries automáticos:** 2 tentativas com backoff exponencial (n8n gerencia nativamente)
-- Evitar paralelismo alto — rodar sequencialmente ou com concorrência máxima de 2
+| Scope | Listing requests | Park page requests | Estimated total |
+|-------|-----------------|-------------------|-----------------|
+| Brazil only | ~9 | ~50 unique parks | ~60 |
+| Global (operating) | ~276 | ~4,673 parks | ~4,950 |
+| Global (all) | ~551 | ~6,504 parks | ~7,055 |
+
+> For the initial load, run the workflow manually with global scope. For daily updates, volume is low because the upsert only updates when there's a real difference.
 
 ---
 
-## Validação pós-execução
+## Rate Limiting Recommendations
 
-Após a carga inicial, rodar as seguintes queries de validação no PostgreSQL:
+- **Between listing pages:** 500ms delay
+- **Between park page fetches:** 1–2 seconds delay
+- **Timeout per request:** 10 seconds
+- **Automatic retries:** 2 attempts with exponential backoff (n8n handles this natively)
+- Avoid high parallelism — run sequentially or with max concurrency of 2
+
+---
+
+## Post-Execution Validation
+
+After the initial load, run the following validation queries in PostgreSQL:
 
 ```sql
--- Contagem geral
-SELECT COUNT(*) FROM parks;    -- Esperado: ~50 (Brasil) ou ~4.673 (global)
-SELECT COUNT(*) FROM coasters; -- Esperado: ~212 (Brasil) ou ~6.839 (global operating)
+-- General counts
+SELECT COUNT(*) FROM parks;    -- Expected: ~50 (Brazil) or ~4,673 (global)
+SELECT COUNT(*) FROM coasters; -- Expected: ~212 (Brazil) or ~6,839 (global operating)
 
--- Verificar parques sem lat/lng (extração falhou)
+-- Check parks without lat/lng (extraction failed)
 SELECT id, name, rcdb_id FROM parks WHERE latitude IS NULL OR longitude IS NULL;
 
--- Verificar coasters sem park_id resolvido
+-- Check coasters without resolved park_id
 SELECT id, name, rcdb_id FROM coasters WHERE park_id IS NULL;
 
--- Sample de dados
+-- Data sample
 SELECT p.name, p.city, p.country, p.latitude, p.longitude, COUNT(c.id) AS coasters
 FROM parks p
 LEFT JOIN coasters c ON c.park_id = p.id
@@ -560,9 +560,9 @@ LIMIT 20;
 
 ---
 
-## Fora do escopo deste workflow
+## Out of Scope for This Workflow
 
-- Dados técnicos dos coasters (altura, velocidade, comprimento) — só serão coletados em fase futura se decidido
-- Lat/lng individual de cada coaster (usa-se o lat/lng do parque pai para proximidade)
-- Coasters com status "Relocated" — incluídos no upsert mas sem tratamento especial
-- Imagens ou vídeos do RCDB
+- Coaster technical data (height, speed, length) — only collected in a future phase if decided
+- Individual coaster lat/lng (parent park lat/lng is used for proximity)
+- Coasters with "Relocated" status — included in upsert but no special handling
+- Images or videos from RCDB

@@ -1,203 +1,203 @@
 # MyCoaster — Design Spec v2
 
-**Data:** 2026-05-14  
-**Status:** Aprovado
+**Date:** 2026-05-14
+**Status:** Approved
 
 ---
 
-## Visão geral
+## Overview
 
-App mobile e rede social para entusiastas de parques de diversão e montanhas-russas. Permite descobrir parques e coasters próximos (ou em qualquer lugar do mundo), marcar os coasters já andados acumulando créditos, avaliar parques e coasters com reviews e notas, explorar galeria de fotos e vídeos da comunidade, competir num leaderboard global, e conectar-se com outros parqueiros.
+Mobile app and social network for theme park and roller coaster enthusiasts. Lets users discover nearby parks and coasters (or anywhere in the world), track coasters they've ridden by accumulating credits, rate parks and coasters with reviews and scores, explore community photo and video galleries, compete on a global leaderboard, and connect with other enthusiasts.
 
-**Posicionamento:** A casa digital do parqueiro — tracking, reviews estruturadas, galeria comunitária e conexão entre entusiastas e criadores de conteúdo do nicho.
+**Positioning:** The coaster enthusiast's digital home — tracking, structured reviews, community gallery, and connection between enthusiasts and niche content creators.
 
-**Plataformas:** iOS e Android  
-**Stack:** React Native (sem Expo) · Node.js + Express · PostgreSQL · Redis · Firebase Auth · n8n
-
----
-
-## Público-alvo
-
-Entusiastas de montanhas-russas e parques de diversão que querem rastrear coasters andados, avaliar experiências, compartilhar conteúdo visual, planejar visitas a novos parques e comparar seu progresso com outros parqueiros. Foco inicial no mercado brasileiro, com expansão internacional como horizonte futuro.
+**Platforms:** iOS and Android
+**Stack:** React Native (no Expo) · Node.js + Express · PostgreSQL · Redis · Firebase Auth · n8n
 
 ---
 
-## Arquitetura
+## Target Audience
 
-### Componentes
+Roller coaster and theme park enthusiasts who want to track ridden coasters, rate experiences, share visual content, plan visits to new parks, and compare their progress with other enthusiasts. Initial focus on the Brazilian market, with international expansion as a future horizon.
 
-| Componente             | Tecnologia                        | Responsabilidade                                |
-| ---------------------- | --------------------------------- | ----------------------------------------------- |
-| App móvel              | React Native                      | UI, GPS, navegação, câmera, share               |
-| API Server             | Node.js + Express                 | Lógica de negócio, endpoints REST               |
-| Banco de dados         | PostgreSQL                        | Persistência principal                          |
-| Cache                  | Redis                             | Leaderboard global, dados frequentemente lidos  |
-| Auth provider          | Firebase Auth                     | OAuth Google/Apple + email/senha                |
-| Scraper                | n8n                               | Sincronização periódica de dados do RCDB        |
-| Armazenamento de mídia | A definir (ex: S3, Cloudflare R2) | Fotos da comunidade                             |
-| IA (batch)             | API LLM (ex: Claude/GPT)          | Resumos de reviews e extração de tags temáticas |
+---
 
-### Fluxo principal
+## Architecture
 
-1. App autentica via Firebase Auth → recebe JWT
-2. JWT é validado pelo backend em cada request
-3. App consome API REST para parques, coasters, créditos, reviews, galeria e leaderboard
-4. Workflow n8n roda periodicamente, faz scraping do RCDB e atualiza dados no PostgreSQL via upsert
-5. Leaderboard é cacheado no Redis e invalidado quando um usuário ganha crédito
-6. Batch job de IA roda periodicamente, processa reviews e gera resumos + tags temáticas cacheados no banco
+### Components
+
+| Component            | Technology                        | Responsibility                                   |
+| -------------------- | --------------------------------- | ------------------------------------------------ |
+| Mobile app           | React Native                      | UI, GPS, navigation, camera, share               |
+| API Server           | Node.js + Express                 | Business logic, REST endpoints                   |
+| Database             | PostgreSQL                        | Primary persistence                              |
+| Cache                | Redis                             | Global leaderboard, frequently read data         |
+| Auth provider        | Firebase Auth                     | OAuth Google/Apple + email/password              |
+| Scraper              | n8n                               | Periodic sync of RCDB data                       |
+| Media storage        | TBD (e.g. S3, Cloudflare R2)      | Community photos                                 |
+| AI (batch)           | LLM API (e.g. Claude/GPT)         | Review summaries and thematic tag extraction     |
+
+### Main Flow
+
+1. App authenticates via Firebase Auth → receives JWT
+2. JWT is validated by the backend on every request
+3. App consumes REST API for parks, coasters, credits, reviews, gallery, and leaderboard
+4. n8n workflow runs periodically, scrapes RCDB, and updates data in PostgreSQL via upsert
+5. Leaderboard is cached in Redis and invalidated when a user earns a credit
+6. AI batch job runs periodically, processes reviews, and generates summaries + thematic tags cached in the DB
 
 ---
 
 ## RCDB Scraper (n8n)
 
-### Estratégia
+### Strategy
 
-- Workflow no n8n agendado via trigger de tempo (1x por dia, madrugada)
-- Faz scraping do rcdb.com e busca lista de parques + coasters por parque
-- Dados coletados: nome do parque, cidade, país, lat/lng, lista de coasters (apenas nome)
-- Upsert no PostgreSQL usando `rcdb_id` como chave — nunca duplica
-- n8n gerencia retries e logs de erro nativamente
+- n8n workflow scheduled via time trigger (once daily, overnight)
+- Scrapes rcdb.com and fetches list of parks + coasters per park
+- Data collected: park name, city, country, lat/lng, list of coasters (name only)
+- Upsert into PostgreSQL using `rcdb_id` as key — never duplicates
+- n8n handles retries and error logs natively
 
-### Campos coletados
+### Fields Collected
 
 - Park: `name`, `country`, `city`, `latitude`, `longitude`, `rcdb_id`, `status`
 - Coaster: `name`, `park_id`, `rcdb_id`, `status`
 
-### Status dos coasters e parques
+### Coaster and Park Status Values
 
-Valores possíveis: `operating`, `sbno`, `under_construction`, `defunct`
+Possible values: `operating`, `sbno`, `under_construction`, `defunct`
 
-- **operating** — em operação normal
-- **sbno** — Standing But Not Operating; fisicamente presente mas temporariamente parado (manutenção prolongada, pode voltar)
-- **under_construction** — em construção, ainda não aberto
-- **defunct** — permanentemente encerrado
+- **operating** — running normally
+- **sbno** — Standing But Not Operating; physically present but temporarily stopped (extended maintenance, may return)
+- **under_construction** — being built, not yet open
+- **defunct** — permanently closed
 
-O status do parque é extraído do primeiro link `g.htm?id=` da página do parque no RCDB.  
-O status de cada coaster é derivado da seção em que aparece na página do parque (`<h4>Operating Roller Coasters`, `<h4>SBNO Roller Coasters`, etc.).
+Park status is extracted from the first `g.htm?id=` link on the RCDB park page.
+Each coaster's status is derived from the section it appears in on the park page (`<h4>Operating Roller Coasters`, `<h4>SBNO Roller Coasters`, etc.).
 
 ---
 
-## IA — Resumos e tags temáticas
+## AI — Summaries and Thematic Tags
 
-### Visão geral
+### Overview
 
-Um batch job periódico processa reviews em texto livre e gera dois outputs para cada parque e coaster: um resumo textual e um conjunto de tags temáticas com contagem de menções e sentimento (positivo/negativo/misto).
+A periodic batch job processes free-text reviews and generates two outputs for each park and coaster: a text summary and a set of thematic tags with mention count and sentiment (positive/negative/mixed).
 
-### Regras
+### Rules
 
-- Só é gerado quando há no mínimo 10 reviews para o parque ou coaster
-- Roda periodicamente (ex: semanal) ou quando acumular N reviews novas desde a última geração
-- Output salvo como JSONB no campo `ai_summary` do parque ou coaster
-- App lê o JSON cacheado — sem chamada de IA em tempo real
+- Only generated when there are at least 10 reviews for the park or coaster
+- Runs periodically (e.g. weekly) or when N new reviews have accumulated since last generation
+- Output saved as JSONB in the `ai_summary` field of the park or coaster
+- App reads the cached JSON — no real-time AI calls
 
-### Tags esperadas (não fixas — emergem dos comentários)
+### Expected Tags (not fixed — emerge from comments)
 
-**Para parques:** Tematização, Filas, Alimentação, Atendimento, Infraestrutura, Custo-benefício, Limpeza, Estacionamento, etc.  
-**Para coasters:** Adrenalina, Suavidade, Brusquidão, Tematização, Fila, Conforto, Emoção, Enjoo, etc.
+**For parks:** Theming, Queues, Food, Service, Infrastructure, Value, Cleanliness, Parking, etc.
+**For coasters:** Adrenaline, Smoothness, Roughness, Theming, Queue, Comfort, Excitement, Nausea, etc.
 
 ### UI
 
-- Resumo exibido no topo da seção de reviews do parque/coaster
-- Tags clicáveis abaixo do resumo — ao clicar, filtra reviews que mencionam o tema
-- Label "Gerado por IA a partir dos comentários da comunidade" visível
+- Summary displayed at the top of the park/coaster reviews section
+- Clickable tags below the summary — clicking filters reviews that mention the theme
+- Label "AI-generated from community reviews" visible
 
 ---
 
-## Galeria de fotos
+## Photo Gallery
 
-### Regras de upload
+### Upload Rules
 
-- Cada usuário pode enviar até 3 fotos por parque e 3 por coaster, por período (ex: por mês)
-- Usuários premium podem enviar até 6 fotos por parque/coaster por período
-- Fotos entram com status `pending` e ficam visíveis após moderação (inicialmente: delay + report pela comunidade)
-- Ao fazer upload, usuário concede licença de uso da imagem na galeria do app, com autoria creditada
+- Each user can submit up to 3 photos per park and 3 per coaster, per period (e.g. per month)
+- Premium users can submit up to 6 photos per park/coaster per period
+- Photos enter with `pending` status and become visible after moderation (initially: delay + community report)
+- On upload, user grants a usage license for the image in the app gallery, with authorship credited
 
-### Ordenação do carrossel
+### Carousel Sorting
 
-Prioridade de exibição baseada em: likes (maior peso) + recência (fotos mais novas sobem) — carregamento paginado para limitar tráfego.
+Display priority based on: likes (higher weight) + recency (newer photos rise) — paginated loading to limit traffic.
 
-### Cold start
+### Cold Start
 
-- Antes do lançamento da feature, galeria dos principais parques é populada com fotos do próprio time/criador
-- Parques sem fotos exibem CTA: "Visitou esse parque? Seja o primeiro a compartilhar uma foto!"
-- Campanha de lançamento nos canais do criador (YouTube/Instagram) para ativar a comunidade
-
----
-
-## Vídeos
-
-### Regras
-
-- Apenas URLs do YouTube são aceitas (sem armazenamento de vídeo no servidor)
-- Thumbnail e título extraídos automaticamente via YouTube oEmbed/API
-- Vinculados a parque e/ou coaster
-- Exibidos na seção de vídeos do perfil do parque ou coaster
+- Before the feature launches, galleries for major parks are populated with content from the team/creator
+- Parks without photos display a CTA: "Visited this park? Be the first to share a photo!"
+- Launch campaign on creator's channels (YouTube/Instagram) to activate the community
 
 ---
 
-## Sistema de reviews
+## Videos
 
-### Fluxo do usuário
+### Rules
 
-1. Usuário seleciona parque ou coaster
-2. Dá uma nota geral de 1 a 5 estrelas
-3. Escreve um comentário em texto livre (opcional, mas incentivado)
-4. Submete — uma review por parque e uma por coaster por usuário
-
-### Notas
-
-- Nota média do parque/coaster é calculada democraticamente — todos os votos têm peso igual
-- Badge do usuário (Novato, Entusiasta, Veterano, Lenda) é exibido ao lado do nome na review, permitindo que o leitor avalie o nível de experiência de quem escreveu
-- Não há peso diferenciado para usuários pagantes ou com mais créditos
+- Only YouTube URLs are accepted (no server-side video storage)
+- Thumbnail and title extracted automatically via YouTube oEmbed/API
+- Linked to a park and/or coaster
+- Displayed in the videos section of the park or coaster profile
 
 ---
 
-## Perfil do usuário
+## Review System
 
-### Dados exibidos
+### User Flow
 
-- Nome, avatar, badge de nível
-- Credit count e histórico de coasters andados
-- Links para Instagram, TikTok e YouTube (opcionais)
-- Fotos enviadas para a galeria
-- Vídeos vinculados
-- Reviews escritas
+1. User selects a park or coaster
+2. Gives an overall rating of 1 to 5 stars
+3. Writes a free-text comment (optional, but encouraged)
+4. Submits — one review per park and one per coaster per user
 
-### Perfil público
+### Ratings
 
-Qualquer usuário pode visitar o perfil de outro e ver créditos, badge, redes sociais, fotos e vídeos compartilhados.
-
----
-
-## Monetização (fase futura)
-
-### Assinatura premium
-
-- Limite maior de uploads de fotos por período
-- Estatísticas avançadas do perfil (ex: distribuição de coasters por país, tipo, etc.)
-- Perfil personalizado
-- Sem ads
-
-### Cupons geolocalizados
-
-- Quando o usuário estiver na região de um parque parceiro, recebe sugestão de cupom de desconto
-- Modelo de comissão sobre conversões
-- Requer parcerias comerciais individuais com cada parque
-
-### Afiliados de hospedagem
-
-- Sugestão de hospedagens próximas a parques via programas de afiliados (ex: Booking, Hoteis.com)
-- Comissão sobre reservas realizadas via link do app
+- Park/coaster average rating is calculated democratically — all votes have equal weight
+- User's badge (Rookie, Enthusiast, Veteran, Legend) is displayed next to their name on the review, letting readers assess the experience level of the reviewer
+- No differentiated weight for paying users or users with more credits
 
 ---
 
-## Fora do escopo (todas as fases)
+## User Profile
 
-- Filtros por tipo, altura ou velocidade de coasters
-- Dados técnicos dos coasters (apenas nome)
-- Feed de atividade de amigos (timeline)
-- Notificações push
-- Modo offline
-- Armazenamento de vídeos no servidor (apenas URLs do YouTube)
-- Peso diferenciado nas avaliações para usuários pagantes ou com mais créditos
-- Categorias fixas de avaliação (notas por subcategoria) — substituído por tags emergentes via IA
+### Data Displayed
+
+- Name, avatar, badge level
+- Credit count and ridden coaster history
+- Links to Instagram, TikTok, and YouTube (optional)
+- Photos submitted to the gallery
+- Linked videos
+- Written reviews
+
+### Public Profile
+
+Any user can visit another's profile and see credits, badge, social links, shared photos, and videos.
+
+---
+
+## Monetization (future phase)
+
+### Premium Subscription
+
+- Higher photo upload limit per period
+- Advanced profile stats (e.g. coaster distribution by country, type, etc.)
+- Custom profile
+- No ads
+
+### Geolocated Coupons
+
+- When the user is near a partner park, they receive a discount coupon suggestion
+- Commission model on conversions
+- Requires individual commercial partnerships with each park
+
+### Hotel Affiliates
+
+- Accommodation suggestions near parks via affiliate programs (e.g. Booking, Hotels.com)
+- Commission on bookings made via app link
+
+---
+
+## Out of Scope (all phases)
+
+- Coaster filtering by type, height, or speed
+- Coaster technical data (name only)
+- Friend activity feed / timeline
+- Push notifications
+- Offline mode
+- Server-side video storage (YouTube URLs only)
+- Weighted ratings for paying users or users with more credits
+- Fixed review subcategories (replaced by AI-emergent tags)

@@ -14,7 +14,7 @@
 │  src/index.js                               │
 │  ├── helmet, cors, express.json             │
 │  ├── /health  (DB + Redis ping)             │
-│  ├── routes/ (TODO: not yet created)        │
+│  ├── routes/index.js (scaffold, no logic)   │
 │  ├── middlewares/auth.js (JWT verify)       │
 │  └── middlewares/errorHandler.js            │
 └──────┬──────────────┬──────────────────────-┘
@@ -64,7 +64,8 @@
 - App reads cached JSON — zero real-time AI calls
 
 ## Current State of the Codebase
-- **Backend foundation is built**: server boots, health check works, DB + Redis connected, migrations all created, auth + error handler middlewares implemented
-- **Routes are NOT yet implemented** — no route files exist yet (`/api/src/routes/` doesn't exist)
+- **Backend base fully configured**: server boots, health check works, DB + Redis connected, migrations all created, env validation, Firebase Admin, Zod, Morgan, route scaffold all in place
+- **Route logic NOT yet implemented** — `routes/index.js` exists as a stub; all Phase 1 routes are commented placeholders
+- **Staging live** — deployed on EasyPanel (PostgreSQL + Redis as services, API as app on `develop` branch)
 - **App (React Native)** — `/app` directory does not exist yet
-- **Scraper** — n8n workflow JSON exists in `/scraper/rcdb-workflow.json` (spec complete)
+- **Scraper** — n8n workflow JSON exists in `/scraper/rcdb-workflow.json`; Brazil scope populated

@@ -1,8 +1,8 @@
-# MyCoaster — Modelo de Dados
+# MyCoaster — Data Model
 
 ---
 
-## Tabelas
+## Tables
 
 **users**
 
@@ -12,8 +12,8 @@ name            string
 email           string unique
 auth_provider   string          -- 'google' | 'apple' | 'email'
 firebase_uid    string unique
-credit_count    int default 0   -- contador desnormalizado, atualizado via trigger
-badge_level     string          -- 'rookie' | 'enthusiast' | 'veteran' | 'legend' (derivado de credit_count; traduzido via i18n no app)
+credit_count    int default 0   -- denormalized counter, maintained via trigger
+badge_level     string          -- 'rookie' | 'enthusiast' | 'veteran' | 'legend' (derived from credit_count; translated via i18n in app)
 avatar_url      string nullable
 instagram_url   string nullable
 tiktok_url      string nullable
@@ -33,7 +33,7 @@ latitude        float
 longitude       float
 rcdb_id         string unique
 status          string default 'operating'  -- 'operating' | 'sbno' | 'under_construction' | 'defunct'
-                                            -- sincronizado via scraper RCDB (g.htm?id= da página do parque)
+                                            -- synced via RCDB scraper (g.htm?id= on park page)
 ai_summary      jsonb nullable  -- { summary: string, tags: [...], generated_at: timestamp }
 synced_at       timestamp
 ```
@@ -46,7 +46,7 @@ park_id         uuid FK → parks.id
 name            string
 rcdb_id         string unique
 status          string default 'operating'  -- 'operating' | 'sbno' | 'under_construction' | 'defunct'
-                                            -- derivado da seção da página do parque no RCDB
+                                            -- derived from section heading on RCDB park page
 ai_summary      jsonb nullable  -- { summary: string, tags: [...], generated_at: timestamp }
 synced_at       timestamp
 ```
@@ -58,7 +58,7 @@ id              uuid PK
 user_id         uuid FK → users.id
 coaster_id      uuid FK → coasters.id
 ridden_at       timestamp
-UNIQUE(user_id, coaster_id)     -- um crédito por coaster por usuário
+UNIQUE(user_id, coaster_id)     -- one credit per coaster per user
 ```
 
 **reviews**
@@ -66,10 +66,10 @@ UNIQUE(user_id, coaster_id)     -- um crédito por coaster por usuário
 ```
 id              uuid PK
 user_id         uuid FK → users.id
-coaster_id      uuid FK → coasters.id  (nullable — se for review de parque, coaster_id é null)
-park_id         uuid FK → parks.id     (nullable — se for review de coaster, preenchido via coaster.park_id)
+coaster_id      uuid FK → coasters.id  (nullable — null when reviewing a park)
+park_id         uuid FK → parks.id     (nullable — populated via coaster.park_id when reviewing a coaster)
 target_type     string                 -- 'coaster' | 'park'
-rating          int                    -- 1 a 5 (nota geral dada pelo usuário)
+rating          int                    -- 1 to 5 (overall rating given by user)
 comment         string nullable
 created_at      timestamp
 updated_at      timestamp
@@ -84,9 +84,9 @@ id              uuid PK
 user_id         uuid FK → users.id
 park_id         uuid FK → parks.id nullable
 coaster_id      uuid FK → coasters.id nullable
-image_url       string              -- URL no storage (S3/R2)
+image_url       string              -- URL in object storage (S3/R2)
 status          string default 'pending'  -- 'pending' | 'approved' | 'rejected'
-like_count      int default 0       -- desnormalizado para ordenação
+like_count      int default 0       -- denormalized for sorting
 created_at      timestamp
 ```
 
@@ -108,44 +108,44 @@ user_id         uuid FK → users.id
 park_id         uuid FK → parks.id nullable
 coaster_id      uuid FK → coasters.id nullable
 youtube_url     string
-thumbnail_url   string              -- extraído via YouTube API
+thumbnail_url   string              -- extracted via YouTube API
 title           string nullable
 created_at      timestamp
 ```
 
 ---
 
-## Trigger de crédito
+## Credit Trigger
 
-Ao inserir em `user_credits` → incrementa `users.credit_count` e atualiza `badge_level` se atingir threshold.  
-Ao deletar de `user_credits` → decrementa `users.credit_count` e atualiza `badge_level` se necessário.
+On INSERT into `user_credits` → increments `users.credit_count` and updates `badge_level` if threshold is reached.
+On DELETE from `user_credits` → decrements `users.credit_count` and updates `badge_level` if needed.
 
 ---
 
-## Thresholds de badges
+## Badge Thresholds
 
-| Badge      | Créditos |
+| Badge      | Credits  |
 | ---------- | -------- |
 | rookie     | 0–49     |
 | enthusiast | 50–149   |
 | veteran    | 150–299  |
 | legend     | 300+     |
 
-_Valores iniciais — podem ser ajustados com base nos dados reais de uso._
+_Initial values — may be adjusted based on real usage data._
 
 ---
 
-## Formato do ai_summary (JSONB)
+## ai_summary Format (JSONB)
 
-Salvo nos campos `parks.ai_summary` e `coasters.ai_summary`.
+Stored in `parks.ai_summary` and `coasters.ai_summary`.
 
 ```json
 {
-  "summary": "Os visitantes elogiam a variedade de atrações e a tematização...",
+  "summary": "Visitors praise the variety of attractions and theming...",
   "tags": [
-    { "label": "Tematização", "mentions": 89, "sentiment": "positive" },
-    { "label": "Filas", "mentions": 72, "sentiment": "negative" },
-    { "label": "Alimentação", "mentions": 65, "sentiment": "mixed" }
+    { "label": "Theming", "mentions": 89, "sentiment": "positive" },
+    { "label": "Queues", "mentions": 72, "sentiment": "negative" },
+    { "label": "Food", "mentions": 65, "sentiment": "mixed" }
   ],
   "review_count": 203,
   "generated_at": "2026-05-14T03:00:00Z"

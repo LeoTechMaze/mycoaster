@@ -5,9 +5,9 @@ _Persistent memory: decisions, blockers, lessons, deferred ideas. Updated each s
 ---
 
 ## Current Status
-**Date:** 2026-05-22
-**Active Phase:** Phase 0 (Foundation) + Phase 1 (MVP) starting
-**Codebase maturity:** Backend skeleton complete. No routes yet. No app yet. Status field added to both `parks` and `coasters` (migrations run). DB populated with parks and coasters from RCDB (Brazil scope, all statuses correct).
+**Date:** 2026-06-05
+**Active Phase:** Phase 0 complete → Phase 1 (MVP) starting
+**Codebase maturity:** Backend base fully configured. Route scaffold in place (no route logic yet). Staging environment live on EasyPanel. DB seeded with Canada's Wonderland + Hopi Hari for local development. RCDB scraper populated Brazil scope in production.
 
 ---
 
@@ -34,7 +34,7 @@ _Persistent memory: decisions, blockers, lessons, deferred ideas. Updated each s
 ## Active Blockers
 
 - **B-001:** Object storage decision (S3 vs R2) — blocks photo upload route (Phase 3)
-- **B-002:** Firebase Admin SDK not initialized in codebase — blocks `POST /auth/login`
+- ~~**B-002:** Firebase Admin SDK not initialized~~ ✅ RESOLVED 2026-06-05 — `api/src/config/firebase.js` created; initializes on startup when `FIREBASE_SERVICE_ACCOUNT_PATH` is set.
 - ~~**B-003:** n8n scraper not yet run against real RCDB~~ ✅ RESOLVED 2026-05-22 — scraper run against Brazil scope, parks and coasters populated with correct status values.
 
 ---
@@ -42,8 +42,8 @@ _Persistent memory: decisions, blockers, lessons, deferred ideas. Updated each s
 ## Technical Concerns (see CONCERNS.md for detail)
 
 - **C-001** 🔴 Redis cache not invalidated by credit trigger — needs wiring in credits route
-- **C-002** 🔴 Firebase Admin SDK not initialized — `auth.js` handles own JWT but not Firebase token exchange
-- **C-003** 🔴 No input validation library installed
+- ~~**C-002**~~ ✅ Firebase Admin SDK initialized in `api/src/config/firebase.js`
+- ~~**C-003**~~ ✅ Zod installed and `validate` middleware created (`api/src/middlewares/validate.js`)
 - **C-004** 🔴 Photo upload rate limiting not enforced at DB level — needs route-level enforcement
 - **C-005** 🟡 Geo proximity: btree index on floats is approximate bounding box only
 - **C-006** 🟡 `reviews` table missing check constraint for coaster_id/park_id mutual exclusivity
@@ -74,11 +74,8 @@ _Persistent memory: decisions, blockers, lessons, deferred ideas. Updated each s
 
 ## Next Actions (Priority Order)
 
-1. Initialize Firebase Admin SDK in `api/src/config/firebase.js`
-2. Add `reviews` mutual-exclusivity check constraint (follow-up migration)
-3. Add `reviews.updated_at` auto-update trigger (follow-up migration)
-4. Install input validation library (recommend `zod`)
-5. Build `POST /auth/login` route
-6. Build all Phase 1 API routes
-7. ~~Run n8n scraper against Brazil scope~~ ✅ Done
-8. Start React Native app scaffold
+1. Add `reviews` mutual-exclusivity check constraint (follow-up migration) — C-006
+2. Add `reviews.updated_at` auto-update trigger (follow-up migration) — C-007
+3. Build `POST /auth/login` route (Firebase token → internal JWT)
+4. Build all Phase 1 API routes
+5. Start React Native app scaffold

@@ -1,7 +1,7 @@
 # PROJECT.md — MyCoaster
 
 ## Vision
-A casa digital do parqueiro — o app definitivo para entusiastas de parques de diversão e montanhas-russas rastrearem coasters andados, avaliarem experiências, descobrirem novos parques, e se conectarem com a comunidade.
+The coaster enthusiast's digital home — the definitive app for theme park and roller coaster enthusiasts to track ridden coasters, rate experiences, discover new parks, and connect with the community.
 
 ## Positioning
 Mobile-first social platform for coaster enthusiasts. Tracking + structured reviews + community gallery + leaderboard competition. Brazilian market first, global expansion horizon.

@@ -1,115 +1,115 @@
-# MyCoaster — Plano de Implementação
+# MyCoaster — Implementation Plan
 
-**Data:** 2026-05-15  
-**Status:** Aprovado
+**Date:** 2026-05-15
+**Status:** Approved
 
-Tasks granulares estão no **ClickUp** → Board "🎢 HapFun — Produto".
-
----
-
-## Fases
-
-### Fase 0 — Fundação (paralela a todas as fases)
-
-**Objetivo:** Infraestrutura base pronta e dados populados.
-
-- Configuração do banco de dados PostgreSQL + Redis
-- Servidor Node.js + Express com CI/CD
-- Scraper n8n rodando e populando parques e coasters do RCDB
-- Setup do ambiente de staging/produção
-
-_O scraper deve estar rodando e com dados antes de qualquer tela do app ser testada._
-
-### Fase 1 — MVP de lançamento
-
-**Objetivo:** App funcional que já entrega valor e começa a acumular reviews.
-
-- Autenticação (Firebase Auth — Google, Apple, email/senha)
-- Descoberta de parques e coasters (GPS + busca por cidade/país)
-- Listagem de coasters por parque
-- Sistema de créditos (marcar/desmarcar coaster)
-- Perfil do usuário com credit count e histórico
-- Review simples: nota geral 1-5 + comentário em texto livre
-- Reviews de parques e de coasters
-
-### Fase 2 — Competição e retenção
-
-**Objetivo:** Transformar o app de ferramenta individual em experiência social e competitiva.
-
-- Leaderboard global (Redis cache)
-- Badges visuais por nível de créditos (Novato, Entusiasta, Veterano, Lenda)
-- Compartilhamento de conquistas (share sheet nativo)
-- Perfil público com links para Instagram, TikTok e YouTube
-
-### Fase 3 — Conteúdo da comunidade
-
-**Objetivo:** Transformar as páginas de parques e coasters em espaços ricos com conteúdo visual.
-
-**Pré-requisito:** Base de usuários ativa (Fases 1 e 2 consolidadas).
-
-- Galeria de fotos por parque e coaster (upload com limite por período)
-- Vídeos via URL do YouTube vinculados a parque/coaster
-- Sistema de likes em fotos
-- Carrossel com ordenação por likes + recência
-- Pipeline básico de moderação (delay + report)
-- Estratégia de cold start: seed content do criador + campanha de lançamento nos canais
-
-### Fase 4 — Inteligência (IA)
-
-**Objetivo:** Agregar valor sobre a massa de reviews acumulada.
-
-**Pré-requisito:** Massa crítica de reviews (mínimo ~10 por parque/coaster para ativação).
-
-- Resumo por IA das reviews (estilo Amazon "Customers say")
-- Tags temáticas extraídas dos comentários com contagem e sentimento
-- Tags clicáveis que filtram reviews por tema
-- Batch job periódico com output cacheado em JSONB
-
-### Fase 5 — Monetização
-
-**Objetivo:** Gerar receita após retenção comprovada.
-
-**Pré-requisito:** Engajamento e retenção validados nas fases anteriores.
-
-- Assinatura premium (limite maior de uploads, stats avançados, perfil personalizado)
-- Cupons geolocalizados com notificação por proximidade (requer parcerias com parques)
-- Afiliados de hospedagem
+Granular tasks are tracked in **ClickUp** → Board "🎢 HapFun — Produto".
 
 ---
 
-## Paralelismo entre fases
+## Phases
 
-- Fase 0 roda em paralelo com todo o desenvolvimento
-- O backend da Fase 4 (IA) pode ser preparado durante a Fase 3, mas só é ativado com dados suficientes
-- Negociação comercial para cupons (Fase 5) pode começar durante a Fase 2 ou 3
+### Phase 0 — Foundation (runs in parallel with all phases)
+
+**Goal:** Base infrastructure ready and data populated.
+
+- PostgreSQL + Redis setup
+- Node.js + Express server with CI/CD
+- n8n scraper running and populating parks and coasters from RCDB
+- Staging/production environment setup
+
+_The scraper must be running and have data before any app screen is tested._
+
+### Phase 1 — MVP Launch
+
+**Goal:** Functional app that already delivers value and starts accumulating reviews.
+
+- Authentication (Firebase Auth — Google, Apple, email/password)
+- Park and coaster discovery (GPS + city/country search)
+- Coaster listing by park
+- Credit system (mark/unmark coaster as ridden)
+- User profile with credit count and history
+- Simple review: overall rating 1–5 + free-text comment
+- Park and coaster reviews
+
+### Phase 2 — Competition & Retention
+
+**Goal:** Turn the app from an individual tool into a social and competitive experience.
+
+- Global leaderboard (Redis cache)
+- Visual badges by credit level (Rookie, Enthusiast, Veteran, Legend)
+- Achievement sharing (native share sheet)
+- Public profile with links to Instagram, TikTok, and YouTube
+
+### Phase 3 — Community Content
+
+**Goal:** Turn park and coaster pages into rich spaces with visual content.
+
+**Prerequisite:** Active user base (Phases 1 and 2 consolidated).
+
+- Photo gallery per park and coaster (upload with per-period limit)
+- Videos via YouTube URL linked to park/coaster
+- Photo likes system
+- Carousel sorted by likes + recency
+- Basic moderation pipeline (delay + community report)
+- Cold start strategy: seed content from creator + launch campaign on channels
+
+### Phase 4 — AI Intelligence
+
+**Goal:** Add value on top of the accumulated review mass.
+
+**Prerequisite:** Critical mass of reviews (minimum ~10 per park/coaster for activation).
+
+- AI review summaries (Amazon "Customers say" style)
+- Thematic tags extracted from comments with mention count and sentiment
+- Clickable tags that filter reviews by theme
+- Periodic batch job with output cached as JSONB
+
+### Phase 5 — Monetization
+
+**Goal:** Generate revenue after proven retention.
+
+**Prerequisite:** Engagement and retention validated in previous phases.
+
+- Premium subscription (higher upload limits, advanced stats, custom profile)
+- Geolocated coupons with proximity notification (requires park partnerships)
+- Hotel affiliate links near parks
 
 ---
 
-## Prioridades
+## Phase Parallelism
 
-| Fase | Prioridade | Dependências |
+- Phase 0 runs in parallel with all development
+- Phase 4 backend (AI) can be prepared during Phase 3 but only activated with sufficient data
+- Commercial negotiation for coupons (Phase 5) can begin during Phase 2 or 3
+
+---
+
+## Priorities
+
+| Phase | Priority | Dependencies |
 |---|---|---|
-| 0 — Fundação | P0 | — |
-| 1 — MVP de lançamento | P0 | Fase 0 |
-| 2 — Competição e retenção | P1 | Fase 1 |
-| 3 — Conteúdo da comunidade | P2 | Fases 1 e 2 |
-| 4 — Inteligência (IA) | P2 | Fase 3 (reviews acumuladas) |
-| 5 — Monetização | P3 | Fases 1–4 (retenção comprovada) |
+| 0 — Foundation | P0 | — |
+| 1 — MVP Launch | P0 | Phase 0 |
+| 2 — Competition & Retention | P1 | Phase 1 |
+| 3 — Community Content | P2 | Phases 1 and 2 |
+| 4 — AI Intelligence | P2 | Phase 3 (accumulated reviews) |
+| 5 — Monetization | P3 | Phases 1–4 (proven retention) |
 
 ---
 
-## Stack de ferramentas
+## Tooling Stack
 
-| Categoria | Ferramenta |
+| Category | Tool |
 |---|---|
 | Backend framework | Node.js + Express |
 | Query builder | knex.js |
 | Auth SDK | firebase-admin |
 | Cache | ioredis |
 | App navigation | React Navigation |
-| Auth mobile | @react-native-firebase/auth |
+| Mobile auth | @react-native-firebase/auth |
 | HTTP client | axios |
 | Share | react-native-share |
 | Scraper | n8n (self-hosted) |
 | Local DB dev | Docker Compose |
-| Object storage | S3 ou Cloudflare R2 (a definir) |
+| Object storage | S3 or Cloudflare R2 (TBD) |

@@ -21,12 +21,19 @@ MyCoasterProject/
 │   ├── src/
 │   │   ├── config/
 │   │   │   ├── database.js       ← knex instance (singleton)
-│   │   │   ├── knexfile.js       ← knex config (connection, pool, migrations path)
-│   │   │   └── redis.js          ← ioredis client (lazy connect, retry)
+│   │   │   ├── env.js            ← Zod env validation — process.exit(1) on missing required vars
+│   │   │   ├── firebase.js       ← Firebase Admin SDK init (graceful warn if unconfigured)
+│   │   │   ├── knexfile.js       ← knex config (connection, pool, migrations/seeds path)
+│   │   │   └── redis.js          ← ioredis client (lazy connect, retry, ACL user support)
 │   │   ├── middlewares/
 │   │   │   ├── auth.js           ← JWT verify → req.user
-│   │   │   └── errorHandler.js   ← Global Express error handler
-│   │   └── index.js              ← App entry: middleware stack, health check, boot
+│   │   │   ├── errorHandler.js   ← Global Express error handler
+│   │   │   └── validate.js       ← Zod validation middleware factory (body/query/params)
+│   │   ├── routes/
+│   │   │   └── index.js          ← Central router (Phase 1 route stubs, commented)
+│   │   ├── utils/
+│   │   │   └── response.js       ← success() helper → { data, meta? } envelope
+│   │   └── index.js              ← App entry: env validation, Firebase init, Morgan, routes, boot
 │   └── package.json
 │
 ├── app/                          ← React Native app (NOT YET CREATED)
@@ -60,7 +67,8 @@ MyCoasterProject/
 | Error handler middleware | ✅ Complete |
 | DB config (knex) | ✅ Complete |
 | Redis config (ioredis) | ✅ Complete |
-| API routes (`/auth`, `/parks`, `/coasters`, etc.) | ❌ Not yet implemented |
+| API route scaffold (`routes/index.js`) | ✅ Complete (stubs only, no logic) |
+| API route logic (`/auth`, `/parks`, `/coasters`, etc.) | ❌ Not yet implemented |
 | React Native app (`/app`) | ❌ Not yet started |
 | n8n workflow (spec) | ✅ Spec complete, importable JSON exists |
 | Object storage integration | ❌ Not yet decided (S3 vs R2) |

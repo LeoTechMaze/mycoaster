@@ -11,10 +11,10 @@
 - [x] Error handler middleware
 - [x] Knex + Redis config
 - [x] n8n scraper running and populating parks + coasters from RCDB
-- [x] Configurar repositório monorepo (/api, /app, /scraper)
-- [x] Configurar Docker Compose (PostgreSQL + Redis)
-- [x] Configurar projeto Node.js + Express base (/api)
-- [x] Setup CI/CD e ambiente de staging
+- [x] Configure monorepo (/api, /app, /scraper)
+- [x] Configure Docker Compose (PostgreSQL + Redis)
+- [x] Configure Node.js + Express base project (/api)
+- [x] Setup CI/CD and staging environment
 - [x] Firebase Admin SDK initialized in API
 
 ### Developer Tooling (parallel — before Phase 1 routes)

@@ -4,75 +4,75 @@
 
 ## Auth
 
-| Método | Rota        | Descrição                                   |
-| ------ | ----------- | ------------------------------------------- |
-| POST   | /auth/login | Valida token Firebase, cria/retorna usuário |
+| Method | Route        | Description                                      |
+| ------ | ------------ | ------------------------------------------------ |
+| POST   | /auth/login  | Validates Firebase token, creates/returns user   |
 
-## Usuários
+## Users
 
-| Método | Rota       | Descrição                                                     |
-| ------ | ---------- | ------------------------------------------------------------- |
-| GET    | /users/:id | Perfil público (nome, avatar, badge, créditos, redes sociais) |
-| PATCH  | /users/me  | Atualizar perfil (nome, avatar, redes sociais)                |
+| Method | Route       | Description                                                      |
+| ------ | ----------- | ---------------------------------------------------------------- |
+| GET    | /users/:id  | Public profile (name, avatar, badge, credits, social links)      |
+| PATCH  | /users/me   | Update own profile (name, avatar, social links)                  |
 
-## Parques
+## Parks
 
-| Método | Rota                     | Descrição                                         |
-| ------ | ------------------------ | ------------------------------------------------- |
-| GET    | /parks?lat=&lng=&radius= | Parques próximos por GPS                          |
-| GET    | /parks?country=&city=    | Busca por cidade/país                             |
-| GET    | /parks/:id               | Detalhe do parque (dados, ai_summary, nota média) |
-| GET    | /parks/:id/coasters      | Coasters de um parque                             |
-| GET    | /parks/:id/reviews       | Reviews do parque                                 |
-| GET    | /parks/:id/photos        | Galeria de fotos do parque                        |
-| GET    | /parks/:id/videos        | Vídeos vinculados ao parque                       |
+| Method | Route                     | Description                                           |
+| ------ | ------------------------- | ----------------------------------------------------- |
+| GET    | /parks?lat=&lng=&radius=  | Nearby parks by GPS                                   |
+| GET    | /parks?country=&city=     | Search by city/country                                |
+| GET    | /parks/:id                | Park detail (data, ai_summary, avg rating)            |
+| GET    | /parks/:id/coasters       | Coasters in a park                                    |
+| GET    | /parks/:id/reviews        | Park reviews                                          |
+| GET    | /parks/:id/photos         | Park photo gallery                                    |
+| GET    | /parks/:id/videos         | Videos linked to a park                               |
 
 ## Coasters
 
-| Método | Rota                        | Descrição                                             |
-| ------ | --------------------------- | ----------------------------------------------------- |
-| GET    | /coasters?lat=&lng=&radius= | Coasters próximos por GPS (via localização do parque) |
-| GET    | /coasters?country=&city=    | Coasters por cidade/país                              |
-| GET    | /coasters/:id               | Detalhe do coaster (dados, ai_summary, nota média)    |
-| GET    | /coasters/:id/reviews       | Reviews do coaster                                    |
-| GET    | /coasters/:id/photos        | Galeria de fotos do coaster                           |
-| GET    | /coasters/:id/videos        | Vídeos vinculados ao coaster                          |
+| Method | Route                         | Description                                                  |
+| ------ | ----------------------------- | ------------------------------------------------------------ |
+| GET    | /coasters?lat=&lng=&radius=   | Nearby coasters by GPS (via parent park location)            |
+| GET    | /coasters?country=&city=      | Coasters by city/country                                     |
+| GET    | /coasters/:id                 | Coaster detail (data, ai_summary, avg rating)                |
+| GET    | /coasters/:id/reviews         | Coaster reviews                                              |
+| GET    | /coasters/:id/photos          | Coaster photo gallery                                        |
+| GET    | /coasters/:id/videos          | Videos linked to a coaster                                   |
 
-## Créditos
+## Credits
 
-| Método | Rota                 | Descrição                                    |
-| ------ | -------------------- | -------------------------------------------- |
-| POST   | /credits             | Marcar coaster como andado                   |
-| DELETE | /credits/:coaster_id | Desmarcar coaster                            |
-| GET    | /credits/me          | Histórico de créditos do usuário autenticado |
+| Method | Route                  | Description                                        |
+| ------ | ---------------------- | -------------------------------------------------- |
+| POST   | /credits               | Mark coaster as ridden                             |
+| DELETE | /credits/:coaster_id   | Unmark coaster as ridden                           |
+| GET    | /credits/me            | Authenticated user's credit history                |
 
 ## Reviews
 
-| Método | Rota                 | Descrição                                                     |
-| ------ | -------------------- | ------------------------------------------------------------- |
-| POST   | /reviews             | Criar review (parque ou coaster): nota geral 1-5 + comentário |
-| PUT    | /reviews/:id         | Atualizar review existente                                    |
-| GET    | /reviews/coaster/:id | Reviews de um coaster                                         |
-| GET    | /reviews/park/:id    | Reviews de um parque                                          |
+| Method | Route                  | Description                                                       |
+| ------ | ---------------------- | ----------------------------------------------------------------- |
+| POST   | /reviews               | Create review (park or coaster): overall rating 1–5 + comment    |
+| PUT    | /reviews/:id           | Update existing review                                            |
+| GET    | /reviews/coaster/:id   | Reviews for a coaster                                             |
+| GET    | /reviews/park/:id      | Reviews for a park                                                |
 
-## Fotos
+## Photos
 
-| Método | Rota             | Descrição                                      |
-| ------ | ---------------- | ---------------------------------------------- |
-| POST   | /photos          | Upload de foto (vinculada a parque ou coaster) |
-| POST   | /photos/:id/like | Curtir foto                                    |
-| DELETE | /photos/:id/like | Descurtir foto                                 |
-| DELETE | /photos/:id      | Remover foto própria                           |
+| Method | Route              | Description                                         |
+| ------ | ------------------ | --------------------------------------------------- |
+| POST   | /photos            | Upload photo (linked to a park or coaster)          |
+| POST   | /photos/:id/like   | Like a photo                                        |
+| DELETE | /photos/:id/like   | Unlike a photo                                      |
+| DELETE | /photos/:id        | Delete own photo                                    |
 
-## Vídeos
+## Videos
 
-| Método | Rota        | Descrição                                     |
-| ------ | ----------- | --------------------------------------------- |
-| POST   | /videos     | Vincular vídeo do YouTube a parque ou coaster |
-| DELETE | /videos/:id | Remover vínculo de vídeo próprio              |
+| Method | Route        | Description                                         |
+| ------ | ------------ | --------------------------------------------------- |
+| POST   | /videos      | Link a YouTube video to a park or coaster           |
+| DELETE | /videos/:id  | Remove own video link                               |
 
 ## Leaderboard
 
-| Método | Rota         | Descrição                                   |
-| ------ | ------------ | ------------------------------------------- |
-| GET    | /leaderboard | Top usuários por credit count (Redis cache) |
+| Method | Route         | Description                                      |
+| ------ | ------------- | ------------------------------------------------ |
+| GET    | /leaderboard  | Top users by credit count (Redis cached)         |
