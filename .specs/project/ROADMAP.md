@@ -14,7 +14,7 @@
 - [x] Configurar repositório monorepo (/api, /app, /scraper)
 - [x] Configurar Docker Compose (PostgreSQL + Redis)
 - [x] Configurar projeto Node.js + Express base (/api)
-- [ ] Setup CI/CD e ambiente de staging
+- [x] Setup CI/CD e ambiente de staging
 - [x] Firebase Admin SDK initialized in API
 
 ### Developer Tooling (parallel — before Phase 1 routes)
