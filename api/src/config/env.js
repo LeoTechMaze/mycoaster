@@ -1,7 +1,7 @@
 const { z } = require('zod');
 
 const schema = z.object({
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  NODE_ENV: z.string().default('production'),
   PORT: z.coerce.number().default(3000),
 
   POSTGRES_HOST: z.string().default('localhost'),
