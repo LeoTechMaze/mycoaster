@@ -29,15 +29,11 @@
 **Risk:** `idx_parks_lat_lng` is a simple btree index on float columns. A naive `BETWEEN lat±delta AND lng±delta` box query will work but is imprecise (returns a bounding box, not a true circle). No `earth_distance` or PostGIS extension is set up.
 **Recommendation:** Either add the `earthdistance` + `cube` PostgreSQL extensions (lightweight, built-in) or use a Haversine formula in SQL. Avoid relying solely on bounding-box filtering for radius queries.
 
-### C-006: `reviews` table has nullable coaster_id and park_id with no DB-level integrity check
-**Area:** `api/migrations/20260515000005_create_reviews.js`
-**Risk:** Both `coaster_id` and `park_id` are nullable, and `target_type` determines which is populated. Nothing at the DB level prevents a row with `target_type='coaster'` but no `coaster_id`, or a row with both set.
-**Recommendation:** Add a check constraint: `CHECK ((target_type = 'coaster' AND coaster_id IS NOT NULL AND park_id IS NULL) OR (target_type = 'park' AND park_id IS NOT NULL AND coaster_id IS NULL))`. This is a missing migration that should be added.
+### ~~C-006: `reviews` table has nullable coaster_id and park_id with no DB-level integrity check~~ ✅ RESOLVED 2026-06-05
+Added `chk_reviews_mutual_exclusivity` in `api/migrations/20260605000001_add_reviews_mutual_exclusivity.js`.
 
-### C-007: No `updated_at` auto-update mechanism for reviews
-**Area:** `api/migrations/20260515000005_create_reviews.js`
-**Risk:** `reviews.updated_at` defaults to `now()` at insert time but won't auto-update on `PUT /reviews/:id` unless the route explicitly sets it. Easy to forget.
-**Recommendation:** Add a PL/pgSQL trigger to auto-set `updated_at = NOW()` on UPDATE, similar to the credit trigger pattern already established.
+### ~~C-007: No `updated_at` auto-update mechanism for reviews~~ ✅ RESOLVED 2026-06-05
+Added `trg_reviews_updated_at` trigger in `api/migrations/20260605000002_add_reviews_updated_at_trigger.js`.
 
 ### C-008: n8n workflow JSON not fully validated
 **Area:** `scraper/rcdb-workflow.json`
