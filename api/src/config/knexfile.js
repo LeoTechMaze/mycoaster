@@ -49,6 +49,9 @@ module.exports = {
     tableName: "knex_migrations",
     extension: "js",
   },
+  seeds: {
+    directory: path.resolve(__dirname, "../../seeds"),
+  },
   pool: {
     min: 2,
     max: 10,
