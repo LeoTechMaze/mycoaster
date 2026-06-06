@@ -46,8 +46,8 @@ _Persistent memory: decisions, blockers, lessons, deferred ideas. Updated each s
 - ~~**C-003**~~ ✅ Zod installed and `validate` middleware created (`api/src/middlewares/validate.js`)
 - **C-004** 🔴 Photo upload rate limiting not enforced at DB level — needs route-level enforcement
 - **C-005** 🟡 Geo proximity: btree index on floats is approximate bounding box only
-- **C-006** 🟡 `reviews` table missing check constraint for coaster_id/park_id mutual exclusivity
-- **C-007** 🟡 `reviews.updated_at` not auto-updated on UPDATE — needs trigger or route discipline
+- ~~**C-006**~~ ✅ Reviews mutual-exclusivity constraint added (`20260605000001_add_reviews_mutual_exclusivity.js`)
+- ~~**C-007**~~ ✅ `reviews.updated_at` trigger added (`20260605000002_add_reviews_updated_at_trigger.js`)
 - **C-008** 🟡 n8n workflow JSON not tested against live RCDB yet (status extraction from section headings is new — needs a real run to validate regex against live HTML)
 - **C-011** 🟢 `knex.schema.raw()` vs `knex.raw()` inconsistency in migrations
 
@@ -74,8 +74,10 @@ _Persistent memory: decisions, blockers, lessons, deferred ideas. Updated each s
 
 ## Next Actions (Priority Order)
 
-1. Add `reviews` mutual-exclusivity check constraint (follow-up migration) — C-006
-2. Add `reviews.updated_at` auto-update trigger (follow-up migration) — C-007
-3. Build `POST /auth/login` route (Firebase token → internal JWT)
-4. Build all Phase 1 API routes
-5. Start React Native app scaffold
+Phase 1 is split into 5 focused PRs:
+1. ~~`feat/phase-1-migrations`~~ ✅ C-006 + C-007 resolved
+2. `feat/phase-1-auth-users` — POST /auth/login, GET /users/:id, PATCH /users/me + Jest/Supertest harness
+3. `feat/phase-1-parks-coasters` — read-only catalog + geo routes
+4. `feat/phase-1-credits` — credits CRUD + Redis cache invalidation (C-001)
+5. `feat/phase-1-reviews` — reviews CRUD
+6. React Native app — separate effort, after API is stable
