@@ -23,6 +23,11 @@ function errorHandler(err, _req, res, _next) {
     return res.status(400).json({ error: 'Invalid reference: related resource not found' });
   }
 
+  // PostgreSQL invalid input syntax (e.g. non-UUID passed as UUID column)
+  if (err.code === '22P02') {
+    return res.status(400).json({ error: 'Invalid ID format' });
+  }
+
   // Default: 500
   return res.status(500).json({
     error: 'Internal server error',

@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
+    "test": "jest --runInBand",
+    "test:watch": "jest --watch",
     "migrate:latest": "knex migrate:latest --knexfile src/config/knexfile.js",
     "migrate:rollback": "knex migrate:rollback --knexfile src/config/knexfile.js",
     "migrate:make": "knex migrate:make --knexfile src/config/knexfile.js",
@@ -27,7 +29,9 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "nodemon": "^3.1.4"
+    "jest": "^30.4.2",
+    "nodemon": "^3.1.4",
+    "supertest": "^7.2.2"
   },
   "engines": {
     "node": ">=20"
