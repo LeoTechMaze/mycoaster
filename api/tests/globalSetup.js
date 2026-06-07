@@ -24,7 +24,7 @@ module.exports = async () => {
   try {
     await adminDb.raw(`CREATE DATABASE ??`, [process.env.POSTGRES_DB]);
   } catch (err) {
-    if (!err.message.includes('already exists')) throw err;
+    if (err.code !== '42P04') throw err;
   } finally {
     await adminDb.destroy();
   }
