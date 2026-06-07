@@ -80,6 +80,39 @@ describe('POST /api/v1/auth/login', () => {
     expect(Number(count.n)).toBe(1);
   });
 
+  it('links an existing account when the same email logs in with a different provider', async () => {
+    const [existing] = await db('users')
+      .insert({
+        name: 'Switcher User',
+        email: 'switcher@example.com',
+        firebase_uid: 'firebase-uid-google',
+        auth_provider: 'google',
+      })
+      .returning('id');
+
+    verifyIdToken.mockResolvedValue({
+      uid: 'firebase-uid-apple',
+      email: 'switcher@example.com',
+      name: 'Switcher User',
+      firebase: { sign_in_provider: 'apple.com' },
+    });
+
+    const res = await request(app)
+      .post('/api/v1/auth/login')
+      .send({ token: 'fake-firebase-token' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.user.id).toBe(existing.id);
+    expect(res.body.data.user.email).toBe('switcher@example.com');
+
+    const dbUser = await db('users').where({ id: existing.id }).first();
+    expect(dbUser.firebase_uid).toBe('firebase-uid-apple');
+    expect(dbUser.auth_provider).toBe('apple');
+
+    const count = await db('users').where({ email: 'switcher@example.com' }).count('id as n').first();
+    expect(Number(count.n)).toBe(1);
+  });
+
   it('returns 422 when token field is missing', async () => {
     const res = await request(app)
       .post('/api/v1/auth/login')

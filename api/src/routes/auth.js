@@ -54,6 +54,20 @@ router.post('/login', validate(loginSchema), async (req, res) => {
   let user = await db('users').where({ firebase_uid: uid }).select(USER_FIELDS).first();
 
   if (!user) {
+    // Attempt to link an existing account with the same email (provider switch).
+    // Doing the update directly avoids a separate SELECT and is atomic.
+    [user] = await db('users')
+      .where({ email })
+      .update({
+        firebase_uid: uid,
+        auth_provider: provider,
+        ...(name != null && { name }),
+        ...(picture != null && { avatar_url: picture }),
+      })
+      .returning(USER_FIELDS);
+  }
+
+  if (!user) {
     [user] = await db('users')
       .insert({
         name: name ?? email.split('@')[0],
