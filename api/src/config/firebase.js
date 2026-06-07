@@ -9,7 +9,7 @@ if (!env.FIREBASE_SERVICE_ACCOUNT_PATH) {
 } else {
   const serviceAccountPath = path.isAbsolute(env.FIREBASE_SERVICE_ACCOUNT_PATH)
     ? env.FIREBASE_SERVICE_ACCOUNT_PATH
-    : path.resolve(__dirname, '../../..', env.FIREBASE_SERVICE_ACCOUNT_PATH);
+    : path.resolve(__dirname, '../..', env.FIREBASE_SERVICE_ACCOUNT_PATH);
 
   if (!fs.existsSync(serviceAccountPath)) {
     console.warn(`[Firebase] Service account file not found at ${serviceAccountPath} — Admin SDK not initialized`);
