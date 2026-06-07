@@ -27,7 +27,10 @@ const patchSchema = z.object({
   avatar_url: z.string().url().nullable().optional(),
   instagram_url: z.string().url().nullable().optional(),
   tiktok_url: z.string().url().nullable().optional(),
-  youtube_url: z.string().url().nullable().optional(),
+  youtube_url: z.string().url().regex(
+    /^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\//,
+    'Must be a YouTube URL (youtube.com or youtu.be)'
+  ).nullable().optional(),
 });
 
 router.patch('/me', authenticate, validate(patchSchema), async (req, res) => {
