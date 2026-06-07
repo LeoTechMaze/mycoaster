@@ -42,6 +42,13 @@ router.post('/login', validate(loginSchema), async (req, res) => {
   }
 
   const { uid, email, name, picture } = decoded;
+
+  if (!uid || !email) {
+    const err = new Error('Firebase token is missing required claims (uid, email)');
+    err.status = 422;
+    throw err;
+  }
+
   const provider = PROVIDER_MAP[decoded.firebase?.sign_in_provider] || 'email';
 
   let user = await db('users').where({ firebase_uid: uid }).select(USER_FIELDS).first();
@@ -49,7 +56,7 @@ router.post('/login', validate(loginSchema), async (req, res) => {
   if (!user) {
     [user] = await db('users')
       .insert({
-        name: name || email.split('@')[0],
+        name: name ?? email.split('@')[0],
         email,
         firebase_uid: uid,
         auth_provider: provider,
