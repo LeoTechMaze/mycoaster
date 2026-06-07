@@ -2,10 +2,10 @@
 function errorHandler(err, _req, res, _next) {
   const isDev = process.env.NODE_ENV === 'development';
 
-  console.error('[Error]', err);
-
   // Operational errors (set err.status in route handlers / validate middleware)
   if (err.status || err.statusCode) {
+    const status = err.status || err.statusCode;
+    if (status >= 500) console.error('[Error]', err);
     return res.status(err.status || err.statusCode).json({
       error: err.message,
       ...(err.details && { details: err.details }),
