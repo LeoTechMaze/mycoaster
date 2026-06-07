@@ -45,6 +45,12 @@ router.patch('/me', authenticate, validate(patchSchema), async (req, res) => {
     .update(req.validated)
     .returning([...PUBLIC_FIELDS, 'email']);
 
+  if (!updated) {
+    const err = new Error('User not found');
+    err.status = 404;
+    throw err;
+  }
+
   return success(res, updated);
 });
 
