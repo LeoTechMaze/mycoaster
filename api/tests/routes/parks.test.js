@@ -1,49 +1,11 @@
 const request = require('supertest');
 const app = require('../../src/app');
-const { db, truncate } = require('../helpers/db');
+const { db } = require('../helpers/db');
 
 const CW_ID         = '10000000-0000-0000-0000-000000004539';
 const HH_ID         = '10000000-0000-0000-0000-000000004947';
-const CW_COASTER_ID = '20000000-0000-0000-0000-000000000001';
-
-beforeEach(async () => {
-  await db('parks').insert([
-    {
-      id: CW_ID,
-      name: "Canada's Wonderland",
-      country: 'Canada',
-      city: 'Vaughan',
-      latitude: 43.843,
-      longitude: -79.537,
-      rcdb_id: 'test-cw',
-      status: 'operating',
-      synced_at: new Date(),
-    },
-    {
-      id: HH_ID,
-      name: 'Hopi Hari',
-      country: 'Brazil',
-      city: 'Vinhedo',
-      latitude: -23.097,
-      longitude: -46.946,
-      rcdb_id: 'test-hh',
-      status: 'operating',
-      synced_at: new Date(),
-    },
-  ]);
-  await db('coasters').insert({
-    id: CW_COASTER_ID,
-    park_id: CW_ID,
-    name: 'Leviathan',
-    rcdb_id: 'test-leviathan',
-    status: 'operating',
-    synced_at: new Date(),
-  });
-});
-
-afterEach(async () => {
-  await truncate('coasters', 'parks');
-});
+const EMPTY_PARK_ID = '10000000-0000-0000-0000-000000000003';
+const CW_LEVIATHAN_ID = '20000000-0000-0000-0000-000000000001';
 
 afterAll(async () => {
   await db.destroy();
@@ -145,7 +107,7 @@ describe('GET /api/v1/parks/:id/coasters', () => {
 
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body.data)).toBe(true);
-    const levi = res.body.data.find(c => c.id === CW_COASTER_ID);
+    const levi = res.body.data.find(c => c.id === CW_LEVIATHAN_ID);
     expect(levi).toBeDefined();
     expect(levi.name).toBe('Leviathan');
     expect(levi.avg_rating).toBeNull();
@@ -159,18 +121,7 @@ describe('GET /api/v1/parks/:id/coasters', () => {
   });
 
   it('returns empty array for a park with no coasters', async () => {
-    const [emptyPark] = await db('parks').insert({
-      name: 'Empty Park',
-      country: 'Test',
-      city: 'Test City',
-      latitude: 0,
-      longitude: 0,
-      rcdb_id: 'test-empty-park',
-      status: 'operating',
-      synced_at: new Date(),
-    }).returning('id');
-
-    const res = await request(app).get(`/api/v1/parks/${emptyPark.id}/coasters`);
+    const res = await request(app).get(`/api/v1/parks/${EMPTY_PARK_ID}/coasters`);
     expect(res.status).toBe(200);
     expect(res.body.data).toEqual([]);
   });

@@ -7,14 +7,16 @@ jest.mock('../../src/config/firebase', () => {
 
 const request = require('supertest');
 const app = require('../../src/app');
-const { db, truncate } = require('../helpers/db');
+const { db } = require('../helpers/db');
 const firebase = require('../../src/config/firebase');
 
 const verifyIdToken = firebase.auth().verifyIdToken;
 
+const TEST_EMAILS = ['newuser@example.com', 'existing@example.com', 'switcher@example.com'];
+
 afterEach(async () => {
   verifyIdToken.mockReset();
-  await truncate('users');
+  await db('users').whereIn('email', TEST_EMAILS).delete();
 });
 
 afterAll(async () => {

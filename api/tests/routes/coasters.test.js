@@ -1,49 +1,10 @@
 const request = require('supertest');
 const app = require('../../src/app');
-const { db, truncate } = require('../helpers/db');
+const { db } = require('../helpers/db');
 
-const CW_ID         = '10000000-0000-0000-0000-000000004539';
-const HH_ID         = '10000000-0000-0000-0000-000000004947';
-const CW_COASTER_ID = '20000000-0000-0000-0000-000000000001';
-
-beforeEach(async () => {
-  await db('parks').insert([
-    {
-      id: CW_ID,
-      name: "Canada's Wonderland",
-      country: 'Canada',
-      city: 'Vaughan',
-      latitude: 43.843,
-      longitude: -79.537,
-      rcdb_id: 'test-cw',
-      status: 'operating',
-      synced_at: new Date(),
-    },
-    {
-      id: HH_ID,
-      name: 'Hopi Hari',
-      country: 'Brazil',
-      city: 'Vinhedo',
-      latitude: -23.097,
-      longitude: -46.946,
-      rcdb_id: 'test-hh',
-      status: 'operating',
-      synced_at: new Date(),
-    },
-  ]);
-  await db('coasters').insert({
-    id: CW_COASTER_ID,
-    park_id: CW_ID,
-    name: 'Leviathan',
-    rcdb_id: 'test-leviathan',
-    status: 'operating',
-    synced_at: new Date(),
-  });
-});
-
-afterEach(async () => {
-  await truncate('coasters', 'parks');
-});
+const CW_ID           = '10000000-0000-0000-0000-000000004539';
+const HH_ID           = '10000000-0000-0000-0000-000000004947';
+const CW_LEVIATHAN_ID = '20000000-0000-0000-0000-000000000001';
 
 afterAll(async () => {
   await db.destroy();
@@ -55,7 +16,7 @@ describe('GET /api/v1/coasters — geo mode', () => {
       .get('/api/v1/coasters?lat=43.843&lng=-79.537&radius=10');
 
     expect(res.status).toBe(200);
-    const levi = res.body.data.find(c => c.id === CW_COASTER_ID);
+    const levi = res.body.data.find(c => c.id === CW_LEVIATHAN_ID);
     expect(levi).toBeDefined();
     expect(typeof levi.distance_km).toBe('number');
   });
@@ -86,11 +47,11 @@ describe('GET /api/v1/coasters — validation', () => {
 
 describe('GET /api/v1/coasters/:id', () => {
   it('returns coaster with avg_rating and nested park object', async () => {
-    const res = await request(app).get(`/api/v1/coasters/${CW_COASTER_ID}`);
+    const res = await request(app).get(`/api/v1/coasters/${CW_LEVIATHAN_ID}`);
 
     expect(res.status).toBe(200);
     const c = res.body.data;
-    expect(c.id).toBe(CW_COASTER_ID);
+    expect(c.id).toBe(CW_LEVIATHAN_ID);
     expect(c.name).toBe('Leviathan');
     expect(c.avg_rating).toBeNull();
     expect(c.park).toBeDefined();
