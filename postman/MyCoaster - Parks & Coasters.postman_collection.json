@@ -1,0 +1,723 @@
+{
+  "info": {
+    "_postman_id": "mycoaster-parks-coasters-v1",
+    "name": "MyCoaster — Parks & Coasters",
+    "description": "Phase 1 read-only catalog endpoints. Uses seed data UUIDs — run `npx knex seed:run` before testing.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl",         "value": "http://localhost:3000",                    "type": "string" },
+    { "key": "CW_ID",           "value": "10000000-0000-0000-0000-000000004539",     "type": "string" },
+    { "key": "HH_ID",           "value": "10000000-0000-0000-0000-000000004947",     "type": "string" },
+    { "key": "EMPTY_PARK_ID",   "value": "10000000-0000-0000-0000-000000000003",     "type": "string" },
+    { "key": "CW_LEVIATHAN_ID", "value": "20000000-0000-0000-0000-000000000001",     "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Parks",
+      "item": [
+        {
+          "name": "Geo Search",
+          "item": [
+            {
+              "name": "Within radius — returns CW with distance_km",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/parks?lat=43.843&lng=-79.537&radius=10",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "parks"],
+                  "query": [
+                    { "key": "lat",    "value": "43.843" },
+                    { "key": "lng",    "value": "-79.537" },
+                    { "key": "radius", "value": "10" }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const json = pm.response.json();",
+                      "",
+                      "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                      "",
+                      "pm.test('Returns an array', () => {",
+                      "  pm.expect(json.data).to.be.an('array');",
+                      "});",
+                      "",
+                      "pm.test(\"Canada's Wonderland is in results\", () => {",
+                      "  const cw = json.data.find(p => p.id === pm.collectionVariables.get('CW_ID'));",
+                      "  pm.expect(cw).to.exist;",
+                      "});",
+                      "",
+                      "pm.test('Each result has a numeric distance_km', () => {",
+                      "  json.data.forEach(p => pm.expect(p.distance_km).to.be.a('number'));",
+                      "});",
+                      "",
+                      "pm.test('Results are sorted by distance ASC', () => {",
+                      "  for (let i = 1; i < json.data.length; i++) {",
+                      "    pm.expect(json.data[i].distance_km).to.be.at.least(json.data[i - 1].distance_km);",
+                      "  }",
+                      "});",
+                      "",
+                      "pm.test('CW distance_km is less than radius (10 km)', () => {",
+                      "  const cw = json.data.find(p => p.id === pm.collectionVariables.get('CW_ID'));",
+                      "  pm.expect(cw.distance_km).to.be.below(10);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Within radius — Hopi Hari excluded",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/parks?lat=43.843&lng=-79.537&radius=10",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "parks"],
+                  "query": [
+                    { "key": "lat",    "value": "43.843" },
+                    { "key": "lng",    "value": "-79.537" },
+                    { "key": "radius", "value": "10" }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const json = pm.response.json();",
+                      "",
+                      "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                      "",
+                      "pm.test('Hopi Hari is NOT in results (~11 000 km away)', () => {",
+                      "  const hh = json.data.find(p => p.id === pm.collectionVariables.get('HH_ID'));",
+                      "  pm.expect(hh).to.be.undefined;",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Text Search",
+          "item": [
+            {
+              "name": "By country — case-insensitive (canada)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/parks?country=canada",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "parks"],
+                  "query": [{ "key": "country", "value": "canada" }]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const json = pm.response.json();",
+                      "",
+                      "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                      "",
+                      "pm.test(\"Canada's Wonderland is in results\", () => {",
+                      "  pm.expect(json.data.some(p => p.id === pm.collectionVariables.get('CW_ID'))).to.be.true;",
+                      "});",
+                      "",
+                      "pm.test('Hopi Hari is NOT in results', () => {",
+                      "  pm.expect(json.data.some(p => p.id === pm.collectionVariables.get('HH_ID'))).to.be.false;",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "By city",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/parks?city=Vinhedo",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "parks"],
+                  "query": [{ "key": "city", "value": "Vinhedo" }]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const json = pm.response.json();",
+                      "",
+                      "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                      "",
+                      "pm.test('Hopi Hari is in results', () => {",
+                      "  pm.expect(json.data.some(p => p.id === pm.collectionVariables.get('HH_ID'))).to.be.true;",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "By country + city",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/parks?country=Canada&city=Vaughan",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "parks"],
+                  "query": [
+                    { "key": "country", "value": "Canada" },
+                    { "key": "city",    "value": "Vaughan" }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const json = pm.response.json();",
+                      "",
+                      "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                      "",
+                      "pm.test('Exactly 1 result', () => pm.expect(json.data).to.have.lengthOf(1));",
+                      "",
+                      "pm.test(\"Result is Canada's Wonderland\", () => {",
+                      "  pm.expect(json.data[0].id).to.eql(pm.collectionVariables.get('CW_ID'));",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Validation",
+          "item": [
+            {
+              "name": "No params → 422",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/parks",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "parks"]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status 422', () => pm.response.to.have.status(422));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Missing radius → 422",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/parks?lat=43.843&lng=-79.537",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "parks"],
+                  "query": [
+                    { "key": "lat", "value": "43.843" },
+                    { "key": "lng", "value": "-79.537" }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status 422', () => pm.response.to.have.status(422));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Non-numeric lat → 422",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/parks?lat=abc&lng=-79.537&radius=50",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "parks"],
+                  "query": [
+                    { "key": "lat",    "value": "abc" },
+                    { "key": "lng",    "value": "-79.537" },
+                    { "key": "radius", "value": "50" }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status 422', () => pm.response.to.have.status(422));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Radius over 500 km → 422",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/parks?lat=43.843&lng=-79.537&radius=600",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "parks"],
+                  "query": [
+                    { "key": "lat",    "value": "43.843" },
+                    { "key": "lng",    "value": "-79.537" },
+                    { "key": "radius", "value": "600" }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status 422', () => pm.response.to.have.status(422));"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Detail",
+          "item": [
+            {
+              "name": "GET /parks/:id — detail with avg_rating null",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/parks/{{CW_ID}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "parks", "{{CW_ID}}"]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const json = pm.response.json();",
+                      "",
+                      "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                      "",
+                      "pm.test('Park id matches', () => {",
+                      "  pm.expect(json.data.id).to.eql(pm.collectionVariables.get('CW_ID'));",
+                      "});",
+                      "",
+                      "pm.test('avg_rating is null (no reviews yet)', () => {",
+                      "  pm.expect(json.data.avg_rating).to.be.null;",
+                      "});",
+                      "",
+                      "pm.test('Has expected fields', () => {",
+                      "  ['id','name','country','city','latitude','longitude','status'].forEach(f => {",
+                      "    pm.expect(json.data).to.have.property(f);",
+                      "  });",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "GET /parks/:id — 404 unknown UUID",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/parks/00000000-0000-0000-0000-000000000000",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "parks", "00000000-0000-0000-0000-000000000000"]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status 404', () => pm.response.to.have.status(404));",
+                      "pm.test('Error message', () => {",
+                      "  pm.expect(pm.response.json().error).to.eql('Park not found');",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "GET /parks/:id — 400 non-UUID",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/parks/not-a-uuid",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "parks", "not-a-uuid"]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Coasters in Park",
+          "item": [
+            {
+              "name": "GET /parks/:id/coasters — list with avg_rating",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/parks/{{CW_ID}}/coasters",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "parks", "{{CW_ID}}", "coasters"]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const json = pm.response.json();",
+                      "",
+                      "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                      "",
+                      "pm.test('Returns an array', () => pm.expect(json.data).to.be.an('array'));",
+                      "",
+                      "pm.test('Leviathan is in the list', () => {",
+                      "  const levi = json.data.find(c => c.id === pm.collectionVariables.get('CW_LEVIATHAN_ID'));",
+                      "  pm.expect(levi).to.exist;",
+                      "  pm.expect(levi.name).to.eql('Leviathan');",
+                      "});",
+                      "",
+                      "pm.test('Each coaster has avg_rating field', () => {",
+                      "  json.data.forEach(c => pm.expect(c).to.have.property('avg_rating'));",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "GET /parks/:id/coasters — 404 unknown park",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/parks/00000000-0000-0000-0000-000000000000/coasters",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "parks", "00000000-0000-0000-0000-000000000000", "coasters"]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status 404', () => pm.response.to.have.status(404));",
+                      "pm.test('Error message', () => {",
+                      "  pm.expect(pm.response.json().error).to.eql('Park not found');",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "GET /parks/:id/coasters — empty array for park with no coasters",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/parks/{{EMPTY_PARK_ID}}/coasters",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "parks", "{{EMPTY_PARK_ID}}", "coasters"]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const json = pm.response.json();",
+                      "",
+                      "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                      "pm.test('Empty array', () => pm.expect(json.data).to.eql([]));"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Coasters",
+      "item": [
+        {
+          "name": "Geo Search",
+          "item": [
+            {
+              "name": "Within radius — CW coasters returned with distance_km",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/coasters?lat=43.843&lng=-79.537&radius=10",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "coasters"],
+                  "query": [
+                    { "key": "lat",    "value": "43.843" },
+                    { "key": "lng",    "value": "-79.537" },
+                    { "key": "radius", "value": "10" }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const json = pm.response.json();",
+                      "",
+                      "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                      "",
+                      "pm.test('Leviathan is in results', () => {",
+                      "  const levi = json.data.find(c => c.id === pm.collectionVariables.get('CW_LEVIATHAN_ID'));",
+                      "  pm.expect(levi).to.exist;",
+                      "});",
+                      "",
+                      "pm.test('Each result has a numeric distance_km', () => {",
+                      "  json.data.forEach(c => pm.expect(c.distance_km).to.be.a('number'));",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Within radius — Hopi Hari coasters excluded",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/coasters?lat=43.843&lng=-79.537&radius=10",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "coasters"],
+                  "query": [
+                    { "key": "lat",    "value": "43.843" },
+                    { "key": "lng",    "value": "-79.537" },
+                    { "key": "radius", "value": "10" }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const json = pm.response.json();",
+                      "",
+                      "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                      "",
+                      "pm.test('No coasters from Hopi Hari', () => {",
+                      "  const parkIds = json.data.map(c => c.park_id);",
+                      "  pm.expect(parkIds).to.not.include(pm.collectionVariables.get('HH_ID'));",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Text Search",
+          "item": [
+            {
+              "name": "By country — case-insensitive (brazil)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/coasters?country=brazil",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "coasters"],
+                  "query": [{ "key": "country", "value": "brazil" }]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const json = pm.response.json();",
+                      "",
+                      "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                      "",
+                      "pm.test('All results belong to Hopi Hari', () => {",
+                      "  pm.expect(json.data.length).to.be.above(0);",
+                      "  json.data.forEach(c => {",
+                      "    pm.expect(c.park_id).to.eql(pm.collectionVariables.get('HH_ID'));",
+                      "  });",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Validation",
+          "item": [
+            {
+              "name": "No params → 422",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/coasters",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "coasters"]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status 422', () => pm.response.to.have.status(422));"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Detail",
+          "item": [
+            {
+              "name": "GET /coasters/:id — detail with avg_rating and nested park",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/coasters/{{CW_LEVIATHAN_ID}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "coasters", "{{CW_LEVIATHAN_ID}}"]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const json = pm.response.json();",
+                      "",
+                      "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                      "",
+                      "pm.test('Coaster id matches', () => {",
+                      "  pm.expect(json.data.id).to.eql(pm.collectionVariables.get('CW_LEVIATHAN_ID'));",
+                      "});",
+                      "",
+                      "pm.test('avg_rating is null (no reviews yet)', () => {",
+                      "  pm.expect(json.data.avg_rating).to.be.null;",
+                      "});",
+                      "",
+                      "pm.test('Has nested park object', () => {",
+                      "  pm.expect(json.data.park).to.be.an('object');",
+                      "  pm.expect(json.data.park.id).to.eql(pm.collectionVariables.get('CW_ID'));",
+                      "  pm.expect(json.data.park.name).to.eql(\"Canada's Wonderland\");",
+                      "});",
+                      "",
+                      "pm.test('Has expected coaster fields', () => {",
+                      "  ['id','name','status','rcdb_id','park_id'].forEach(f => {",
+                      "    pm.expect(json.data).to.have.property(f);",
+                      "  });",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "GET /coasters/:id — 404 unknown UUID",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/coasters/00000000-0000-0000-0000-000000000000",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "coasters", "00000000-0000-0000-0000-000000000000"]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status 404', () => pm.response.to.have.status(404));",
+                      "pm.test('Error message', () => {",
+                      "  pm.expect(pm.response.json().error).to.eql('Coaster not found');",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "GET /coasters/:id — 400 non-UUID",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/coasters/not-a-uuid",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "coasters", "not-a-uuid"]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
