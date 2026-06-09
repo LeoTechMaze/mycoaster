@@ -2,10 +2,8 @@
 
 ## 🔴 High Priority Concerns
 
-### C-001: Redis cache not invalidated by credit trigger
-**Area:** `api/src/` (credits route — not yet built)
-**Risk:** The PostgreSQL trigger updates `credit_count` synchronously, but the Redis leaderboard cache has no invalidation logic yet. When a user earns a credit, the leaderboard will be stale until TTL expires or a manual flush.
-**Recommendation:** In `POST /credits` and `DELETE /credits/:coaster_id` handlers, after DB write, explicitly call `redis.del('leaderboard')` or update the sorted set directly.
+### ~~C-001: Redis cache not invalidated by credit trigger~~ ✅ RESOLVED 2026-06-09
+`redis.del('leaderboard').catch(() => {})` wired in both `POST /credits` and `DELETE /credits/:coaster_id` handlers in `api/src/routes/credits.js`. Fire-and-forget so Redis unavailability doesn't crash the route.
 
 ### C-002: Firebase token validation not implemented in auth middleware
 **Area:** `api/src/middlewares/auth.js`
