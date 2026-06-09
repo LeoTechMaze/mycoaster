@@ -29,9 +29,10 @@ module.exports = async () => {
     await adminDb.destroy();
   }
 
-  // Run all migrations on the test DB
+  // Run all migrations then seed the test DB
   const knexConfig = require('../src/config/knexfile');
   const testDb = knex(knexConfig);
   await testDb.migrate.latest();
+  await testDb.seed.run();
   await testDb.destroy();
 };

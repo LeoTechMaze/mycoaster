@@ -29,14 +29,14 @@
 
 **Goal:** Functional app that delivers value and starts accumulating reviews.
 
-- [ ] `POST /auth/login` — Firebase token exchange → internal JWT
-- [ ] `GET /users/:id` — public profile
-- [ ] `PATCH /users/me` — update profile
-- [ ] `GET /parks?lat=&lng=&radius=` — nearby parks by GPS
-- [ ] `GET /parks?country=&city=` — search by city/country
-- [ ] `GET /parks/:id` — park detail (data + avg rating)
-- [ ] `GET /parks/:id/coasters` — coasters in a park
-- [ ] `GET /coasters/:id` — coaster detail
+- [x] `POST /auth/login` — Firebase token exchange → internal JWT
+- [x] `GET /users/:id` — public profile
+- [x] `PATCH /users/me` — update profile
+- [x] `GET /parks?lat=&lng=&radius=` — nearby parks by GPS
+- [x] `GET /parks?country=&city=` — search by city/country
+- [x] `GET /parks/:id` — park detail (data + avg rating)
+- [x] `GET /parks/:id/coasters` — coasters in a park
+- [x] `GET /coasters/:id` — coaster detail
 - [ ] `POST /credits` + `DELETE /credits/:coaster_id` — mark/unmark ridden
 - [ ] `GET /credits/me` — credit history
 - [ ] `POST /reviews` + `PUT /reviews/:id` — create/update review
