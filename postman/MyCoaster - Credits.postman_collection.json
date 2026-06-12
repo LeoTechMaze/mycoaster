@@ -1,0 +1,558 @@
+{
+  "info": {
+    "_postman_id": "e058b638-1965-440a-a062-afb61c6c2f8f",
+    "name": "MyCoaster — Credits",
+    "description": "Phase 1 credits endpoints (POST /credits, DELETE /credits/:coaster_id, GET /credits/me). All routes require a JWT. The collection pre-request script auto-generates one from JWT_SECRET — run `npx knex seed:run` before testing.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "2348234"
+  },
+  "item": [
+    {
+      "name": "POST /credits",
+      "item": [
+        {
+          "name": "Add credit — Leviathan (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "",
+                  "pm.test('Returns the created credit with id, coaster_id and ridden_at', () => {",
+                  "  pm.expect(json.data.id).to.be.a('string');",
+                  "  pm.expect(json.data.coaster_id).to.eql(pm.collectionVariables.get('CW_LEVIATHAN_ID'));",
+                  "  pm.expect(json.data.ridden_at).to.be.a('string');",
+                  "});",
+                  "",
+                  "// Persist credit id so other requests can reference it",
+                  "pm.collectionVariables.set('lastCreditId', json.data.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coaster_id\": \"{{CW_LEVIATHAN_ID}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/credits",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "credits"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add credit — duplicate (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 409 on duplicate credit', () => pm.response.to.have.status(409));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coaster_id\": \"{{CW_LEVIATHAN_ID}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/credits",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "credits"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add credit — coaster not found (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));",
+                  "",
+                  "pm.test('Error message is \"Coaster not found\"', () => {",
+                  "  pm.expect(json.error).to.eql('Coaster not found');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coaster_id\": \"00000000-0000-0000-0000-000000000000\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/credits",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "credits"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add credit — invalid UUID (422)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 422 for non-UUID coaster_id', () => pm.response.to.have.status(422));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coaster_id\": \"not-a-uuid\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/credits",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "credits"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add credit — no auth (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401 without token', () => pm.response.to.have.status(401));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coaster_id\": \"{{CW_LEVIATHAN_ID}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/credits",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "credits"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "GET /credits/me",
+      "item": [
+        {
+          "name": "List my credits (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "pm.test('data is an array', () => {",
+                  "  pm.expect(json.data).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Each credit has required fields', () => {",
+                  "  json.data.forEach(c => {",
+                  "    pm.expect(c.id).to.be.a('string');",
+                  "    pm.expect(c.coaster_id).to.be.a('string');",
+                  "    pm.expect(c.coaster_name).to.be.a('string');",
+                  "    pm.expect(c.park_id).to.be.a('string');",
+                  "    pm.expect(c.park_name).to.be.a('string');",
+                  "    pm.expect(c.ridden_at).to.be.a('string');",
+                  "  });",
+                  "});",
+                  "",
+                  "if (json.data.length > 0) {",
+                  "  pm.test('Results are ordered by ridden_at DESC', () => {",
+                  "    for (let i = 1; i < json.data.length; i++) {",
+                  "      pm.expect(new Date(json.data[i].ridden_at).getTime())",
+                  "        .to.be.at.most(new Date(json.data[i - 1].ridden_at).getTime());",
+                  "    }",
+                  "  });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/credits/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "credits",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List my credits — no auth (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401 without token', () => pm.response.to.have.status(401));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/credits/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "credits",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "DELETE /credits/:coaster_id",
+      "item": [
+        {
+          "name": "Remove credit — Leviathan (204)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 204 — no body', () => {",
+                  "  pm.response.to.have.status(204);",
+                  "  pm.expect(pm.response.text()).to.eql('');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/credits/{{CW_LEVIATHAN_ID}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "credits",
+                "{{CW_LEVIATHAN_ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove credit — not found (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('Status 404 when credit does not exist', () => pm.response.to.have.status(404));",
+                  "",
+                  "pm.test('Error message is \"Credit not found\"', () => {",
+                  "  pm.expect(json.error).to.eql('Credit not found');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/credits/{{CW_LEVIATHAN_ID}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "credits",
+                "{{CW_LEVIATHAN_ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove credit — invalid UUID (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400 for non-UUID param', () => pm.response.to.have.status(400));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/credits/not-a-uuid",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "credits",
+                "not-a-uuid"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove credit — no auth (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401 without token', () => pm.response.to.have.status(401));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/credits/{{CW_LEVIATHAN_ID}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "credits",
+                "{{CW_LEVIATHAN_ID}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "// Auto-generate a signed JWT so every request in this collection is authenticated.",
+          "// Uses CryptoJS (built into Postman sandbox) — no external library needed.",
+          "",
+          "function b64url(str) {",
+          "  return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(str))",
+          "    .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=/g, '');",
+          "}",
+          "",
+          "const now = Math.floor(Date.now() / 1000);",
+          "const header  = b64url(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));",
+          "const payload = b64url(JSON.stringify({",
+          "  sub:   pm.collectionVariables.get('USER_ID'),",
+          "  email: pm.collectionVariables.get('USER_EMAIL'),",
+          "  iat:   now,",
+          "  exp:   now + 3600",
+          "}));",
+          "",
+          "const signingInput = `${header}.${payload}`;",
+          "const sig = CryptoJS.HmacSHA256(signingInput, pm.collectionVariables.get('JWT_SECRET'));",
+          "const sigB64 = CryptoJS.enc.Base64.stringify(sig)",
+          "  .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=/g, '');",
+          "",
+          "pm.collectionVariables.set('authToken', `${signingInput}.${sigB64}`);"
+        ],
+        "type": "text/javascript"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "JWT_SECRET",
+      "value": "dev-secret-replace-in-production-32chars"
+    },
+    {
+      "key": "USER_ID",
+      "value": "30000000-0000-0000-0000-000000000001"
+    },
+    {
+      "key": "USER_EMAIL",
+      "value": "test@mycoaster.app"
+    },
+    {
+      "key": "CW_LEVIATHAN_ID",
+      "value": "20000000-0000-0000-0000-000000000001"
+    },
+    {
+      "key": "authToken",
+      "value": ""
+    },
+    {
+      "key": "lastCreditId",
+      "value": ""
+    }
+  ]
+}
