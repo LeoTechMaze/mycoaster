@@ -15,12 +15,16 @@ rules enforced by the harness. Load this file at the start of every session.
 - Spec docs: `.specs/codebase/ARCHITECTURE.md`, `CONVENTIONS.md`, `CONCERNS.md`
 
 **Process:**
-1. Read `ROADMAP.md` to confirm the feature belongs to the active phase
-2. Read `ARCHITECTURE.md` and `CONVENTIONS.md` to understand constraints
-3. Read all files that will be affected
-4. Write plan to `.claude/plans/<slug>.md`
-5. Update `.claude/progress.md` with the active feature + plan reference
-6. Enter plan mode and request user approval before any code is written
+1. Run `git status` — check the current branch name.
+   - Derive the target branch: `feat/<slug>` (slug = kebab-case feature name, e.g. `phase-1-credits`).
+   - If current branch ≠ `feat/<slug>`, create and checkout: `git checkout -b feat/<slug>`.
+   - **Stop and warn** if there are uncommitted changes on the wrong branch — do not proceed until the user resolves them.
+2. Read `ROADMAP.md` to confirm the feature belongs to the active phase.
+3. Read `ARCHITECTURE.md` and `CONVENTIONS.md` to understand constraints.
+4. Read all files that will be affected.
+5. Write plan to `.claude/plans/<slug>.md`.
+6. Update `.claude/progress.md` with the active feature + plan reference.
+7. Enter plan mode and request user approval before any code is written.
 
 **Plan file format** (`.claude/plans/<slug>.md`):
 ```markdown
@@ -60,13 +64,18 @@ How to manually verify the feature works end-to-end.
 - `.specs/codebase/CONVENTIONS.md` and `ARCHITECTURE.md`
 
 **Process:**
-1. Read `.claude/progress.md` to find the active plan
-2. Block and warn if no approved plan is found
-3. Read the plan and all files it references
+1. Read `.claude/progress.md` to find the active plan.
+   - Block and warn if no approved plan is found.
+2. Run `git status` — verify current branch = `feat/<slug>` derived from the plan name.
+   - If on the wrong branch, run `git checkout -b feat/<slug>` (or `git checkout feat/<slug>` if it already exists).
+   - **Block** if there are uncommitted changes on the wrong branch — tell the user before touching any file.
+3. Read the plan and all files it references.
 4. Implement following CONVENTIONS.md strictly (CommonJS, 2-space indent, single quotes, etc.)
-5. Update the Done/In Progress checklist in `.claude/progress.md` after each file
+5. Update the Done/In Progress checklist in `.claude/progress.md` after each file.
 
-**Constraint:** Must not write or edit code files without an active approved plan.
+**Constraints:**
+- Must not write or edit code files without an active approved plan.
+- Must not write or edit code files on a branch that doesn't match the active feature slug.
 
 ---
 
@@ -113,6 +122,11 @@ Supports `--fix` flag to apply minor corrections automatically.
 ## Git Discipline
 
 Branch naming: `feat/<slug>`, `fix/<slug>`, `chore/<slug>`, `ci/<slug>`, `docs/<slug>`
+
+**Branch creation is the very first action of any feature — before the plan file is written, before any code is touched.**
+- The Planner creates the branch at step 1 of its process.
+- The Generator re-verifies the branch at step 2 before touching any file.
+- If the agent finds itself on `main`, `develop`, or a branch from a previous feature, it must stop and create the correct branch. No exceptions.
 
 ### Commit message format — Conventional Commits
 Reference: https://www.conventionalcommits.org/en/v1.0.0/

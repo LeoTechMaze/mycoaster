@@ -37,8 +37,8 @@
 - [x] `GET /parks/:id` — park detail (data + avg rating)
 - [x] `GET /parks/:id/coasters` — coasters in a park
 - [x] `GET /coasters/:id` — coaster detail
-- [ ] `POST /credits` + `DELETE /credits/:coaster_id` — mark/unmark ridden
-- [ ] `GET /credits/me` — credit history
+- [x] `POST /credits` + `DELETE /credits/:coaster_id` — mark/unmark ridden
+- [x] `GET /credits/me` — credit history
 - [ ] `POST /reviews` + `PUT /reviews/:id` — create/update review
 - [ ] `GET /reviews/park/:id` + `GET /reviews/coaster/:id`
 - [ ] React Native app: auth, discovery, credit marking, profile, reviews

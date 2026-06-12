@@ -41,7 +41,7 @@ _Persistent memory: decisions, blockers, lessons, deferred ideas. Updated each s
 
 ## Technical Concerns (see CONCERNS.md for detail)
 
-- **C-001** 🔴 Redis cache not invalidated by credit trigger — needs wiring in credits route
+- ~~**C-001**~~ ✅ Redis cache invalidated in credits route — `redis.del('leaderboard').catch(() => {})` wired in POST and DELETE handlers
 - ~~**C-002**~~ ✅ Firebase Admin SDK initialized in `api/src/config/firebase.js`
 - ~~**C-003**~~ ✅ Zod installed and `validate` middleware created (`api/src/middlewares/validate.js`)
 - **C-004** 🔴 Photo upload rate limiting not enforced at DB level — needs route-level enforcement
@@ -76,8 +76,8 @@ _Persistent memory: decisions, blockers, lessons, deferred ideas. Updated each s
 
 Phase 1 is split into 5 focused PRs:
 1. ~~`feat/phase-1-migrations`~~ ✅ C-006 + C-007 resolved
-2. `feat/phase-1-auth-users` — POST /auth/login, GET /users/:id, PATCH /users/me + Jest/Supertest harness
-3. `feat/phase-1-parks-coasters` — read-only catalog + geo routes
-4. `feat/phase-1-credits` — credits CRUD + Redis cache invalidation (C-001)
+2. ~~`feat/phase-1-auth-users`~~ ✅ POST /auth/login, GET /users/:id, PATCH /users/me + Jest/Supertest harness
+3. ~~`feat/phase-1-parks-coasters`~~ ✅ read-only catalog + geo routes
+4. ~~`feat/phase-1-credits`~~ ✅ credits CRUD + Redis cache invalidation (C-001)
 5. `feat/phase-1-reviews` — reviews CRUD
 6. React Native app — separate effort, after API is stable
