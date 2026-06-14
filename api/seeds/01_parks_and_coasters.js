@@ -85,13 +85,19 @@ const coasters = [
   // Empty Test Park has no coasters — used by tests that assert an empty array
 ];
 
-// Initial-data seed: runs once against an empty database. It deliberately
-// never deletes anything — the test harness (tests/globalSetup.js) owns
-// resetting the test DB before seeding.
+// Initial-data seed. It deliberately never deletes anything — the test
+// harness (tests/globalSetup.js) owns resetting the test DB before seeding.
+//
+// Inserts are idempotent (onConflict(<natural key>).ignore()) so the seed is
+// safe to re-run manually against a non-empty DB without violating the unique
+// constraints on users.firebase_uid / parks.rcdb_id / coasters.rcdb_id.
+// rcdb_id is the conflict target for parks/coasters because most coasters get
+// a generated UUID, so a re-run collides on the natural key, not the PK.
 exports.seed = async function (knex) {
-  await knex('users').insert(users);
-  await knex('parks').insert(parks);
-  await knex('coasters').insert(
-    coasters.map((c) => ({ ...c, synced_at: new Date() }))
-  );
+  await knex('users').insert(users).onConflict('firebase_uid').ignore();
+  await knex('parks').insert(parks).onConflict('rcdb_id').ignore();
+  await knex('coasters')
+    .insert(coasters.map((c) => ({ ...c, synced_at: new Date() })))
+    .onConflict('rcdb_id')
+    .ignore();
 };
