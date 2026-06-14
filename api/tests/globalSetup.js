@@ -29,9 +29,13 @@ module.exports = async () => {
     await adminDb.destroy();
   }
 
-  // Run all migrations on the test DB
+  // Run all migrations, reset all data, then seed the test DB.
+  // The reset lives here (not in the seed) so the seed file stays safe to
+  // run against a real database — CASCADE wipes every user-owned table.
   const knexConfig = require('../src/config/knexfile');
   const testDb = knex(knexConfig);
   await testDb.migrate.latest();
+  await testDb.raw('TRUNCATE TABLE coasters, parks, users CASCADE');
+  await testDb.seed.run();
   await testDb.destroy();
 };

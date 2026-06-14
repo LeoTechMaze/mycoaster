@@ -1,26 +1,28 @@
 const request = require('supertest');
 const app = require('../../src/app');
-const { db, truncate } = require('../helpers/db');
+const { db } = require('../helpers/db');
 const { generateToken } = require('../helpers/auth');
 
-let testUser;
+const USER_ID    = '30000000-0000-0000-0000-000000000001';
+const USER_EMAIL = 'test@mycoaster.app';
+
+// Fields this suite asserts on — reset to seed values before each test so
+// the suite never depends on what other suites left on the shared seed user
+const USER_SEED_STATE = {
+  name: 'Test User',
+  avatar_url: null,
+  instagram_url: null,
+  tiktok_url: null,
+  youtube_url: null,
+  credit_count: 0,
+  badge_level: 'rookie',
+};
+
 let authToken;
 
 beforeEach(async () => {
-  [testUser] = await db('users')
-    .insert({
-      name: 'Test User',
-      email: 'testuser@example.com',
-      firebase_uid: 'firebase-uid-test',
-      auth_provider: 'google',
-    })
-    .returning(['id', 'name', 'email', 'badge_level', 'credit_count', 'avatar_url']);
-
-  authToken = generateToken({ id: testUser.id, email: testUser.email });
-});
-
-afterEach(async () => {
-  await truncate('users');
+  await db('users').where({ id: USER_ID }).update(USER_SEED_STATE);
+  authToken = generateToken({ id: USER_ID, email: USER_EMAIL });
 });
 
 afterAll(async () => {
@@ -29,10 +31,10 @@ afterAll(async () => {
 
 describe('GET /api/v1/users/:id', () => {
   it('returns the public profile for an existing user', async () => {
-    const res = await request(app).get(`/api/v1/users/${testUser.id}`);
+    const res = await request(app).get(`/api/v1/users/${USER_ID}`);
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe(testUser.id);
+    expect(res.body.data.id).toBe(USER_ID);
     expect(res.body.data.name).toBe('Test User');
     expect(res.body.data.badge_level).toBe('rookie');
     expect(res.body.data.credit_count).toBe(0);
@@ -72,7 +74,7 @@ describe('PATCH /api/v1/users/me', () => {
       .set('Authorization', `Bearer ${authToken}`)
       .send({ name: 'Persisted Name' });
 
-    const dbUser = await db('users').where({ id: testUser.id }).first();
+    const dbUser = await db('users').where({ id: USER_ID }).first();
     expect(dbUser.name).toBe('Persisted Name');
   });
 
