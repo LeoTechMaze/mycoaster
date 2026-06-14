@@ -58,9 +58,12 @@ describe('GET /api/v1/parks — text mode', () => {
 });
 
 describe('GET /api/v1/parks — validation', () => {
-  it('returns 422 when no query params provided', async () => {
+  it('returns 422 with the cross-field refine message when no query params provided', async () => {
     const res = await request(app).get('/api/v1/parks');
     expect(res.status).toBe(422);
+    // The schema-level .refine() message must survive as the top-level error
+    expect(res.body.error).toMatch(/geo search.*text search/);
+    expect(res.body.details.formErrors).toContain(res.body.error);
   });
 
   it('returns 422 when radius is missing from geo params', async () => {
