@@ -125,12 +125,12 @@ describe('DELETE /api/v1/credits/:coaster_id', () => {
     expect(res.body.error).toBe('Credit not found');
   });
 
-  it('returns 400 for a non-UUID coaster_id', async () => {
+  it('returns 422 for a non-UUID coaster_id', async () => {
     const res = await request(app)
       .delete('/api/v1/credits/not-a-uuid')
       .set('Authorization', `Bearer ${authToken}`);
 
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(422);
   });
 
   it('returns 401 without auth token', async () => {

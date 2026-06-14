@@ -423,13 +423,13 @@
           "response": []
         },
         {
-          "name": "Remove credit — invalid UUID (400)",
+          "name": "Remove credit — invalid UUID (422)",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status 400 for non-UUID param', () => pm.response.to.have.status(400));"
+                  "pm.test('Status 422 for non-UUID param', () => pm.response.to.have.status(422));"
                 ],
                 "type": "text/javascript"
               }

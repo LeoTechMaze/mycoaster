@@ -1,32 +1,18 @@
 const { Router } = require('express');
-const { z } = require('zod');
 const db = require('../config/database');
 const { validate } = require('../middlewares/validate');
 const { success } = require('../utils/response');
+const { listQuerySchema, isGeoSearch, haversine, avgRatingSql } = require('../utils/search');
+const { uuidParams } = require('../utils/schemas');
 
 const router = Router();
 
 const COASTER_DETAIL_FIELDS = ['id', 'name', 'status', 'rcdb_id', 'park_id', 'ai_summary', 'synced_at'];
+// Aliased with a _park_ prefix so they never collide with coaster columns
+// (a plain park_ prefix turns parks.id into park_id, clobbering coasters.park_id)
 const PARK_EMBED_FIELDS     = ['id', 'name', 'country', 'city', 'latitude', 'longitude', 'status'];
 
-const listQuerySchema = z.object({
-  lat:     z.coerce.number().min(-90).max(90).optional(),
-  lng:     z.coerce.number().min(-180).max(180).optional(),
-  radius:  z.coerce.number().positive().max(500).optional(),
-  country: z.string().min(1).optional(),
-  city:    z.string().min(1).optional(),
-}).refine(
-  d => (d.lat != null && d.lng != null && d.radius != null) || d.country != null || d.city != null,
-  { message: 'Provide lat+lng+radius for geo search, or country/city for text search' }
-);
-
-const HAVERSINE = `(6371 * acos(
-  LEAST(1.0,
-    cos(radians(:lat)) * cos(radians(parks.latitude)) *
-    cos(radians(parks.longitude) - radians(:lng)) +
-    sin(radians(:lat)) * sin(radians(parks.latitude))
-  )
-))`;
+const HAVERSINE = haversine('parks.latitude', 'parks.longitude');
 
 const LIST_COLS = [
   'coasters.id', 'coasters.name', 'coasters.status',
@@ -38,7 +24,7 @@ const LIST_COLS = [
 router.get('/', validate(listQuerySchema, 'query'), async (req, res) => {
   const { lat, lng, radius, country, city } = req.validated;
 
-  if (lat != null) {
+  if (isGeoSearch(req.validated)) {
     const { rows } = await db.raw(
       `SELECT ${LIST_COLS.join(', ')}, ${HAVERSINE} AS distance_km
        FROM coasters
@@ -56,19 +42,15 @@ router.get('/', validate(listQuerySchema, 'query'), async (req, res) => {
   return success(res, await query.orderBy('coasters.name'));
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', validate(uuidParams('id'), 'params'), async (req, res) => {
   const row = await db('coasters')
     .select([
       ...COASTER_DETAIL_FIELDS.map(f => `coasters.${f}`),
-      db.raw(
-        `(SELECT ROUND(AVG(rating)::numeric, 1)
-          FROM reviews
-          WHERE coaster_id = coasters.id AND target_type = 'coaster') AS avg_rating`
-      ),
-      ...PARK_EMBED_FIELDS.map(f => `parks.${f} AS park_${f}`),
+      db.raw(avgRatingSql('coaster', 'coaster_id = coasters.id')),
+      ...PARK_EMBED_FIELDS.map(f => `parks.${f} AS _park_${f}`),
     ])
     .join('parks', 'coasters.park_id', 'parks.id')
-    .where('coasters.id', req.params.id)
+    .where('coasters.id', req.validated.id)
     .first();
 
   if (!row) {
@@ -79,8 +61,8 @@ router.get('/:id', async (req, res) => {
 
   const park = {};
   for (const f of PARK_EMBED_FIELDS) {
-    park[f] = row[`park_${f}`];
-    delete row[`park_${f}`];
+    park[f] = row[`_park_${f}`];
+    delete row[`_park_${f}`];
   }
 
   return success(res, { ...row, park });

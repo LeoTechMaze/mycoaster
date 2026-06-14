@@ -5,13 +5,12 @@ const redis = require('../config/redis');
 const authenticate = require('../middlewares/auth');
 const { validate } = require('../middlewares/validate');
 const { success } = require('../utils/response');
+const { uuid, uuidParams } = require('../utils/schemas');
 
 const router = Router();
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
 const postSchema = z.object({
-  coaster_id: z.string().regex(UUID_RE, 'Invalid UUID format'),
+  coaster_id: uuid,
 });
 
 router.post('/', authenticate, validate(postSchema), async (req, res) => {
@@ -33,18 +32,16 @@ router.post('/', authenticate, validate(postSchema), async (req, res) => {
   return success(res, credit, { status: 201 });
 });
 
-router.delete('/:coaster_id', authenticate, async (req, res) => {
-  const credit = await db('user_credits')
-    .where({ user_id: req.user.id, coaster_id: req.params.coaster_id })
-    .first('id');
+router.delete('/:coaster_id', authenticate, validate(uuidParams('coaster_id'), 'params'), async (req, res) => {
+  const deleted = await db('user_credits')
+    .where({ user_id: req.user.id, coaster_id: req.validated.coaster_id })
+    .delete();
 
-  if (!credit) {
+  if (!deleted) {
     const err = new Error('Credit not found');
     err.status = 404;
     throw err;
   }
-
-  await db('user_credits').where({ id: credit.id }).delete();
 
   redis.del('leaderboard').catch(() => {});
 

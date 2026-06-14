@@ -85,8 +85,10 @@ const coasters = [
   // Empty Test Park has no coasters — used by tests that assert an empty array
 ];
 
+// Initial-data seed: runs once against an empty database. It deliberately
+// never deletes anything — the test harness (tests/globalSetup.js) owns
+// resetting the test DB before seeding.
 exports.seed = async function (knex) {
-  await knex.raw('TRUNCATE TABLE coasters, parks, users CASCADE');
   await knex('users').insert(users);
   await knex('parks').insert(parks);
   await knex('coasters').insert(

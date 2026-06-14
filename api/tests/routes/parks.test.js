@@ -2,6 +2,7 @@ const request = require('supertest');
 const app = require('../../src/app');
 const { db } = require('../helpers/db');
 
+const USER_ID       = '30000000-0000-0000-0000-000000000001';
 const CW_ID         = '10000000-0000-0000-0000-000000004539';
 const HH_ID         = '10000000-0000-0000-0000-000000004947';
 const EMPTY_PARK_ID = '10000000-0000-0000-0000-000000000003';
@@ -76,6 +77,13 @@ describe('GET /api/v1/parks — validation', () => {
     const res = await request(app).get('/api/v1/parks?lat=43.843&lng=-79.537&radius=600');
     expect(res.status).toBe(422);
   });
+
+  it('falls back to text search when geo params are incomplete but country is present', async () => {
+    const res = await request(app).get('/api/v1/parks?lat=43.843&country=Canada');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.some(p => p.id === CW_ID)).toBe(true);
+  });
 });
 
 describe('GET /api/v1/parks/:id', () => {
@@ -95,9 +103,27 @@ describe('GET /api/v1/parks/:id', () => {
     expect(res.body.error).toBe('Park not found');
   });
 
-  it('returns 400 for a non-UUID id', async () => {
+  it('returns 422 for a non-UUID id', async () => {
     const res = await request(app).get('/api/v1/parks/not-a-uuid');
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(422);
+  });
+
+  it('returns avg_rating as a number when reviews exist', async () => {
+    await db('reviews').insert({
+      user_id: USER_ID,
+      park_id: CW_ID,
+      target_type: 'park',
+      rating: 4,
+    });
+
+    try {
+      const res = await request(app).get(`/api/v1/parks/${CW_ID}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.avg_rating).toBe(4);
+    } finally {
+      await db('reviews').where({ user_id: USER_ID, park_id: CW_ID }).delete();
+    }
   });
 });
 

@@ -6,13 +6,16 @@ const { generateToken } = require('../helpers/auth');
 const USER_ID    = '30000000-0000-0000-0000-000000000001';
 const USER_EMAIL = 'test@mycoaster.app';
 
-// Fields modified by PATCH tests — reset to seed values before each test
+// Fields this suite asserts on — reset to seed values before each test so
+// the suite never depends on what other suites left on the shared seed user
 const USER_SEED_STATE = {
   name: 'Test User',
   avatar_url: null,
   instagram_url: null,
   tiktok_url: null,
   youtube_url: null,
+  credit_count: 0,
+  badge_level: 'rookie',
 };
 
 let authToken;

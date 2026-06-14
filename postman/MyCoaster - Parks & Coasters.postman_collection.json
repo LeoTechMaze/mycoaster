@@ -372,7 +372,7 @@
               ]
             },
             {
-              "name": "GET /parks/:id — 400 non-UUID",
+              "name": "GET /parks/:id — 422 non-UUID",
               "request": {
                 "method": "GET",
                 "url": {
@@ -386,7 +386,7 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                      "pm.test('Status 422', () => pm.response.to.have.status(422));"
                     ]
                   }
                 }
@@ -695,7 +695,7 @@
               ]
             },
             {
-              "name": "GET /coasters/:id — 400 non-UUID",
+              "name": "GET /coasters/:id — 422 non-UUID",
               "request": {
                 "method": "GET",
                 "url": {
@@ -709,7 +709,7 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                      "pm.test('Status 422', () => pm.response.to.have.status(422));"
                     ]
                   }
                 }
