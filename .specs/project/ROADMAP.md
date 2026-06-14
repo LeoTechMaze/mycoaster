@@ -41,7 +41,14 @@
 - [x] `GET /credits/me` — credit history
 - [ ] `POST /reviews` + `PUT /reviews/:id` — create/update review
 - [ ] `GET /reviews/park/:id` + `GET /reviews/coaster/:id`
-- [ ] React Native app: auth, discovery, credit marking, profile, reviews
+
+### App (React Native — backend done, split out)
+
+- [ ] App setup: React Navigation, folder structure, Firebase Auth, JWT in SecureStorage + HTTP interceptor
+- [ ] Auth screens: login (Google, Apple, email/password)
+- [ ] Discovery screens: parks/coasters (GPS + search), park detail (coaster list w/ ridden indicator), coaster detail
+- [ ] Credits & profile screens: mark/unmark coaster (optimistic), profile (name, avatar, credit count, badge, history)
+- [ ] Reviews screens: create/edit review, review lists on park & coaster (depends on reviews backend)
 
 ## Phase 2 — Competition & Retention (P1, requires Phase 1)
 
