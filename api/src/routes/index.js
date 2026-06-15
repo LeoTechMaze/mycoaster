@@ -9,6 +9,6 @@ router.use('/users', require('./users'));
 router.use('/parks',    require('./parks'));
 router.use('/coasters', require('./coasters'));
 router.use('/credits',  require('./credits'));
-// router.use('/reviews',  require('./reviews'));
+router.use('/reviews',  require('./reviews'));
 
 module.exports = router;
