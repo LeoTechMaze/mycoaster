@@ -99,11 +99,17 @@ router.put(
       throw err;
     }
 
-    // updated_at is maintained by trg_reviews_updated_at
+    // Scope the UPDATE to the owner so a concurrent delete (or ownership
+    // change) yields 0 rows rather than touching a row we no longer own.
+    // updated_at is maintained by trg_reviews_updated_at.
     const [updated] = await db('reviews')
-      .where({ id })
+      .where({ id, user_id: req.user.id })
       .update(req.validated)
       .returning(RETURN_FIELDS);
+
+    // Row vanished between the ownership check and the UPDATE — don't return
+    // a 200 with an empty body.
+    if (!updated) throw notFound('Review not found');
 
     return success(res, updated);
   }
