@@ -39,8 +39,8 @@
 - [x] `GET /coasters/:id` — coaster detail
 - [x] `POST /credits` + `DELETE /credits/:coaster_id` — mark/unmark ridden
 - [x] `GET /credits/me` — credit history
-- [ ] `POST /reviews` + `PUT /reviews/:id` — create/update review
-- [ ] `GET /reviews/park/:id` + `GET /reviews/coaster/:id`
+- [x] `POST /reviews` + `PUT /reviews/:id` — create/update review
+- [x] `GET /reviews/park/:id` + `GET /reviews/coaster/:id`
 
 ### App (React Native — backend done, split out)
 
