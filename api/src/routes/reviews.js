@@ -48,7 +48,8 @@ const createSchema = z
     coaster_id: uuid.optional(),
     park_id: uuid.optional(),
     rating,
-    comment: comment.optional(),
+    // comment is a nullable column; accept null as equivalent to omitting it
+    comment: comment.nullable().optional(),
   })
   .refine(
     (d) =>

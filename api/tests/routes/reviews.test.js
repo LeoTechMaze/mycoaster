@@ -76,6 +76,16 @@ describe('POST /api/v1/reviews', () => {
     expect(res.body.data.comment).toBeNull();
   });
 
+  it('accepts an explicit null comment and stores NULL', async () => {
+    const res = await request(app)
+      .post('/api/v1/reviews')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({ target_type: 'coaster', coaster_id: CW_LEVIATHAN_ID, rating: 4, comment: null });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.comment).toBeNull();
+  });
+
   it('returns 422 when target_type does not match the provided id', async () => {
     const res = await request(app)
       .post('/api/v1/reviews')
