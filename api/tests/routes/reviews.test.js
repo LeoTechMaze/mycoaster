@@ -18,10 +18,20 @@ const OTHER_USER = {
   auth_provider: 'google',
 };
 
+// Extra reviewers so a single target can hold several reviews (one review per
+// user per target), used by the pagination suite.
+const PAGE_USERS = [1, 2, 3, 4, 5].map((n) => ({
+  id: `30000000-0000-0000-0000-0000000000a${n}`,
+  name: `Page User ${n}`,
+  email: `page${n}@mycoaster.app`,
+  firebase_uid: `firebase-page-user-${n}`,
+  auth_provider: 'google',
+}));
+
 let authToken;
 
 beforeAll(async () => {
-  await db('users').insert(OTHER_USER).onConflict('id').ignore();
+  await db('users').insert([OTHER_USER, ...PAGE_USERS]).onConflict('id').ignore();
 });
 
 beforeEach(async () => {
@@ -31,7 +41,9 @@ beforeEach(async () => {
 
 afterAll(async () => {
   await db('reviews').del();
-  await db('users').where({ id: OTHER_USER_ID }).del();
+  await db('users')
+    .whereIn('id', [OTHER_USER_ID, ...PAGE_USERS.map((u) => u.id)])
+    .del();
   await db.destroy();
 });
 
@@ -281,5 +293,66 @@ describe('GET /api/v1/reviews/park/:id', () => {
 
     expect(res.status).toBe(404);
     expect(res.body.error).toBe('Park not found');
+  });
+});
+
+describe('GET /api/v1/reviews/coaster/:id — pagination', () => {
+  const BASE_TIME = new Date('2026-01-01T00:00:00Z').getTime();
+
+  // 5 reviews on one coaster, created_at staggered so ordering is deterministic:
+  // ratings 1..5, newest (rating 5) first under created_at desc.
+  beforeEach(async () => {
+    await db('reviews').insert(
+      PAGE_USERS.map((u, i) => ({
+        user_id: u.id,
+        target_type: 'coaster',
+        coaster_id: CW_LEVIATHAN_ID,
+        rating: i + 1,
+        comment: `r${i + 1}`,
+        created_at: new Date(BASE_TIME + i * 60000),
+      }))
+    );
+  });
+
+  const get = (qs = '') =>
+    request(app).get(`/api/v1/reviews/coaster/${CW_LEVIATHAN_ID}${qs}`);
+
+  it('returns all reviews newest-first with a null next_cursor by default', async () => {
+    const res = await get();
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.map((r) => r.rating)).toEqual([5, 4, 3, 2, 1]);
+    expect(res.body.meta.next_cursor).toBeNull();
+  });
+
+  it('caps results at limit and returns a next_cursor', async () => {
+    const res = await get('?limit=2');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.map((r) => r.rating)).toEqual([5, 4]);
+    expect(res.body.meta.next_cursor).toBeTruthy();
+  });
+
+  it('walks the full set via the cursor with no overlap', async () => {
+    const p1 = await get('?limit=2');
+    const p2 = await get(`?limit=2&cursor=${encodeURIComponent(p1.body.meta.next_cursor)}`);
+    expect(p2.body.data.map((r) => r.rating)).toEqual([3, 2]);
+    expect(p2.body.meta.next_cursor).toBeTruthy();
+
+    const p3 = await get(`?limit=2&cursor=${encodeURIComponent(p2.body.meta.next_cursor)}`);
+    expect(p3.body.data.map((r) => r.rating)).toEqual([1]);
+    expect(p3.body.meta.next_cursor).toBeNull();
+  });
+
+  it('returns 422 for an invalid cursor', async () => {
+    const res = await get('?cursor=not-a-valid-cursor');
+    expect(res.status).toBe(422);
+  });
+
+  it('returns 422 for a limit out of range or non-numeric', async () => {
+    for (const limit of ['0', '101', 'abc']) {
+      const res = await get(`?limit=${limit}`);
+      expect(res.status).toBe(422);
+    }
   });
 });

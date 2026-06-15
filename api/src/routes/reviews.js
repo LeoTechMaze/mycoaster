@@ -4,9 +4,33 @@ const db = require('../config/database');
 const authenticate = require('../middlewares/auth');
 const { validate } = require('../middlewares/validate');
 const { success } = require('../utils/response');
-const { uuid, uuidParams } = require('../utils/schemas');
+const { uuid, uuidParams, UUID_RE } = require('../utils/schemas');
 
 const router = Router();
+
+const DEFAULT_LIMIT = 20;
+const MAX_LIMIT = 100;
+
+// Pagination for the review listing endpoints. Cursor encodes the
+// (created_at, id) of the last row so the next page is stable under inserts.
+const listQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(MAX_LIMIT).default(DEFAULT_LIMIT),
+  cursor: z.string().min(1).optional(),
+});
+
+function encodeCursor(row) {
+  return Buffer.from(`${row.created_at.toISOString()}|${row.id}`).toString('base64url');
+}
+
+function decodeCursor(cursor) {
+  const [createdAt, id] = Buffer.from(cursor, 'base64url').toString('utf8').split('|');
+  if (!createdAt || !id || Number.isNaN(Date.parse(createdAt)) || !UUID_RE.test(id)) {
+    const err = new Error('Invalid cursor');
+    err.status = 422;
+    throw err;
+  }
+  return { createdAt, id };
+}
 
 const RETURN_FIELDS = [
   'id', 'user_id', 'target_type', 'coaster_id', 'park_id',
@@ -117,7 +141,10 @@ router.put(
 
 function listReviews(targetType, fkColumn) {
   return async (req, res) => {
-    const { id } = req.validated;
+    // id is validated by the params gate; req.validated holds the query (the
+    // body/query validate overwrites what the params validate set).
+    const { id } = req.params;
+    const { limit, cursor } = req.validated;
 
     const table = targetType === 'coaster' ? 'coasters' : 'parks';
     const target = await db(table).where({ id }).first('id');
@@ -125,7 +152,7 @@ function listReviews(targetType, fkColumn) {
       throw notFound(targetType === 'coaster' ? 'Coaster not found' : 'Park not found');
     }
 
-    const reviews = await db('reviews as r')
+    const query = db('reviews as r')
       .join('users as u', 'r.user_id', 'u.id')
       .where('r.target_type', targetType)
       .andWhere(`r.${fkColumn}`, id)
@@ -140,13 +167,29 @@ function listReviews(targetType, fkColumn) {
         'u.avatar_url as user_avatar_url',
         'u.badge_level as user_badge_level'
       )
-      .orderBy('r.created_at', 'desc');
+      // Tiebreak on id so ordering (and the cursor) is deterministic when two
+      // reviews share a created_at timestamp.
+      .orderBy('r.created_at', 'desc')
+      .orderBy('r.id', 'desc')
+      .limit(limit + 1); // fetch one extra to detect whether a next page exists
 
-    return success(res, reviews);
+    if (cursor) {
+      const { createdAt, id: cursorId } = decodeCursor(cursor);
+      query.whereRaw('(r.created_at, r.id) < (?, ?)', [createdAt, cursorId]);
+    }
+
+    const rows = await query;
+    const hasMore = rows.length > limit;
+    const page = hasMore ? rows.slice(0, limit) : rows;
+    const next_cursor = hasMore ? encodeCursor(page[page.length - 1]) : null;
+
+    return success(res, page, { meta: { limit, next_cursor } });
   };
 }
 
-router.get('/coaster/:id', validate(uuidParams('id'), 'params'), listReviews('coaster', 'coaster_id'));
-router.get('/park/:id', validate(uuidParams('id'), 'params'), listReviews('park', 'park_id'));
+const listMiddleware = [validate(uuidParams('id'), 'params'), validate(listQuerySchema, 'query')];
+
+router.get('/coaster/:id', ...listMiddleware, listReviews('coaster', 'coaster_id'));
+router.get('/park/:id', ...listMiddleware, listReviews('park', 'park_id'));
 
 module.exports = router;
