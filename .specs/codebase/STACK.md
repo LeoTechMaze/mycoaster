@@ -2,8 +2,8 @@
 
 ## Runtime & Language
 - **Node.js** ≥ 20 (backend)
-- **JavaScript** (CommonJS, no TypeScript)
-- **React Native** (no Expo) — iOS + Android
+- **Backend:** JavaScript (CommonJS, no TypeScript)
+- **App:** TypeScript — React Native + Expo (SDK 57), iOS + Android
 
 ## Backend
 | Layer | Technology | Version |
@@ -36,11 +36,42 @@
 - **n8n** (self-hosted) — scheduled workflow scraping RCDB daily at 03:00 UTC
 - Upserts `parks` and `coasters` using `rcdb_id` as idempotency key
 
-## Mobile (planned — no code yet)
-- React Navigation
-- @react-native-firebase/auth
-- axios
-- react-native-share
+## Mobile (`/app` — layout implemented, data layer pending)
+
+Managed Expo project. Entry point is `expo-router/entry`; screens live in `app/src/app/`.
+
+| Layer | Technology | Version |
+|---|---|---|
+| Framework | expo | ^57.0.12 |
+| React Native | react-native | 0.86.2 |
+| React | react | 19.2.3 |
+| Language | typescript | ~6.0.3 |
+| Navigation | expo-router (file-based) | ~57.0.9 |
+| Tabs | `expo-router/unstable-native-tabs` (NativeTabs) | — |
+| Animation | react-native-reanimated | 4.5.1 |
+| Gestures | react-native-gesture-handler | ~2.32.0 |
+| Screens / safe area | react-native-screens, react-native-safe-area-context | ~4.26.0 / ~5.7.0 |
+| Vector drawing | react-native-svg | 15.15.4 |
+| Typeface | @expo-google-fonts/space-grotesk | ^0.4.1 |
+| Images | expo-image | ~57.0.1 |
+| Splash | expo-splash-screen | ~57.0.5 |
+| Native UI | @expo/ui, expo-glass-effect, expo-symbols | ~57.x |
+| Linking / browser | expo-linking, expo-web-browser | ~57.x |
+
+### Planned, not yet installed
+
+- `@react-native-firebase/auth` (via Expo config plugin + dev client) — Google / Apple / email
+- `expo-secure-store` — internal JWT persistence
+- `expo-location` — GPS discovery
+- Data fetching layer (React Query or SWR — decision open)
+- `expo-image-picker` — Phase 3 photo uploads
+
+### App scripts
+```
+yarn start          → expo start
+yarn ios / android  → expo start --ios / --android
+yarn lint           → expo lint
+```
 
 ## Object Storage
 - **TBD** — AWS S3 or Cloudflare R2 for community photo uploads

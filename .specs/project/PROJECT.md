@@ -13,7 +13,7 @@ Mobile-first social platform for coaster enthusiasts. Tracking + structured revi
 - Primary market: Brazil; secondary: international Portuguese speakers → global
 
 ## Platforms
-- iOS and Android (React Native, no Expo)
+- iOS and Android (React Native + Expo SDK 57, TypeScript)
 
 ## Core Value Props
 1. **Tracking** — mark coasters as ridden, accumulate credits, earn badge levels

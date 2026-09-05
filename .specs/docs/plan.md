@@ -106,10 +106,13 @@ _The scraper must be running and have data before any app screen is tested._
 | Query builder | knex.js |
 | Auth SDK | firebase-admin |
 | Cache | ioredis |
-| App navigation | React Navigation |
-| Mobile auth | @react-native-firebase/auth |
-| HTTP client | axios |
-| Share | react-native-share |
+| App framework | Expo SDK 57 (React Native 0.86, React 19, TypeScript) |
+| App navigation | expo-router (file-based) + NativeTabs |
+| Mobile auth | Firebase Auth (@react-native-firebase/auth via Expo config plugin) |
+| Secure token storage | expo-secure-store |
+| Location | expo-location |
+| HTTP client | axios or fetch (decision open) |
+| Share | expo-sharing / RN Share API (react-native-share dropped — not Expo friendly) |
 | Scraper | n8n (self-hosted) |
 | Local DB dev | Docker Compose |
 | Object storage | S3 or Cloudflare R2 (TBD) |

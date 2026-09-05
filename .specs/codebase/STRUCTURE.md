@@ -36,7 +36,29 @@ MyCoasterProject/
 │   │   └── index.js              ← App entry: env validation, Firebase init, Morgan, routes, boot
 │   └── package.json
 │
-├── app/                          ← React Native app (NOT YET CREATED)
+├── app/                          ← Expo app (React Native + TypeScript)
+│   ├── app.json                  ← Expo config
+│   ├── package.json              ← main: expo-router/entry
+│   ├── assets/images/tabIcons/   ← template PNGs for NativeTabs
+│   ├── design_handoff_mycoaster/ ← source design handoff
+│   └── src/
+│       ├── app/                  ← expo-router file-based routes
+│       │   ├── _layout.tsx       ← root: fonts, ThemeProvider, splash, AppStack
+│       │   ├── (tabs)/           ← index (Home), explore, ranks, profile
+│       │   ├── park/[id].tsx     ← park detail (Coasters | Reviews | Photos)
+│       │   ├── coaster/[id].tsx  ← coaster detail
+│       │   ├── login/index.tsx   ← auth screen (onboarding step 3)
+│       │   ├── tutorial/         ← onboarding steps 1 and 2
+│       │   ├── log-ride.tsx      ← formSheet modal (no entry point yet)
+│       │   └── review-composer.tsx ← formSheet modal
+│       ├── components/
+│       │   ├── app-stack.tsx     ← Stack config + sheet presentations
+│       │   ├── app-tabs.tsx      ← NativeTabs config
+│       │   └── ui/               ← shared layout components
+│       ├── constants/
+│       │   ├── theme.ts          ← Brand, Colors light/dark, Radii, Shadows, FontFamily
+│       │   └── mock-data.ts      ← static placeholder content (to be replaced by API)
+│       └── hooks/                ← use-theme, use-color-scheme
 │
 ├── scraper/
 │   └── rcdb-workflow.json        ← n8n workflow export (importable into n8n)
@@ -69,7 +91,10 @@ MyCoasterProject/
 | Redis config (ioredis) | ✅ Complete |
 | API route scaffold (`routes/index.js`) | ✅ Complete (stubs only, no logic) |
 | API route logic (`/auth`, `/parks`, `/coasters`, etc.) | ❌ Not yet implemented |
-| React Native app (`/app`) | ❌ Not yet started |
+| Expo app scaffold (`/app`) | ✅ Complete — Expo SDK 57, expo-router, TypeScript |
+| App screens (layout) | ✅ Complete — all Phase 1 screens plus ranks/photos/AI summary from later phases |
+| App data layer (HTTP client, auth, API wiring) | ❌ Not started — every screen reads from `src/constants/mock-data.ts` |
+| App Firebase Auth + JWT storage | ❌ Not started |
 | n8n workflow (spec) | ✅ Spec complete, importable JSON exists |
 | Object storage integration | ❌ Not yet decided (S3 vs R2) |
 | AI batch job | ❌ Phase 4 — not yet built |
