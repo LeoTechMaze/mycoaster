@@ -77,7 +77,7 @@ under Phase 1.
 - [x] Root pnpm workspace: `pnpm-workspace.yaml`, root `package.json`, `tsconfig.base.json`, `.npmrc`, `.nvmrc`, extended `.gitignore`
 - [x] Restructure to `apps/api`, `apps/app`; `scraper/` stays at root
 - [x] `packages/shared` — `@mycoaster/shared`, source-only (no `dist/`), zod as a pinned peer dependency
-- [ ] Replace npm + yarn with pnpm; rewrite `metro.config.js` for RN 0.86 + pnpm (highest-risk step)
+- [x] Replace npm + yarn with pnpm; rewrite `metro.config.js` for RN 0.86 + pnpm (highest-risk step) — verified: `expo-doctor` 21/21, `pnpm ios`/`android` boot clean
 - [ ] TypeScript boilerplate for `apps/api` (tsx in dev, esbuild bundle on build, `allowJs` during the transition)
 - [ ] Port the 20 API source files to TypeScript, leaf to root, suite green at each step
 - [ ] End-to-end proof: the same zod schema consumed by the API (dev *and* build) and by the app (iOS + Android)
