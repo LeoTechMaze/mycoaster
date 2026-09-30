@@ -1,5 +1,7 @@
+import { Request, Response, NextFunction } from 'express';
+
 // eslint-disable-next-line no-unused-vars
-function errorHandler(err, _req, res, _next) {
+function errorHandler(err: any, _req: Request, res: Response, _next: NextFunction) {
   const isDev = process.env.NODE_ENV === 'development';
 
   // Operational errors (set err.status in route handlers / validate middleware)
@@ -35,4 +37,4 @@ function errorHandler(err, _req, res, _next) {
   });
 }
 
-module.exports = errorHandler;
+export = errorHandler;
