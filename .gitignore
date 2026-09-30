@@ -10,6 +10,16 @@ firebase-service-account.json
 node_modules/
 dist/
 
+# pnpm
+.pnpm-store/
+
+# Expo
+.expo/
+*.jks
+ios/
+android/
+web-build/
+
 # Logs
 *.log
 logs/
