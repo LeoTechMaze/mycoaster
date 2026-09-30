@@ -1,9 +1,9 @@
-const { Router } = require('express');
-const { z } = require('zod');
-const db = require('../config/database');
-const authenticate = require('../middlewares/auth');
-const { validate } = require('../middlewares/validate');
-const { success } = require('../utils/response');
+import { Router } from 'express';
+import { z } from 'zod';
+import db from '../config/database';
+import authenticate from '../middlewares/auth';
+import { validate } from '../middlewares/validate';
+import { success } from '../utils/response';
 
 const router = Router();
 
@@ -15,7 +15,7 @@ const PUBLIC_FIELDS = [
 router.get('/:id', async (req, res) => {
   const user = await db('users').where({ id: req.params.id }).select(PUBLIC_FIELDS).first();
   if (!user) {
-    const err = new Error('User not found');
+    const err: any = new Error('User not found');
     err.status = 404;
     throw err;
   }
@@ -35,18 +35,18 @@ const patchSchema = z.object({
 
 router.patch('/me', authenticate, validate(patchSchema), async (req, res) => {
   if (Object.keys(req.validated).length === 0) {
-    const err = new Error('At least one field must be provided');
+    const err: any = new Error('At least one field must be provided');
     err.status = 422;
     throw err;
   }
 
   const [updated] = await db('users')
-    .where({ id: req.user.id })
+    .where({ id: req.user!.id })
     .update(req.validated)
     .returning([...PUBLIC_FIELDS, 'email']);
 
   if (!updated) {
-    const err = new Error('User not found');
+    const err: any = new Error('User not found');
     err.status = 404;
     throw err;
   }
@@ -54,4 +54,4 @@ router.patch('/me', authenticate, validate(patchSchema), async (req, res) => {
   return success(res, updated);
 });
 
-module.exports = router;
+export = router;

@@ -1,10 +1,10 @@
-const { Router } = require('express');
-const { z } = require('zod');
-const db = require('../config/database');
-const authenticate = require('../middlewares/auth');
-const { validate } = require('../middlewares/validate');
-const { success } = require('../utils/response');
-const { uuid, uuidParams, UUID_RE } = require('../utils/schemas');
+import { Router } from 'express';
+import { z } from 'zod';
+import db from '../config/database';
+import authenticate from '../middlewares/auth';
+import { validate } from '../middlewares/validate';
+import { success } from '../utils/response';
+import { uuid, uuidParams, UUID_RE } from '@mycoaster/shared';
 
 const router = Router();
 
@@ -18,14 +18,14 @@ const listQuerySchema = z.object({
   cursor: z.string().min(1).optional(),
 });
 
-function encodeCursor(row) {
+function encodeCursor(row: { created_at: Date; id: string }) {
   return Buffer.from(`${row.created_at.toISOString()}|${row.id}`).toString('base64url');
 }
 
-function decodeCursor(cursor) {
+function decodeCursor(cursor: string) {
   const [createdAt, id] = Buffer.from(cursor, 'base64url').toString('utf8').split('|');
   if (!createdAt || !id || Number.isNaN(Date.parse(createdAt)) || !UUID_RE.test(id)) {
-    const err = new Error('Invalid cursor');
+    const err: any = new Error('Invalid cursor');
     err.status = 422;
     throw err;
   }
@@ -72,8 +72,8 @@ const updateSchema = z
     message: 'Provide rating and/or comment to update',
   });
 
-function notFound(message) {
-  const err = new Error(message);
+function notFound(message: string) {
+  const err: any = new Error(message);
   err.status = 404;
   return err;
 }
@@ -93,7 +93,7 @@ router.post('/', authenticate, validate(createSchema), async (req, res) => {
   // Duplicate (same user + target) surfaces as 23505 → 409 via errorHandler
   const [review] = await db('reviews')
     .insert({
-      user_id: req.user.id,
+      user_id: req.user!.id,
       target_type,
       coaster_id: target_type === 'coaster' ? coaster_id : null,
       park_id: target_type === 'park' ? park_id : null,
@@ -118,8 +118,8 @@ router.put(
 
     const review = await db('reviews').where({ id }).first('id', 'user_id');
     if (!review) throw notFound('Review not found');
-    if (review.user_id !== req.user.id) {
-      const err = new Error('You can only edit your own reviews');
+    if (review.user_id !== req.user!.id) {
+      const err: any = new Error('You can only edit your own reviews');
       err.status = 403;
       throw err;
     }
@@ -128,7 +128,7 @@ router.put(
     // change) yields 0 rows rather than touching a row we no longer own.
     // updated_at is maintained by trg_reviews_updated_at.
     const [updated] = await db('reviews')
-      .where({ id, user_id: req.user.id })
+      .where({ id, user_id: req.user!.id })
       .update(req.validated)
       .returning(RETURN_FIELDS);
 
@@ -140,8 +140,8 @@ router.put(
   }
 );
 
-function listReviews(targetType, fkColumn) {
-  return async (req, res) => {
+function listReviews(targetType: 'coaster' | 'park', fkColumn: string) {
+  return async (req: import('express').Request, res: import('express').Response) => {
     // id is validated by the params gate; req.validated holds the query (the
     // body/query validate overwrites what the params validate set).
     const { id } = req.params;
@@ -193,4 +193,4 @@ const listMiddleware = [validate(uuidParams('id'), 'params'), validate(listQuery
 router.get('/coaster/:id', ...listMiddleware, listReviews('coaster', 'coaster_id'));
 router.get('/park/:id', ...listMiddleware, listReviews('park', 'park_id'));
 
-module.exports = router;
+export = router;

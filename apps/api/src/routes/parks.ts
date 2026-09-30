@@ -1,9 +1,9 @@
-const { Router } = require('express');
-const db = require('../config/database');
-const { validate } = require('../middlewares/validate');
-const { success } = require('../utils/response');
-const { listQuerySchema, isGeoSearch, haversine, avgRatingSql } = require('../utils/search');
-const { uuidParams } = require('../utils/schemas');
+import { Router } from 'express';
+import db from '../config/database';
+import { validate } from '../middlewares/validate';
+import { success } from '../utils/response';
+import { listQuerySchema, isGeoSearch, haversine, avgRatingSql } from '../utils/search';
+import { uuidParams } from '@mycoaster/shared';
 
 const router = Router();
 
@@ -38,7 +38,7 @@ router.get('/:id/coasters', validate(uuidParams('id'), 'params'), async (req, re
 
   const park = await db('parks').where({ id }).first('id');
   if (!park) {
-    const err = new Error('Park not found');
+    const err: any = new Error('Park not found');
     err.status = 404;
     throw err;
   }
@@ -74,7 +74,7 @@ router.get('/:id', validate(uuidParams('id'), 'params'), async (req, res) => {
     .first();
 
   if (!row) {
-    const err = new Error('Park not found');
+    const err: any = new Error('Park not found');
     err.status = 404;
     throw err;
   }
@@ -82,4 +82,4 @@ router.get('/:id', validate(uuidParams('id'), 'params'), async (req, res) => {
   return success(res, row);
 });
 
-module.exports = router;
+export = router;

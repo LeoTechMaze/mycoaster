@@ -1,10 +1,10 @@
-const { Router } = require('express');
-const jwt = require('jsonwebtoken');
-const { z } = require('zod');
-const db = require('../config/database');
-const firebase = require('../config/firebase');
-const { validate } = require('../middlewares/validate');
-const { success } = require('../utils/response');
+import { Router } from 'express';
+import jwt from 'jsonwebtoken';
+import { z } from 'zod';
+import db from '../config/database';
+import firebase from '../config/firebase';
+import { validate } from '../middlewares/validate';
+import { success } from '../utils/response';
 
 const router = Router();
 
@@ -12,7 +12,7 @@ const loginSchema = z.object({
   token: z.string().min(1),
 });
 
-const PROVIDER_MAP = {
+const PROVIDER_MAP: Record<string, string> = {
   'google.com': 'google',
   'apple.com': 'apple',
   'password': 'email',
@@ -25,7 +25,7 @@ const USER_FIELDS = [
 
 router.post('/login', validate(loginSchema), async (req, res) => {
   if (!firebase) {
-    const err = new Error('Firebase not configured');
+    const err: any = new Error('Firebase not configured');
     err.status = 503;
     throw err;
   }
@@ -36,7 +36,7 @@ router.post('/login', validate(loginSchema), async (req, res) => {
   try {
     decoded = await firebase.auth().verifyIdToken(token);
   } catch {
-    const err = new Error('Invalid or expired Firebase token');
+    const err: any = new Error('Invalid or expired Firebase token');
     err.status = 401;
     throw err;
   }
@@ -44,12 +44,12 @@ router.post('/login', validate(loginSchema), async (req, res) => {
   const { uid, email, name, picture } = decoded;
 
   if (!uid || !email) {
-    const err = new Error('Firebase token is missing required claims (uid, email)');
+    const err: any = new Error('Firebase token is missing required claims (uid, email)');
     err.status = 422;
     throw err;
   }
 
-  const provider = PROVIDER_MAP[decoded.firebase?.sign_in_provider] || 'email';
+  const provider = PROVIDER_MAP[decoded.firebase?.sign_in_provider as string] || 'email';
 
   let user = await db('users').where({ firebase_uid: uid }).select(USER_FIELDS).first();
 
@@ -81,11 +81,11 @@ router.post('/login', validate(loginSchema), async (req, res) => {
 
   const jwtToken = jwt.sign(
     { sub: user.id, email: user.email },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+    process.env.JWT_SECRET as string,
+    { expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as any }
   );
 
   return success(res, { token: jwtToken, user });
 });
 
-module.exports = router;
+export = router;
