@@ -1,6 +1,6 @@
 # TESTING.md — MyCoaster
 
-> Escopo: API (`/api`). O app React Native ainda não tem estratégia de testes
+> Escopo: API (`/apps/api`). O app React Native ainda não tem estratégia de testes
 > definida — será adicionada quando a fase de UI começar.
 
 ## Estado atual
@@ -8,17 +8,17 @@
 A documentação antiga dizia "nenhum teste existe". **Isso está desatualizado.**
 O que existe hoje:
 
-- **Framework:** Jest 30 + Supertest 7 (`api/package.json`, `devDependencies`).
-- **Camada de integração: madura.** 6 suites de rota em `api/tests/routes/`
+- **Framework:** Jest 30 + Supertest 7 (`apps/api/package.json`, `devDependencies`).
+- **Camada de integração: madura.** 6 suites de rota em `apps/api/tests/routes/`
   (`auth`, `users`, `parks`, `coasters`, `credits`, `reviews`).
-- **Ciclo de vida do DB de teste:** `api/tests/globalSetup.js` cria o banco se
+- **Ciclo de vida do DB de teste:** `apps/api/tests/globalSetup.js` cria o banco se
   não existir, roda `migrate.latest()`, `TRUNCATE ... CASCADE` e `seed.run()`
-  uma vez antes de toda a execução. `api/tests/teardown.js`
+  uma vez antes de toda a execução. `apps/api/tests/teardown.js`
   (`setupFilesAfterEnv`) fecha handles de Redis/Firebase por suite; cada suite
   fecha seu próprio pool Knex no `afterAll`.
 - **Execução serial:** `maxWorkers: 1` / `jest --runInBand` — as suites
   compartilham um DB real e correriam em condição de corrida em paralelo.
-- **Smoke endpoint:** `GET /health` (`api/src/app.js`) já existe e checa
+- **Smoke endpoint:** `GET /health` (`apps/api/src/app.js`) já existe e checa
   Postgres + Redis (200 `ok` / 503 `degraded`).
 - **Helpers:** `tests/helpers/db.js` (`db`, `truncate`),
   `tests/helpers/auth.js` (`generateToken` — assina JWT interno).
@@ -40,7 +40,7 @@ O que **falta** e este doc planeja: a camada **Unit**, o caminho de execução
 > ⚠️ **Atenção à tabela genérica:** "cálculo de badge" costuma ser exemplo de
 > teste *unit*. **Aqui não é** — o `credit_count` e o `badge_level` são
 > mantidos por um trigger PL/pgSQL
-> (`api/migrations/20260515000009_create_credit_trigger.js`), não por código
+> (`apps/api/migrations/20260515000009_create_credit_trigger.js`), não por código
 > JS. Logo, badges são cobertos **só na integração**. Não procure código JS de
 > badge para "unitar".
 
@@ -54,7 +54,7 @@ O que **falta** e este doc planeja: a camada **Unit**, o caminho de execução
 não podem depender disso. Solução: separar as duas execuções com Jest
 `projects`, mantendo o caminho de integração atual **intacto**.
 
-`api/jest.config.js` passa a ser:
+`apps/api/jest.config.js` passa a ser:
 
 ```js
 module.exports = {
@@ -79,7 +79,7 @@ module.exports = {
 };
 ```
 
-Scripts em `api/package.json`:
+Scripts em `apps/api/package.json`:
 
 ```json
 "test":             "jest --runInBand",
@@ -140,7 +140,7 @@ por usuário/período (regra de nível de rota, C-004), precisão da query geo
 `GET /health` já valida Postgres + Redis. Falta automatizar o disparo **depois
 do deploy**, contra a URL real, **somente leitura**.
 
-Implementar `api/scripts/smoke.js` (ou um passo de CI) que:
+Implementar `apps/api/scripts/smoke.js` (ou um passo de CI) que:
 
 1. `GET ${BASE_URL}/health` → espera 200 e `{ status: 'ok' }`.
 2. (Opcional) 1–2 GETs públicos de leitura (ex.: `GET /api/v1/reviews/coaster/:id`
@@ -166,7 +166,7 @@ Requisitos: usuário sintético dedicado + dados isolados + limpeza ao final
 ## Comandos de gate
 
 ```bash
-# raiz do /api
+# raiz do /apps/api
 npm run test:unit          # sem DB — rápido, a cada commit
 npm run test:integration   # requer Postgres + Redis de teste
 npm test                   # unit + integration (serial)

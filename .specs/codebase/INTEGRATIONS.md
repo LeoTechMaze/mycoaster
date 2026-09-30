@@ -11,7 +11,7 @@
 - **Driver:** `pg` via `knex`
 - **Connection:** `DATABASE_URL` (prod, with SSL) or individual `POSTGRES_*` env vars (dev)
 - **Pool:** min 2, max 10 connections
-- **Migrations:** managed by knex, stored in `api/migrations/`
+- **Migrations:** managed by knex, stored in `apps/api/migrations/`
 
 ## Redis (ioredis)
 - **Use:** Leaderboard cache (`GET /leaderboard`)
