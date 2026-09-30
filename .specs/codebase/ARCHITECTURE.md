@@ -64,8 +64,9 @@
 - App reads cached JSON — zero real-time AI calls
 
 ## Current State of the Codebase
-- **Backend base fully configured**: server boots, health check works, DB + Redis connected, migrations all created, env validation, Firebase Admin, Zod, Morgan, route scaffold all in place
-- **Route logic NOT yet implemented** — `routes/index.js` exists as a stub; all Phase 1 routes are commented placeholders
+- **Backend**: Phase 1 complete — all routes implemented (`/auth`, `/users`, `/parks`, `/coasters`, `/credits`, `/reviews`), ported to TypeScript (`apps/api/src`, tickets 6–7 of the monorepo migration)
+- **Monorepo**: pnpm workspace (`apps/api`, `apps/app`, `packages/shared`) — see `.specs/project/ROADMAP.md`'s migration section for the full ticket history
+- **`packages/shared`**: `@mycoaster/shared`, source-only TypeScript, Zod schemas consumed by both `apps/api` (via `tsconfig.base.json` path mapping + esbuild bundle) and `apps/app` (via Metro)
 - **Staging live** — deployed on EasyPanel (PostgreSQL + Redis as services, API as app on `develop` branch)
-- **App (React Native)** — `/app` directory does not exist yet
+- **App (React Native)** — `apps/app`, Expo SDK 57, all Phase 1 screens laid out; data layer not yet wired (reads from `mock-data.ts`)
 - **Scraper** — n8n workflow JSON exists in `/scraper/rcdb-workflow.json`; Brazil scope populated

@@ -10,6 +10,7 @@ import { useColorScheme } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import AppStack from '@/components/app-stack';
+import '@/lib/shared-resolution-proof';
 
 SplashScreen.preventAutoHideAsync();
 
