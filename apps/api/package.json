@@ -4,18 +4,19 @@
   "description": "MyCoaster REST API",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "tsx watch src/index.js",
-    "build": "esbuild src/index.js --bundle --platform=node --format=cjs --packages=external --outfile=dist/index.js",
+    "start": "tsx src/index.ts",
+    "dev": "tsx watch src/index.ts",
+    "build": "esbuild src/index.ts --bundle --platform=node --format=cjs --packages=external --outfile=dist/index.js",
     "typecheck": "tsc --noEmit",
     "test": "jest --runInBand",
     "test:watch": "jest --watch",
-    "migrate:latest": "knex migrate:latest --knexfile src/config/knexfile.js",
-    "migrate:rollback": "knex migrate:rollback --knexfile src/config/knexfile.js",
-    "migrate:make": "knex migrate:make --knexfile src/config/knexfile.js",
-    "seeds:run": "knex seed:run --knexfile src/config/knexfile.js"
+    "migrate:latest": "tsx node_modules/.bin/knex migrate:latest --knexfile src/config/knexfile.ts",
+    "migrate:rollback": "tsx node_modules/.bin/knex migrate:rollback --knexfile src/config/knexfile.ts",
+    "migrate:make": "tsx node_modules/.bin/knex migrate:make --knexfile src/config/knexfile.ts",
+    "seeds:run": "tsx node_modules/.bin/knex seed:run --knexfile src/config/knexfile.ts"
   },
   "dependencies": {
+    "@mycoaster/shared": "workspace:*",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
@@ -31,9 +32,15 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.25",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^26.6.3",
     "esbuild": "^0.28.2",
     "jest": "^30.4.2",
     "supertest": "^7.2.2",
+    "ts-jest": "^29.4.14",
     "tsx": "^4.23.15",
     "typescript": "~6.0.3"
   },
