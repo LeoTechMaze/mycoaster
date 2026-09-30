@@ -10,13 +10,13 @@ logs:
 	docker compose logs -f
 
 migrate:
-	cd api && npm run migrate:latest
+	cd apps/api && npm run migrate:latest
 
 rollback:
-	cd api && npm run migrate:rollback
+	cd apps/api && npm run migrate:rollback
 
 seed:
-	cd api && npm run seeds:run
+	cd apps/api && npm run seeds:run
 
 psql:
 	docker compose exec postgres psql -U $${POSTGRES_USER:-coaster} -d $${POSTGRES_DB:-coaster_tracker}
@@ -29,4 +29,4 @@ reset:
 	docker compose up -d
 	@echo "Waiting for postgres to be ready..."
 	@sleep 3
-	cd api && npm run migrate:latest
+	cd apps/api && npm run migrate:latest
