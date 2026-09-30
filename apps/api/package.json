@@ -10,10 +10,10 @@
     "typecheck": "tsc --noEmit",
     "test": "jest --runInBand",
     "test:watch": "jest --watch",
-    "migrate:latest": "knex migrate:latest --knexfile src/config/knexfile.js",
-    "migrate:rollback": "knex migrate:rollback --knexfile src/config/knexfile.js",
-    "migrate:make": "knex migrate:make --knexfile src/config/knexfile.js",
-    "seeds:run": "knex seed:run --knexfile src/config/knexfile.js"
+    "migrate:latest": "tsx node_modules/.bin/knex migrate:latest --knexfile src/config/knexfile.ts",
+    "migrate:rollback": "tsx node_modules/.bin/knex migrate:rollback --knexfile src/config/knexfile.ts",
+    "migrate:make": "tsx node_modules/.bin/knex migrate:make --knexfile src/config/knexfile.ts",
+    "seeds:run": "tsx node_modules/.bin/knex seed:run --knexfile src/config/knexfile.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",

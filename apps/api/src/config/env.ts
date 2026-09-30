@@ -1,4 +1,4 @@
-const { z } = require('zod');
+import { z } from 'zod';
 
 const schema = z.object({
   NODE_ENV: z.string().default('production'),
@@ -22,6 +22,8 @@ const schema = z.object({
   FIREBASE_SERVICE_ACCOUNT_PATH: z.string().optional(),
 });
 
+type Env = z.infer<typeof schema>;
+
 const result = schema.safeParse(process.env);
 
 if (!result.success) {
@@ -32,4 +34,6 @@ if (!result.success) {
   process.exit(1);
 }
 
-module.exports = result.data;
+const env: Env = result.data;
+
+export = env;
