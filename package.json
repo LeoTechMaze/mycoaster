@@ -7,6 +7,8 @@
   "scripts": {
     "dev:api": "pnpm --filter @mycoaster/api dev",
     "dev:app": "pnpm --filter @mycoaster/app start",
+    "ios": "pnpm --filter @mycoaster/app ios",
+    "android": "pnpm --filter @mycoaster/app android",
     "test:api": "pnpm --filter @mycoaster/api test",
     "migrate:latest": "pnpm --filter @mycoaster/api migrate:latest",
     "migrate:rollback": "pnpm --filter @mycoaster/api migrate:rollback",
