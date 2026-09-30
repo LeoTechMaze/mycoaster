@@ -75,8 +75,8 @@ under Phase 1.
 
 - [x] Baseline (same repo, no new org — revised 2026-09-30, see `docs/monorepo-migration-rough-draft.md`): `develop` synced, `app/` committed, api suite green
 - [x] Root pnpm workspace: `pnpm-workspace.yaml`, root `package.json`, `tsconfig.base.json`, `.npmrc`, `.nvmrc`, extended `.gitignore`
-- [x] Restructure to `apps/api`, `apps/app`; `scraper/` stays at root (`packages/shared` — next)
-- [ ] `packages/shared` — `@mycoaster/shared`, source-only (no `dist/`), zod as a pinned peer dependency
+- [x] Restructure to `apps/api`, `apps/app`; `scraper/` stays at root
+- [x] `packages/shared` — `@mycoaster/shared`, source-only (no `dist/`), zod as a pinned peer dependency
 - [ ] Replace npm + yarn with pnpm; rewrite `metro.config.js` for RN 0.86 + pnpm (highest-risk step)
 - [ ] TypeScript boilerplate for `apps/api` (tsx in dev, esbuild bundle on build, `allowJs` during the transition)
 - [ ] Port the 20 API source files to TypeScript, leaf to root, suite green at each step
