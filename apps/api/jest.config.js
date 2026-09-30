@@ -2,7 +2,7 @@ module.exports = {
   testEnvironment: 'node',
   testMatch: ['**/tests/**/*.test.js'],
   transform: {
-    '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true }],
+    '^.+\\.tsx?$': 'ts-jest',
   },
   setupFiles: ['./tests/env.js'],
   // Runs inside each test sandbox to close redis/firebase handles that would

@@ -3,9 +3,10 @@
   "compilerOptions": {
     "module": "commonjs",
     "strict": false,
-    "allowJs": true,
+    "allowJs": false,
     "noEmit": true,
-    "rootDir": "src"
+    "isolatedModules": true,
+    "rootDir": "../.."
   },
   "include": ["src"]
 }
