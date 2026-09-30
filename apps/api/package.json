@@ -5,7 +5,9 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
+    "dev": "tsx watch src/index.js",
+    "build": "esbuild src/index.js --bundle --platform=node --format=cjs --packages=external --outfile=dist/index.js",
+    "typecheck": "tsc --noEmit",
     "test": "jest --runInBand",
     "test:watch": "jest --watch",
     "migrate:latest": "knex migrate:latest --knexfile src/config/knexfile.js",
@@ -29,9 +31,11 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "esbuild": "^0.28.2",
     "jest": "^30.4.2",
-    "nodemon": "^3.1.4",
-    "supertest": "^7.2.2"
+    "supertest": "^7.2.2",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3"
   },
   "engines": {
     "node": ">=20"
