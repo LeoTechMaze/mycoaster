@@ -12,8 +12,8 @@ App mobile e rede social para entusiastas de parques de diversão e montanhas-ru
 ## Estrutura do repositório
 
 ```
-/api          → Backend Node.js + Express
-/app          → App Expo / React Native (TypeScript, expo-router file-based em app/src/app/)
+/apps/api     → Backend Node.js + Express
+/apps/app     → App Expo / React Native (TypeScript, expo-router file-based em apps/app/src/app/)
 /scraper      → Configuração do workflow n8n
 /.specs       → Toda a documentação do projeto
   /.specs/project/    → Visão, roadmap e estado atual (spec-driven)

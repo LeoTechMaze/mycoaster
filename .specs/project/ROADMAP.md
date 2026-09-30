@@ -44,7 +44,7 @@
 
 ### App (Expo — all Phase 1 backend endpoints are done)
 
-Layout pass shipped 2026-08-13: every screen below already exists in `app/src/app/`, rendering
+Layout pass shipped 2026-08-13: every screen below already exists in `apps/app/src/app/`, rendering
 static content from `src/constants/mock-data.ts`. The remaining work is wiring, not building.
 
 - [x] Expo project scaffold — SDK 57, expo-router, TypeScript, Space Grotesk, theme tokens
@@ -73,9 +73,9 @@ workspace layer, a `shared` package, and TypeScript on the API. **Migration, not
 API is ported file by file, with the 6 integration suites as the safety net. Tracked in ClickUp
 under Phase 1.
 
-- [ ] Baseline + new repo under the `mycoaster` GitHub org (local clone, history preserved, commit the untracked `app/`)
-- [ ] Root pnpm workspace: `pnpm-workspace.yaml`, root `package.json`, `tsconfig.base.json`, `.npmrc`, `.nvmrc`, extended `.gitignore`
-- [ ] Restructure to `apps/api`, `apps/app`, `packages/shared`; `scraper/` stays at root
+- [x] Baseline (same repo, no new org — revised 2026-09-30, see `docs/monorepo-migration-rough-draft.md`): `develop` synced, `app/` committed, api suite green
+- [x] Root pnpm workspace: `pnpm-workspace.yaml`, root `package.json`, `tsconfig.base.json`, `.npmrc`, `.nvmrc`, extended `.gitignore`
+- [x] Restructure to `apps/api`, `apps/app`; `scraper/` stays at root (`packages/shared` — next)
 - [ ] `packages/shared` — `@mycoaster/shared`, source-only (no `dist/`), zod as a pinned peer dependency
 - [ ] Replace npm + yarn with pnpm; rewrite `metro.config.js` for RN 0.86 + pnpm (highest-risk step)
 - [ ] TypeScript boilerplate for `apps/api` (tsx in dev, esbuild bundle on build, `allowJs` during the transition)

@@ -38,7 +38,7 @@
 
 ## Mobile (`/app` — layout implemented, data layer pending)
 
-Managed Expo project. Entry point is `expo-router/entry`; screens live in `app/src/app/`.
+Managed Expo project. Entry point is `expo-router/entry`; screens live in `apps/app/src/app/`.
 
 | Layer | Technology | Version |
 |---|---|---|

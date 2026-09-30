@@ -7,9 +7,7 @@ _Persistent memory: decisions, blockers, lessons, deferred ideas. Updated each s
 ## Current Status
 **Date:** 2026-08-15
 **Active Phase:** Phase 1 (MVP) — backend complete, app wiring in progress
-**Codebase maturity:** All Phase 1 API routes are implemented and merged (auth, users, parks, coasters, credits, reviews). Staging environment live on EasyPanel. DB seeded with Canada's Wonderland + Hopi Hari for local development. RCDB scraper populated Brazil scope in production. The Expo app exists with every Phase 1 screen laid out, but no screen consumes the API yet — all content comes from `app/src/constants/mock-data.ts`.
-
-**Note:** `app/` is currently untracked in git.
+**Codebase maturity:** All Phase 1 API routes are implemented and merged (auth, users, parks, coasters, credits, reviews). Staging environment live on EasyPanel. DB seeded with Canada's Wonderland + Hopi Hari for local development. RCDB scraper populated Brazil scope in production. The Expo app exists with every Phase 1 screen laid out, but no screen consumes the API yet — all content comes from `apps/app/src/constants/mock-data.ts`.
 
 ---
 
@@ -30,7 +28,7 @@ _Persistent memory: decisions, blockers, lessons, deferred ideas. Updated each s
 | Scraper | n8n self-hosted | Built-in scheduling, retries, logs |
 | Coaster/park status | 4 values: `operating`, `sbno`, `under_construction`, `defunct` | `sbno` (Standing But Not Operating) is distinct from `defunct` — SBNO means temporarily closed, may return; defunct means permanently closed. Sourced from RCDB g.htm?id= (parks) and section headings (coasters). |
 | Object storage | TBD (S3 or R2) | Not yet decided |
-| Repo structure | Monorepo in a new repo under the `mycoaster` GitHub org, **history preserved** — decided 2026-08-15 | The current history is clean: 64 commits, 1.2 MB `.git`, no secret or `node_modules` ever committed, all remote branches merged into `develop`. A fresh `git init` would discard fixes that live only in commits (0-row UPDATE race guard, refine errors surfaced in 422, explicit null comment on create) and not in `.specs`. |
+| Repo structure | Same repo (`LeoTechMaze/mycoaster`), reorganized in place — revised 2026-09-30 | Originally decided 2026-08-15 as a new repo under a `mycoaster` GitHub org (history preserved via clone). Reversed: history is preserved either way (64+ commits, no secret or `node_modules` ever committed), so a repo/org move added risk (re-parenting, remote swap) with no benefit. `apps/api` and `apps/app` reorganized via `git mv` on `develop`'s existing history. See `docs/monorepo-migration-rough-draft.md`. |
 | Package manager | pnpm workspaces, no Turborepo yet | One install, shared TS types without publishing to npm. Today the repo mixes npm (api) and yarn (app); both lockfiles go. Turborepo enters if and when CI starts to hurt. |
 | Workspace layout | `apps/api`, `apps/app`, `packages/shared`; `scraper/` stays at root | Separates deployables from libraries. The scraper is n8n configuration, not code that imports types, so it stays outside the workspace. |
 | API language | TypeScript, ported file by file — decided 2026-08-15 | Unlocks the shared zod contract between API and app. Ported, not rewritten from the docs: the bug fixes above exist only in the code. |
@@ -43,7 +41,7 @@ _Persistent memory: decisions, blockers, lessons, deferred ideas. Updated each s
 - **B-001:** Object storage decision (S3 vs R2) — blocks photo upload route (Phase 3)
 - **B-004:** App data-fetching library not chosen (React Query vs SWR vs custom hooks) — blocks the optimistic credit toggle pattern
 - **B-005:** `/log-ride` sheet has no entry point since the centre "+" tab button was dropped from the design — needs a new trigger or removal
-- ~~**B-002:** Firebase Admin SDK not initialized~~ ✅ RESOLVED 2026-06-05 — `api/src/config/firebase.js` created; initializes on startup when `FIREBASE_SERVICE_ACCOUNT_PATH` is set.
+- ~~**B-002:** Firebase Admin SDK not initialized~~ ✅ RESOLVED 2026-06-05 — `apps/api/src/config/firebase.js` created; initializes on startup when `FIREBASE_SERVICE_ACCOUNT_PATH` is set.
 - ~~**B-003:** n8n scraper not yet run against real RCDB~~ ✅ RESOLVED 2026-05-22 — scraper run against Brazil scope, parks and coasters populated with correct status values.
 
 ---
@@ -51,8 +49,8 @@ _Persistent memory: decisions, blockers, lessons, deferred ideas. Updated each s
 ## Technical Concerns (see CONCERNS.md for detail)
 
 - ~~**C-001**~~ ✅ Redis cache invalidated in credits route — `redis.del('leaderboard').catch(() => {})` wired in POST and DELETE handlers
-- ~~**C-002**~~ ✅ Firebase Admin SDK initialized in `api/src/config/firebase.js`
-- ~~**C-003**~~ ✅ Zod installed and `validate` middleware created (`api/src/middlewares/validate.js`)
+- ~~**C-002**~~ ✅ Firebase Admin SDK initialized in `apps/api/src/config/firebase.js`
+- ~~**C-003**~~ ✅ Zod installed and `validate` middleware created (`apps/api/src/middlewares/validate.js`)
 - **C-004** 🔴 Photo upload rate limiting not enforced at DB level — needs route-level enforcement
 - **C-005** 🟡 Geo proximity: btree index on floats is approximate bounding box only
 - ~~**C-006**~~ ✅ Reviews mutual-exclusivity constraint added (`20260605000001_add_reviews_mutual_exclusivity.js`)

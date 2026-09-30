@@ -3,10 +3,10 @@
 ## 🔴 High Priority Concerns
 
 ### ~~C-001: Redis cache not invalidated by credit trigger~~ ✅ RESOLVED 2026-06-09
-`redis.del('leaderboard').catch(() => {})` wired in both `POST /credits` and `DELETE /credits/:coaster_id` handlers in `api/src/routes/credits.js`. Fire-and-forget so Redis unavailability doesn't crash the route.
+`redis.del('leaderboard').catch(() => {})` wired in both `POST /credits` and `DELETE /credits/:coaster_id` handlers in `apps/api/src/routes/credits.js`. Fire-and-forget so Redis unavailability doesn't crash the route.
 
 ### C-002: Firebase token validation not implemented in auth middleware
-**Area:** `api/src/middlewares/auth.js`
+**Area:** `apps/api/src/middlewares/auth.js`
 **Risk:** The current `auth.js` validates a **self-issued JWT** (`jwt.verify(token, JWT_SECRET)`), NOT a Firebase token. But the spec says `POST /auth/login` exchanges a Firebase token for a server JWT — this exchange endpoint doesn't exist yet. If a Firebase token is sent directly to a protected route, it will fail validation silently.
 **Recommendation:** Build `POST /auth/login` that calls `firebase-admin.auth().verifyIdToken()` before issuing the internal JWT. The `firebase-admin` package is installed but no Firebase initialization code exists yet.
 
@@ -28,10 +28,10 @@
 **Recommendation:** Either add the `earthdistance` + `cube` PostgreSQL extensions (lightweight, built-in) or use a Haversine formula in SQL. Avoid relying solely on bounding-box filtering for radius queries.
 
 ### ~~C-006: `reviews` table has nullable coaster_id and park_id with no DB-level integrity check~~ ✅ RESOLVED 2026-06-05
-Added `chk_reviews_mutual_exclusivity` in `api/migrations/20260605000001_add_reviews_mutual_exclusivity.js`.
+Added `chk_reviews_mutual_exclusivity` in `apps/api/migrations/20260605000001_add_reviews_mutual_exclusivity.js`.
 
 ### ~~C-007: No `updated_at` auto-update mechanism for reviews~~ ✅ RESOLVED 2026-06-05
-Added `trg_reviews_updated_at` trigger in `api/migrations/20260605000002_add_reviews_updated_at_trigger.js`.
+Added `trg_reviews_updated_at` trigger in `apps/api/migrations/20260605000002_add_reviews_updated_at_trigger.js`.
 
 ### C-008: n8n workflow JSON not fully validated
 **Area:** `scraper/rcdb-workflow.json`
@@ -45,7 +45,7 @@ Added `trg_reviews_updated_at` trigger in `api/migrations/20260605000002_add_rev
 **Impact:** Can't build the photo upload route until S3 vs R2 decision is made and SDK is integrated. The `image_url` is already in the schema; only the upload mechanism is missing.
 
 ### C-010: No CORS policy configured beyond wildcard
-**Area:** `api/src/index.js`
+**Area:** `apps/api/src/index.js`
 **Current:** `app.use(cors())` — allows all origins
 **Risk:** Fine for development, but in production should be restricted to the app's domain / production URL. Low risk since the API is consumed by a mobile app (not a browser), but worth tightening before launch.
 

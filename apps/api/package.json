@@ -1,5 +1,5 @@
 {
-  "name": "my-coaster-api",
+  "name": "@mycoaster/api",
   "version": "1.0.0",
   "description": "MyCoaster REST API",
   "main": "src/index.js",
