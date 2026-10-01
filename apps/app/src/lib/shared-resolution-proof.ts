@@ -7,3 +7,4 @@ import { CoasterSchema } from '@mycoaster/shared';
 // checks. .parse() throws — a broken resolution should fail loudly, this is
 // a proof, not defensive code.
 CoasterSchema.parse({ id: '10000000-0000-0000-0000-000000000001', name: 'Resolution proof' });
+console.log('[Ticket 8] @mycoaster/shared resolved and validated OK');
