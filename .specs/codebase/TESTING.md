@@ -1,60 +1,61 @@
 # TESTING.md — MyCoaster
 
-> Escopo: API (`/apps/api`). O app React Native ainda não tem estratégia de testes
-> definida — será adicionada quando a fase de UI começar.
+> Scope: API (`/apps/api`). The React Native app doesn't have a testing strategy
+> defined yet — it will be added when the UI phase starts.
 
-## Estado atual
+## Current State
 
-A documentação antiga dizia "nenhum teste existe". **Isso está desatualizado.**
-O que existe hoje:
+Old documentation said "no tests exist." **That's outdated.**
+What exists today:
 
 - **Framework:** Jest 30 + Supertest 7 (`apps/api/package.json`, `devDependencies`).
-- **Camada de integração: madura.** 6 suites de rota em `apps/api/tests/routes/`
+- **Integration layer: mature.** 6 route suites in `apps/api/tests/routes/`
   (`auth`, `users`, `parks`, `coasters`, `credits`, `reviews`).
-- **Ciclo de vida do DB de teste:** `apps/api/tests/globalSetup.js` cria o banco se
-  não existir, roda `migrate.latest()`, `TRUNCATE ... CASCADE` e `seed.run()`
-  uma vez antes de toda a execução. `apps/api/tests/teardown.js`
-  (`setupFilesAfterEnv`) fecha handles de Redis/Firebase por suite; cada suite
-  fecha seu próprio pool Knex no `afterAll`.
-- **Execução serial:** `maxWorkers: 1` / `jest --runInBand` — as suites
-  compartilham um DB real e correriam em condição de corrida em paralelo.
-- **Smoke endpoint:** `GET /health` (`apps/api/src/app.js`) já existe e checa
+- **Test DB lifecycle:** `apps/api/tests/globalSetup.js` creates the database if
+  it doesn't exist, runs `migrate.latest()`, `TRUNCATE ... CASCADE` and `seed.run()`
+  once before the whole run. `apps/api/tests/teardown.js`
+  (`setupFilesAfterEnv`) closes Redis/Firebase handles per suite; each suite
+  closes its own Knex pool in `afterAll`.
+- **Serial execution:** `maxWorkers: 1` / `jest --runInBand` — the suites
+  share a real DB and would race each other in parallel.
+- **Smoke endpoint:** `GET /health` (`apps/api/src/app.js`) already exists and checks
   Postgres + Redis (200 `ok` / 503 `degraded`).
 - **Helpers:** `tests/helpers/db.js` (`db`, `truncate`),
-  `tests/helpers/auth.js` (`generateToken` — assina JWT interno).
+  `tests/helpers/auth.js` (`generateToken` — signs an internal JWT).
 
-O que **falta** e este doc planeja: a camada **Unit**, o caminho de execução
-**sem DB**, o **smoke pós-deploy** e a definição (adiada) de **E2E**.
+What's **missing**, and what this doc plans for: the **Unit** layer, the
+**no-DB** execution path, **post-deploy smoke**, and the (deferred) definition
+of **E2E**.
 
 ---
 
-## As 4 camadas (mapeadas para este projeto)
+## The 4 Layers (mapped to this project)
 
-| Camada | O que testa | Onde roda | Toca o banco? | Quando | Status aqui |
+| Layer | What it tests | Where it runs | Touches the DB? | When | Status here |
 | --- | --- | --- | --- | --- | --- |
-| **Unit** | Função isolada (validação Zod, encode/decode de cursor) | Memória, sem rede | Não | A cada commit | ❌ Não existe — **trabalho principal** |
-| **Integration** | Rotas + banco + lógica juntos | DB de teste descartável | Sim, e pode destruir | A cada commit/PR | ✅ Maduro — documentar, não redesenhar |
-| **Smoke / Health** | "A build subiu e responde?" | Staging/Prod real | Lê, nunca escreve | Logo após deploy | 🟡 Endpoint existe; falta o check pós-deploy |
-| **E2E / Synthetic** | Fluxo de usuário completo num ambiente vivo | Staging | Sim, dado de teste isolado | Pós-deploy / monitor | ⏸️ **Adiado** — sem alvo de staging ainda |
+| **Unit** | Isolated function (Zod validation, cursor encode/decode) | In memory, no network | No | Every commit | ❌ Doesn't exist — **main piece of work** |
+| **Integration** | Routes + DB + logic together | Disposable test DB | Yes, and may destroy data | Every commit/PR | ✅ Mature — document, don't redesign |
+| **Smoke / Health** | "Did the build come up and respond?" | Real staging/prod | Reads, never writes | Right after deploy | 🟡 Endpoint exists; post-deploy check is missing |
+| **E2E / Synthetic** | Full user flow in a live environment | Staging | Yes, isolated test data | Post-deploy / monitor | ⏸️ **Deferred** — no staging target yet |
 
-> ⚠️ **Atenção à tabela genérica:** "cálculo de badge" costuma ser exemplo de
-> teste *unit*. **Aqui não é** — o `credit_count` e o `badge_level` são
-> mantidos por um trigger PL/pgSQL
-> (`apps/api/migrations/20260515000009_create_credit_trigger.js`), não por código
-> JS. Logo, badges são cobertos **só na integração**. Não procure código JS de
-> badge para "unitar".
+> ⚠️ **Watch out for the generic table:** "badge calculation" is usually the
+> textbook example of a *unit* test. **Not here** — `credit_count` and `badge_level` are
+> maintained by a PL/pgSQL trigger
+> (`apps/api/migrations/20260515000009_create_credit_trigger.js`), not by JS
+> code. So badges are covered **only at the integration layer**. Don't look
+> for JS badge code to "unit test."
 
 ---
 
-## Unit (net-new — foco da implementação)
+## Unit (net-new — focus of the implementation)
 
-### Decisão que torna isso implementável: caminho de execução sem DB
+### The decision that makes this implementable: a no-DB execution path
 
-`globalSetup.js` cria/migra/seeda Postgres **incondicionalmente**. Testes unit
-não podem depender disso. Solução: separar as duas execuções com Jest
-`projects`, mantendo o caminho de integração atual **intacto**.
+`globalSetup.js` creates/migrates/seeds Postgres **unconditionally**. Unit
+tests can't depend on that. Solution: split the two runs with Jest
+`projects`, keeping the current integration path **intact**.
 
-`apps/api/jest.config.js` passa a ser:
+`apps/api/jest.config.js` becomes:
 
 ```js
 module.exports = {
@@ -63,7 +64,7 @@ module.exports = {
       displayName: 'unit',
       testEnvironment: 'node',
       testMatch: ['**/tests/unit/**/*.test.js'],
-      // SEM globalSetup, SEM teardown de DB — roda em memória, rápido
+      // NO globalSetup, NO DB teardown — runs in memory, fast
     },
     {
       displayName: 'integration',
@@ -79,7 +80,7 @@ module.exports = {
 };
 ```
 
-Scripts em `apps/api/package.json`:
+Scripts in `apps/api/package.json`:
 
 ```json
 "test":             "jest --runInBand",
@@ -87,107 +88,106 @@ Scripts em `apps/api/package.json`:
 "test:integration": "jest --selectProjects integration --runInBand"
 ```
 
-`test:unit` não precisa de Postgres/Redis — roda em qualquer lugar, rápido, a
-cada commit. `test` continua rodando ambos via `--runInBand` (o `maxWorkers: 1`
-do projeto de integração garante a serialização).
+`test:unit` doesn't need Postgres/Redis — runs anywhere, fast, on
+every commit. `test` keeps running both via `--runInBand` (the integration
+project's `maxWorkers: 1` guarantees serialization).
 
-### Superfície unit real (é fina — a API é validação + SQL)
+### The real unit surface (it's thin — the API is validation + SQL)
 
-| Alvo | Arquivo | O que testar |
+| Target | File | What to test |
 | --- | --- | --- |
-| `UUID_RE` / `uuid` | `src/utils/schemas.js` | aceita UUIDs de seed estruturados; rejeita `not-a-uuid`, string vazia, UUID malformado (ver [[feedback_zod_v4_uuid]]) |
-| `isGeoSearch` | `src/utils/search.js` | `true` só com lat+lng+radius; `false` se faltar qualquer um |
-| `listQuerySchema` | `src/utils/search.js` | `.refine` aprova geo completo OU country/city; rejeita request misto/vazio |
-| `success` | `src/utils/response.js` | envelope `{ data }`; inclui `meta` só quando passado; aplica `status` |
-| `encodeCursor` / `decodeCursor` | **extrair de** `src/routes/reviews.js` → `src/utils/pagination.js` | round-trip encode→decode; rejeita (422) cursor com data inválida ou id não-UUID |
+| `UUID_RE` / `uuid` | `src/utils/schemas.js` | accepts structured seed UUIDs; rejects `not-a-uuid`, empty string, malformed UUID (see [[feedback_zod_v4_uuid]]) |
+| `isGeoSearch` | `src/utils/search.js` | `true` only with lat+lng+radius; `false` if any is missing |
+| `listQuerySchema` | `src/utils/search.js` | `.refine` approves full geo OR country/city; rejects mixed/empty request |
+| `success` | `src/utils/response.js` | `{ data }` envelope; includes `meta` only when passed; applies `status` |
+| `encodeCursor` / `decodeCursor` | **extract from** `src/routes/reviews.js` → `src/utils/pagination.js` | round-trip encode→decode; rejects (422) a cursor with invalid date or non-UUID id |
 
-> **Pré-requisito do melhor alvo unit:** `encodeCursor`/`decodeCursor` hoje são
-> funções privadas dentro de `reviews.js`, cobertas só pela rota (integração).
-> Extrair para `src/utils/pagination.js` e exportá-las as torna unit-testáveis
-> e reutilizáveis pelos próximos endpoints paginados.
+> **Prerequisite for the best unit target:** `encodeCursor`/`decodeCursor` are
+> currently private functions inside `reviews.js`, covered only via the route (integration).
+> Extracting them to `src/utils/pagination.js` and exporting them makes them
+> unit-testable and reusable by future paginated endpoints.
 
-> **Não unitar:** `haversine` e `avgRatingSql` (`search.js`) retornam **strings
-> SQL** — só fazem sentido executadas contra o banco; ficam na integração.
+> **Don't unit test:** `haversine` and `avgRatingSql` (`search.js`) return **SQL
+> strings** — they only make sense executed against the database; they belong
+> in integration.
 
 ---
 
-## Integration (existente — manter o padrão)
+## Integration (existing — keep the pattern)
 
-Já cobre os cenários-chave: auth (token válido/ausente → 401), unicidade de
-review (409), exclusividade mútua coaster/park (422), faixa de rating (422),
-not-found (404), ownership (403), paginação por cursor e o trigger de crédito.
+Already covers the key scenarios: auth (valid/missing token → 401), review
+uniqueness (409), coaster/park mutual exclusivity (422), rating range (422),
+not-found (404), ownership (403), cursor pagination, and the credit trigger.
 
-Padrão para **adicionar uma suite** (modelo: `tests/routes/reviews.test.js`):
+Pattern for **adding a suite** (model: `tests/routes/reviews.test.js`):
 
 1. `const app = require('../../src/app')` + `supertest`.
-2. Fixtures vêm do seed (`seeds/01_parks_and_coasters.js`); IDs estruturados
-   (`10000000-...`, `20000000-...`, `30000000-...`). Insira usuários extras com
+2. Fixtures come from the seed (`seeds/01_parks_and_coasters.js`); structured
+   IDs (`10000000-...`, `20000000-...`, `30000000-...`). Insert extra users with
    `.onConflict('id').ignore()`.
-3. `beforeEach`: limpe as tabelas que a suite escreve (`db('reviews').del()`);
-   gere token com `generateToken({ id, email })`.
-4. `afterAll`: limpe o que inseriu e `await db.destroy()`.
-5. Asserções no envelope: sucesso → `res.body.data`; erro → `res.body.error`.
+3. `beforeEach`: clear the tables the suite writes to (`db('reviews').del()`);
+   generate a token with `generateToken({ id, email })`.
+4. `afterAll`: clean up what it inserted and `await db.destroy()`.
+5. Assertions on the envelope: success → `res.body.data`; error → `res.body.error`.
 
-**Lacunas a fechar conforme novas rotas chegam:** limite de upload de fotos
-por usuário/período (regra de nível de rota, C-004), precisão da query geo
-(haversine vs. bounding-box, C-005), e o exchange Firebase→JWT em
+**Gaps to close as new routes arrive:** per-user/per-period photo upload limit
+(route-level rule, C-004), geo query precision
+(haversine vs. bounding-box, C-005), and the Firebase→JWT exchange in
 `POST /auth/login` (C-002).
 
 ---
 
-## Smoke / Health (endpoint pronto — falta o check pós-deploy)
+## Smoke / Health (endpoint ready — post-deploy check is missing)
 
-`GET /health` já valida Postgres + Redis. Falta automatizar o disparo **depois
-do deploy**, contra a URL real, **somente leitura**.
+`GET /health` already validates Postgres + Redis. What's missing is automating
+the trigger **after deploy**, against the real URL, **read-only**.
 
-Implementar `apps/api/scripts/smoke.js` (ou um passo de CI) que:
+Implement `apps/api/scripts/smoke.js` (or a CI step) that:
 
-1. `GET ${BASE_URL}/health` → espera 200 e `{ status: 'ok' }`.
-2. (Opcional) 1–2 GETs públicos de leitura (ex.: `GET /api/v1/reviews/coaster/:id`
-   de um id de seed conhecido) → espera 200.
-3. Sai com código ≠ 0 se algo falhar, para travar a promoção do deploy.
+1. `GET ${BASE_URL}/health` → expects 200 and `{ status: 'ok' }`.
+2. (Optional) 1–2 public read-only GETs (e.g. `GET /api/v1/reviews/coaster/:id`
+   for a known seed id) → expects 200.
+3. Exits with a non-zero code if anything fails, to block deploy promotion.
 
-Nunca escreve. Roda contra staging/prod logo após o deploy.
-
----
-
-## E2E / Synthetic (definido, adiado)
-
-**Adiado até existir um alvo de staging com pipeline de deploy** — não há
-evidência de um hoje, e não vale especificar infra sem casa.
-
-Quando houver staging, definir um fluxo sintético contra o ambiente vivo:
-login (Firebase→JWT) → criar credit → criar review → ler de volta → limpar.
-Requisitos: usuário sintético dedicado + dados isolados + limpeza ao final
-(nunca tocar dados reais de usuário). Roda pós-deploy / em monitor contínuo.
+Never writes. Runs against staging/prod right after deploy.
 
 ---
 
-## Comandos de gate
+## E2E / Synthetic (defined, deferred)
+
+**Deferred until a staging target with a deploy pipeline exists** — there's no
+evidence of one today, and it's not worth specifying infra without a home for it.
+
+Once staging exists, define a synthetic flow against the live environment:
+login (Firebase→JWT) → create credit → create review → read it back → clean up.
+Requirements: dedicated synthetic user + isolated data + cleanup at the end
+(never touch real user data). Runs post-deploy / in a continuous monitor.
+
+---
+
+## Gate Commands
 
 ```bash
-# raiz do /apps/api
-npm run test:unit          # sem DB — rápido, a cada commit
-npm run test:integration   # requer Postgres + Redis de teste
+# from /apps/api root
+npm run test:unit          # no DB — fast, every commit
+npm run test:integration   # requires test Postgres + Redis
 npm test                   # unit + integration (serial)
-node scripts/smoke.js      # pós-deploy, contra BASE_URL (read-only)
+node scripts/smoke.js      # post-deploy, against BASE_URL (read-only)
 ```
 
-**CI sugerido:** `test:unit` em todo push (sem serviços); `test:integration`
-em PR com Postgres+Redis como serviços; `smoke` como passo pós-deploy.
+**Suggested CI:** `test:unit` on every push (no services); `test:integration`
+on PR with Postgres+Redis as services; `smoke` as a post-deploy step.
 
 ---
 
-## Notas
+## Notes
 
-- A lógica de trigger de crédito (`GREATEST(credit_count - 1, 0)`) é PL/pgSQL —
-  testada **só na integração** (insert/delete e o reflexo em
-  `credit_count`/`badge_level`), nunca em unit.
-- `tests/teardown.js` existe porque `globalTeardown` roda em outro registro de
-  módulos e não fecha os singletons Redis/Firebase que as suites realmente
-  abriram — não remover sem entender o "open handle" que ele resolve.
-- Testes de migração (rodar `migrate:latest` em DB limpo + `migrate:rollback`)
-  são feitos implicitamente pelo `globalSetup`; um teste de rollback explícito
-  pode ser adicionado se as migrations ficarem mais arriscadas.
-</content>
-</invoke>
+- The credit trigger logic (`GREATEST(credit_count - 1, 0)`) is PL/pgSQL —
+  tested **only at the integration layer** (insert/delete and the effect on
+  `credit_count`/`badge_level`), never in unit.
+- `tests/teardown.js` exists because `globalTeardown` runs in a separate module
+  registry and doesn't close the Redis/Firebase singletons that the suites
+  actually opened — don't remove it without understanding the "open handle" it fixes.
+- Migration tests (running `migrate:latest` on a clean DB + `migrate:rollback`)
+  are implicitly exercised by `globalSetup`; an explicit rollback test can be
+  added if migrations get riskier.
