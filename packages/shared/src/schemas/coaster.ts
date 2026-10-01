@@ -1,7 +1,8 @@
 import { z } from 'zod';
+import { uuid } from './uuid';
 
 export const CoasterSchema = z.object({
-  id: z.string().uuid(),
+  id: uuid,
   name: z.string(),
 });
 

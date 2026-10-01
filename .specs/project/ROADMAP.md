@@ -80,7 +80,9 @@ under Phase 1.
 - [x] Replace npm + yarn with pnpm; rewrite `metro.config.js` for RN 0.86 + pnpm (highest-risk step) — verified: `expo-doctor` 21/21, `pnpm ios`/`android` boot clean
 - [x] TypeScript boilerplate for `apps/api` (tsx in dev, esbuild bundle on build, `allowJs` during the transition)
 - [x] Port the 20 API source files to TypeScript, leaf to root, suite green at each step
-- [ ] End-to-end proof: the same zod schema consumed by the API (dev *and* build) and by the app (iOS + Android)
+- [x] End-to-end proof: the same zod schema consumed by the API (dev *and* build) and by the app (iOS + Android) — verified: api `tsx`/`dist/index.js` both return 200 against live seed data, `pnpm ios`/`android` both bundle and log `[Ticket 8] @mycoaster/shared resolved and validated OK`, single resolved zod (`4.6.5`) across api/shared/app in `pnpm-lock.yaml`
+
+**Monorepo migration complete** (2026-10-01).
 
 Deferred to their own tickets: moving the real schemas into `shared`, the app services layer, Turborepo.
 

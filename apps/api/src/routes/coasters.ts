@@ -3,7 +3,7 @@ import db from '../config/database';
 import { validate } from '../middlewares/validate';
 import { success } from '../utils/response';
 import { listQuerySchema, isGeoSearch, haversine, avgRatingSql } from '../utils/search';
-import { uuidParams } from '@mycoaster/shared';
+import { uuidParams, CoasterSchema } from '@mycoaster/shared';
 
 const router = Router();
 
@@ -64,6 +64,13 @@ router.get('/:id', validate(uuidParams('id'), 'params'), async (req, res) => {
     park[f] = row[`_park_${f}`];
     delete row[`_park_${f}`];
   }
+
+  // Ticket 8: end-to-end proof that @mycoaster/shared resolves correctly in
+  // both the tsx dev path and the esbuild build artifact. Validates the full
+  // row against Coaster's minimal shape — zod ignores row's extra keys by
+  // default, so this is a pure internal assertion; `row` itself (unstripped)
+  // is what's actually returned below.
+  CoasterSchema.parse(row);
 
   return success(res, { ...row, park });
 });

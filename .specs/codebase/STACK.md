@@ -1,9 +1,11 @@
 # STACK.md — MyCoaster
 
 ## Runtime & Language
-- **Node.js** ≥ 20 (backend)
-- **Backend:** JavaScript (CommonJS, no TypeScript)
+- **Node.js** ≥ 20 (`.nvmrc` pins 22 workspace-wide)
+- **Backend:** TypeScript, `module: "commonjs"` output — `tsx` in dev, esbuild bundle for `build` (tickets 6–7 of the monorepo migration; migrated from plain JS)
 - **App:** TypeScript — React Native + Expo (SDK 57), iOS + Android
+- **`packages/shared`:** TypeScript, source-only (no `dist/`) — Zod schemas shared between `apps/api` and `apps/app`, resolved via `tsconfig.base.json`'s `paths` (api) and pnpm's workspace symlink (app)
+- **Package manager:** pnpm workspaces (`pnpm-workspace.yaml`: `apps/*`, `packages/*`)
 
 ## Backend
 | Layer | Technology | Version |
@@ -19,9 +21,11 @@
 | JWT (internal) | jsonwebtoken | ^9.0.2 |
 | UUIDs | uuid | ^10.0.0 |
 | Env vars | dotenv | ^16.4.5 |
+| Validation / shared schemas | @mycoaster/shared (zod ^4.4.3) | workspace:* |
 
 ## Dev Dependencies
-- **nodemon** ^3.1.4 — hot reload in dev
+- **typescript** ~6.0.3, **tsx** (dev runner + hot reload), **esbuild** (build bundle), **ts-jest** (test transform)
+- **@types/node, @types/express, @types/jsonwebtoken, @types/cors, @types/morgan**
 
 ## Database
 - **PostgreSQL** — primary store; UUIDs as PKs (`gen_random_uuid()`); timezone-aware timestamps
@@ -43,7 +47,7 @@ Managed Expo project. Entry point is `expo-router/entry`; screens live in `apps/
 | Layer | Technology | Version |
 |---|---|---|
 | Framework | expo | ^57.0.12 |
-| React Native | react-native | 0.86.2 |
+| React Native | react-native | 0.86.3 |
 | React | react | 19.2.3 |
 | Language | typescript | ~6.0.3 |
 | Navigation | expo-router (file-based) | ~57.0.9 |
@@ -68,10 +72,13 @@ Managed Expo project. Entry point is `expo-router/entry`; screens live in `apps/
 
 ### App scripts
 ```
-yarn start          → expo start
-yarn ios / android  → expo start --ios / --android
-yarn lint           → expo lint
+pnpm ios / android  → expo start --ios / --android (routed from root via package.json, ticket 5)
+pnpm --filter @mycoaster/app start  → expo start
+pnpm --filter @mycoaster/app lint   → expo lint
 ```
+Metro config (`apps/app/metro.config.js`, ticket 5): `watchFolders` includes
+the workspace root, `extraNodeModules` resolves bare imports against the
+root's `node_modules` — required for pnpm's non-flat `node_modules` layout.
 
 ## Object Storage
 - **TBD** — AWS S3 or Cloudflare R2 for community photo uploads
@@ -79,11 +86,11 @@ yarn lint           → expo lint
 ## AI / Batch
 - **TBD** — LLM API (Claude or GPT) for review summaries + tag extraction; batch job, results cached as JSONB
 
-## Scripts
+## Scripts (apps/api)
 ```
-npm start           → node src/index.js
-npm run dev         → nodemon src/index.js
-npm run migrate:latest
-npm run migrate:rollback
-npm run migrate:make
+npm start           → tsx src/index.ts
+npm run dev          → tsx watch src/index.ts
+npm run build         → esbuild bundle (node_modules external, @mycoaster/shared inlined) → dist/index.js
+npm run typecheck    → tsc --noEmit
+npm run migrate:latest / :rollback / :make  → tsx-wrapped knex CLI (knexfile.ts)
 ```
