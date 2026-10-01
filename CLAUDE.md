@@ -1,73 +1,95 @@
 # Coaster Tracker
 
-App mobile e rede social para entusiastas de parques de diversão e montanhas-russas.
+Mobile app and social network for theme park and roller coaster enthusiasts.
 
-**Posicionamento:** A casa digital do parqueiro — tracking, reviews estruturadas, galeria comunitária e conexão entre entusiastas e criadores de conteúdo do nicho.
+**Positioning:** The coaster enthusiast's digital home — tracking, structured reviews, community gallery, and connection between enthusiasts and niche content creators.
 
-**Plataformas:** iOS e Android  
+**Platforms:** iOS and Android
 **Stack:** React Native + **Expo (SDK 57)** · expo-router · TypeScript · Node.js + Express · PostgreSQL · Redis · Firebase Auth · n8n
 
 ---
 
-## Estrutura do repositório
+## Repository structure
 
 ```
 /apps/api     → Backend Node.js + Express (TypeScript)
-/apps/app     → App Expo / React Native (TypeScript, expo-router file-based em apps/app/src/app/)
-/packages/shared → Pacote TypeScript compartilhado entre api e app (schemas Zod, sem dist/)
-/scraper      → Configuração do workflow n8n
-/.specs       → Toda a documentação do projeto
-  /.specs/project/    → Visão, roadmap e estado atual (spec-driven)
-  /.specs/codebase/   → Mapeamento técnico da base de código (spec-driven)
+/apps/app     → Expo / React Native app (TypeScript, expo-router file-based in apps/app/src/app/)
+/packages/shared → TypeScript package shared between api and app (Zod schemas, no dist/)
+/scraper      → n8n workflow configuration
+/.specs       → All project documentation
+  /.specs/project/    → Vision, roadmap and current state (spec-driven)
+  /.specs/codebase/   → Technical mapping of the codebase (spec-driven)
 ```
 
 ---
 
-## Documentação
+## Documentation
 
-### Produto & Decisões
+### Product & Decisions
 
-| Doc                                                                | Descrição                                                                      |
-| ------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
-| [.specs/docs/spec.md](.specs/docs/spec.md)                                   | Design spec — visão geral, público-alvo, arquitetura, features, fases e escopo |
-| [.specs/docs/data-model.md](.specs/docs/data-model.md)                       | Modelo de dados — tabelas, triggers, badges, formato do ai_summary             |
-| [.specs/docs/api.md](.specs/docs/api.md)                                     | Endpoints REST — rotas, métodos e descrições                                   |
-| [.specs/docs/plan.md](.specs/docs/plan.md)                                   | Plano de implementação — fases, pré-requisitos e paralelismo                   |
-| [.specs/docs/decisions.md](.specs/docs/decisions.md)                         | Decisões técnicas — escolhas e seus motivos                                    |
-| [.specs/docs/rcdb-n8n-scraper-spec.md](.specs/docs/rcdb-n8n-scraper-spec.md) | Design Spec para o N8N scraper no RCDB                                         |
+| Doc                                                                | Description                                                                     |
+| ------------------------------------------------------------------ | -------------------------------------------------------------------------------|
+| [.specs/docs/spec.md](.specs/docs/spec.md)                                   | Design spec — overview, target audience, architecture, features, phases and scope |
+| [.specs/docs/data-model.md](.specs/docs/data-model.md)                       | Data model — tables, triggers, badges, ai_summary format              |
+| [.specs/docs/api.md](.specs/docs/api.md)                                     | REST endpoints — routes, methods and descriptions                   |
+| [.specs/docs/plan.md](.specs/docs/plan.md)                                   | Implementation plan — phases, prerequisites and parallelism           |
+| [.specs/docs/decisions.md](.specs/docs/decisions.md)                         | Technical decisions — choices and their reasons                     |
+| [.specs/docs/rcdb-n8n-scraper-spec.md](.specs/docs/rcdb-n8n-scraper-spec.md) | Design spec for the N8N scraper on RCDB                                        |
 
-### Projeto (spec-driven — carregar ao planejar features)
+### Project (spec-driven — load when planning features)
 
-| Doc                                                    | Descrição                                                              |
-| ------------------------------------------------------ | ---------------------------------------------------------------------- |
-| [.specs/project/PROJECT.md](.specs/project/PROJECT.md) | Visão, posicionamento, público-alvo e métricas de sucesso              |
-| [.specs/project/ROADMAP.md](.specs/project/ROADMAP.md) | Fases 0–5 com status de cada item                                      |
-| [.specs/project/STATE.md](.specs/project/STATE.md)     | Memória persistente — decisões, bloqueadores, lições e próximos passos |
+| Doc                                                    | Description                                                              |
+| ------------------------------------------------------ | --------------------------------------------------------------------------|
+| [.specs/project/PROJECT.md](.specs/project/PROJECT.md) | Vision, positioning, target audience and success metrics              |
+| [.specs/project/ROADMAP.md](.specs/project/ROADMAP.md) | Phases 0–5 with status of each item                                      |
+| [.specs/project/STATE.md](.specs/project/STATE.md)     | Persistent memory — decisions, blockers, lessons and next steps |
 
-### Codebase (spec-driven — carregar ao implementar)
+### Codebase (spec-driven — load when implementing)
 
-| Doc                                                                | Descrição                                                                      |
-| ------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
-| [.specs/codebase/STACK.md](.specs/codebase/STACK.md)               | Stack completa — runtimes, libs, versões e scripts                             |
-| [.specs/codebase/ARCHITECTURE.md](.specs/codebase/ARCHITECTURE.md) | Arquitetura do sistema, fluxo de auth, fluxo de dados                          |
-| [.specs/codebase/STRUCTURE.md](.specs/codebase/STRUCTURE.md)       | Mapa do repositório — o que está construído vs. pendente                       |
-| [.specs/codebase/CONVENTIONS.md](.specs/codebase/CONVENTIONS.md)   | Convenções de código, DB, error handling e env vars                            |
-| [.specs/codebase/INTEGRATIONS.md](.specs/codebase/INTEGRATIONS.md) | Todas as integrações externas (Firebase, Redis, n8n, storage, LLM)             |
-| [.specs/codebase/TESTING.md](.specs/codebase/TESTING.md)           | Estratégia de testes (nenhum teste existe ainda)                               |
-| [.specs/codebase/CONCERNS.md](.specs/codebase/CONCERNS.md)         | Riscos técnicos identificados — 4 itens críticos para resolver antes das rotas |
-
----
-
-## Execução
-
-Tasks de implementação estão no **ClickUp** → Board "🎢 HapFun — Produto", organizadas por fase (0–5) com subtasks granulares.
+| Doc                                                                | Description                                                                     |
+| ------------------------------------------------------------------ | -------------------------------------------------------------------------------|
+| [.specs/codebase/STACK.md](.specs/codebase/STACK.md)               | Full stack — runtimes, libs, versions and scripts                             |
+| [.specs/codebase/ARCHITECTURE.md](.specs/codebase/ARCHITECTURE.md) | System architecture, auth flow, data flow                          |
+| [.specs/codebase/STRUCTURE.md](.specs/codebase/STRUCTURE.md)       | Repository map — what's built vs. pending                       |
+| [.specs/codebase/CONVENTIONS.md](.specs/codebase/CONVENTIONS.md)   | Code, DB, error handling and env var conventions                            |
+| [.specs/codebase/INTEGRATIONS.md](.specs/codebase/INTEGRATIONS.md) | All external integrations (Firebase, Redis, n8n, storage, LLM)             |
+| [.specs/codebase/TESTING.md](.specs/codebase/TESTING.md)           | Testing strategy                                              |
+| [.specs/codebase/CONCERNS.md](.specs/codebase/CONCERNS.md)         | Identified technical risks — critical items to resolve before routes |
 
 ---
 
-## Convenções
+## Execution
 
-- Badges no banco em inglês (`rookie`, `enthusiast`, `veteran`, `legend`) — traduzido via i18n no app
-- Reviews com peso igual para todos os usuários
-- Fotos com moderação (status: pending → approved)
-- Vídeos apenas via URL do YouTube (sem armazenamento)
-- IA processada em batch, cacheada como JSONB — sem chamadas em tempo real
+Implementation tasks are tracked as **GitHub issues** in this repo (`LeoTechMaze/mycoaster`), organized by phase (0–5) with granular sub-tasks. (Previously tracked in ClickUp, board "🎢 HapFun — Produto"; migrated to GitHub issues — see `docs/agents/issue-tracker.md`.)
+
+---
+
+## Agent skills
+
+### Issue tracker
+
+Issues live as GitHub issues on `LeoTechMaze/mycoaster`, via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default five-role vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`), used as-is. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one `CONTEXT.md` + `docs/adr/` at the repo root (created lazily), alongside the existing `.specs/` docs. See `docs/agents/domain.md`.
+
+---
+
+## Language
+
+All project documentation, tickets/issues, code comments, and commit messages are written in English, regardless of the language used in conversation. Proper nouns (ride names, place names, people's names in sample/mock data) are kept as-is.
+
+---
+
+## Conventions
+
+- Badges stored in English in the DB (`rookie`, `enthusiast`, `veteran`, `legend`) — translated via i18n in the app
+- Reviews weighted equally for all users
+- Photos with moderation (status: pending → approved)
+- Videos via YouTube URL only (no storage)
+- AI processed in batch, cached as JSONB — no real-time calls
