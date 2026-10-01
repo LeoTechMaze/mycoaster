@@ -5,15 +5,16 @@ App mobile e rede social para entusiastas de parques de diversão e montanhas-ru
 **Posicionamento:** A casa digital do parqueiro — tracking, reviews estruturadas, galeria comunitária e conexão entre entusiastas e criadores de conteúdo do nicho.
 
 **Plataformas:** iOS e Android  
-**Stack:** React Native (sem Expo) · Node.js + Express · PostgreSQL · Redis · Firebase Auth · n8n
+**Stack:** React Native + **Expo (SDK 57)** · expo-router · TypeScript · Node.js + Express · PostgreSQL · Redis · Firebase Auth · n8n
 
 ---
 
 ## Estrutura do repositório
 
 ```
-/api          → Backend Node.js + Express
-/app          → App React Native
+/apps/api     → Backend Node.js + Express (TypeScript)
+/apps/app     → App Expo / React Native (TypeScript, expo-router file-based em apps/app/src/app/)
+/packages/shared → Pacote TypeScript compartilhado entre api e app (schemas Zod, sem dist/)
 /scraper      → Configuração do workflow n8n
 /.specs       → Toda a documentação do projeto
   /.specs/project/    → Visão, roadmap e estado atual (spec-driven)

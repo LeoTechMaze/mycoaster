@@ -1,9 +1,11 @@
 # STACK.md — MyCoaster
 
 ## Runtime & Language
-- **Node.js** ≥ 20 (backend)
-- **JavaScript** (CommonJS, no TypeScript)
-- **React Native** (no Expo) — iOS + Android
+- **Node.js** ≥ 20 (`.nvmrc` pins 22 workspace-wide)
+- **Backend:** TypeScript, `module: "commonjs"` output — `tsx` in dev, esbuild bundle for `build` (tickets 6–7 of the monorepo migration; migrated from plain JS)
+- **App:** TypeScript — React Native + Expo (SDK 57), iOS + Android
+- **`packages/shared`:** TypeScript, source-only (no `dist/`) — Zod schemas shared between `apps/api` and `apps/app`, resolved via `tsconfig.base.json`'s `paths` (api) and pnpm's workspace symlink (app)
+- **Package manager:** pnpm workspaces (`pnpm-workspace.yaml`: `apps/*`, `packages/*`)
 
 ## Backend
 | Layer | Technology | Version |
@@ -19,9 +21,11 @@
 | JWT (internal) | jsonwebtoken | ^9.0.2 |
 | UUIDs | uuid | ^10.0.0 |
 | Env vars | dotenv | ^16.4.5 |
+| Validation / shared schemas | @mycoaster/shared (zod ^4.4.3) | workspace:* |
 
 ## Dev Dependencies
-- **nodemon** ^3.1.4 — hot reload in dev
+- **typescript** ~6.0.3, **tsx** (dev runner + hot reload), **esbuild** (build bundle), **ts-jest** (test transform)
+- **@types/node, @types/express, @types/jsonwebtoken, @types/cors, @types/morgan**
 
 ## Database
 - **PostgreSQL** — primary store; UUIDs as PKs (`gen_random_uuid()`); timezone-aware timestamps
@@ -36,11 +40,45 @@
 - **n8n** (self-hosted) — scheduled workflow scraping RCDB daily at 03:00 UTC
 - Upserts `parks` and `coasters` using `rcdb_id` as idempotency key
 
-## Mobile (planned — no code yet)
-- React Navigation
-- @react-native-firebase/auth
-- axios
-- react-native-share
+## Mobile (`/app` — layout implemented, data layer pending)
+
+Managed Expo project. Entry point is `expo-router/entry`; screens live in `apps/app/src/app/`.
+
+| Layer | Technology | Version |
+|---|---|---|
+| Framework | expo | ^57.0.12 |
+| React Native | react-native | 0.86.3 |
+| React | react | 19.2.3 |
+| Language | typescript | ~6.0.3 |
+| Navigation | expo-router (file-based) | ~57.0.9 |
+| Tabs | `expo-router/unstable-native-tabs` (NativeTabs) | — |
+| Animation | react-native-reanimated | 4.5.1 |
+| Gestures | react-native-gesture-handler | ~2.32.0 |
+| Screens / safe area | react-native-screens, react-native-safe-area-context | ~4.26.0 / ~5.7.0 |
+| Vector drawing | react-native-svg | 15.15.4 |
+| Typeface | @expo-google-fonts/space-grotesk | ^0.4.1 |
+| Images | expo-image | ~57.0.1 |
+| Splash | expo-splash-screen | ~57.0.5 |
+| Native UI | @expo/ui, expo-glass-effect, expo-symbols | ~57.x |
+| Linking / browser | expo-linking, expo-web-browser | ~57.x |
+
+### Planned, not yet installed
+
+- `@react-native-firebase/auth` (via Expo config plugin + dev client) — Google / Apple / email
+- `expo-secure-store` — internal JWT persistence
+- `expo-location` — GPS discovery
+- Data fetching layer (React Query or SWR — decision open)
+- `expo-image-picker` — Phase 3 photo uploads
+
+### App scripts
+```
+pnpm ios / android  → expo start --ios / --android (routed from root via package.json, ticket 5)
+pnpm --filter @mycoaster/app start  → expo start
+pnpm --filter @mycoaster/app lint   → expo lint
+```
+Metro config (`apps/app/metro.config.js`, ticket 5): `watchFolders` includes
+the workspace root, `extraNodeModules` resolves bare imports against the
+root's `node_modules` — required for pnpm's non-flat `node_modules` layout.
 
 ## Object Storage
 - **TBD** — AWS S3 or Cloudflare R2 for community photo uploads
@@ -48,11 +86,11 @@
 ## AI / Batch
 - **TBD** — LLM API (Claude or GPT) for review summaries + tag extraction; batch job, results cached as JSONB
 
-## Scripts
+## Scripts (apps/api)
 ```
-npm start           → node src/index.js
-npm run dev         → nodemon src/index.js
-npm run migrate:latest
-npm run migrate:rollback
-npm run migrate:make
+npm start           → tsx src/index.ts
+npm run dev          → tsx watch src/index.ts
+npm run build         → esbuild bundle (node_modules external, @mycoaster/shared inlined) → dist/index.js
+npm run typecheck    → tsc --noEmit
+npm run migrate:latest / :rollback / :make  → tsx-wrapped knex CLI (knexfile.ts)
 ```

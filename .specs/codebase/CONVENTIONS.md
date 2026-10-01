@@ -1,8 +1,28 @@
 # CONVENTIONS.md — MyCoaster
 
 ## Language & Module System
-- **JavaScript** only (no TypeScript) — CommonJS (`require` / `module.exports`)
-- Node.js ≥ 20 required
+- **`apps/api`**: TypeScript since the monorepo migration (tickets 6–7) — source
+  uses `import`/`export`, compiled/transpiled output is CommonJS
+  (`module: "commonjs"` in `tsconfig.json`). `export =` (not `export default`)
+  for every module that exports a single value (the historical convention —
+  see below); named `export const`/`export function` for modules that
+  previously did `module.exports = { a, b }`.
+- **`apps/app`**: TypeScript (always was — Expo/React Native default).
+- **`packages/shared`**: TypeScript, source-only, no `dist/`.
+- Node.js ≥ 20 required (`.nvmrc` pins 22 at the workspace root)
+- **`migrations/`, `seeds/`, `tests/`** under `apps/api` are deliberately
+  still `.js` — migrations/seeds are Knex's own domain (untouched by the
+  TS port), tests are the port's safety net and don't change alongside what
+  they verify. See `.specs/project/ROADMAP.md`'s monorepo migration section.
+
+### The `export =` convention (apps/api)
+Every `apps/api/src` module that used to do `module.exports = <single value>`
+(not an object) uses TS's `export = x` syntax, which compiles to exactly
+`module.exports = x`. This matters because it preserves interop with
+anything still `require()`-ing these modules expecting the bare value (the
+`.js` test files, permanently). Using `export default x` instead would
+compile to `exports.default = x` and break every such call site — don't use
+`export default` in `apps/api/src` for this reason.
 
 ## File & Directory Naming
 - Lowercase kebab-case for files: `error-handler.js`, `knexfile.js`

@@ -12,7 +12,7 @@ Mobile app and social network for theme park and roller coaster enthusiasts. Let
 **Positioning:** The coaster enthusiast's digital home — tracking, structured reviews, community gallery, and connection between enthusiasts and niche content creators.
 
 **Platforms:** iOS and Android
-**Stack:** React Native (no Expo) · Node.js + Express · PostgreSQL · Redis · Firebase Auth · n8n
+**Stack:** React Native + Expo (SDK 57) · expo-router · TypeScript · Node.js + Express · PostgreSQL · Redis · Firebase Auth · n8n
 
 ---
 
@@ -28,7 +28,7 @@ Roller coaster and theme park enthusiasts who want to track ridden coasters, rat
 
 | Component            | Technology                        | Responsibility                                   |
 | -------------------- | --------------------------------- | ------------------------------------------------ |
-| Mobile app           | React Native                      | UI, GPS, navigation, camera, share               |
+| Mobile app           | React Native + Expo (SDK 57)      | UI, GPS, navigation, camera, share               |
 | API Server           | Node.js + Express                 | Business logic, REST endpoints                   |
 | Database             | PostgreSQL                        | Primary persistence                              |
 | Cache                | Redis                             | Global leaderboard, frequently read data         |

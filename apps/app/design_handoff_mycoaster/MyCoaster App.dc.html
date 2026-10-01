@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#dfe5f2;font-family:'Space Grotesk',system-ui,sans-serif}
+@keyframes mc-toast{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes mc-sheet{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:36px 16px">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="394,852">
+<div style="height:100%;display:flex;flex-direction:column;background:#eef3fd;font-family:'Space Grotesk',system-ui,sans-serif;color:#0d1b3d;position:relative;overflow:hidden">
+
+<!-- ================= ONBOARDING ================= -->
+<sc-if value="{{ showOnboarding }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;padding:80px 28px 40px;background:#eef3fd">
+  <div style="display:flex;gap:6px">
+    <sc-for list="{{ obDots }}" as="d" hint-placeholder-count="3">
+      <div style="width:{{ d.w }};height:6px;border-radius:3px;background:{{ d.bg }};transition:all .25s"></div>
+    </sc-for>
+  </div>
+
+  <sc-if value="{{ ob0 }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:20px">
+      <svg width="100%" height="70" viewBox="0 0 330 70" preserveAspectRatio="none" style="display:block">
+        <path d="M0,58 Q70,-18 150,40 T330,18" fill="none" stroke="#3d5af1" stroke-width="4" stroke-dasharray="9 8" stroke-linecap="round"></path>
+        <circle cx="122" cy="26" r="9" fill="#c8f04a" stroke="#0d1b3d" stroke-width="3"></circle>
+      </svg>
+      <div style="font-size:42px;font-weight:700;line-height:1.05;letter-spacing:-1.5px">Every ride.<br>Counted<span style="color:#3d5af1">.</span></div>
+      <div style="font-size:15px;line-height:1.55;color:#5d6c96;max-width:280px">MyCoaster is the digital home for coaster enthusiasts — track your credits, review parks, and climb the global leaderboard.</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ ob1 }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px">
+      <div style="font-size:30px;font-weight:700;letter-spacing:-1px;margin-bottom:8px">How it works</div>
+      <div style="display:flex;gap:14px;background:#fff;border:1.5px solid #d9e2f5;border-radius:20px;padding:16px">
+        <div style="width:42px;height:42px;border-radius:12px;background:#c8f04a;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px;color:#0d1b3d;flex:none">+1</div>
+        <div><div style="font-size:15px;font-weight:700">Earn credits</div><div style="font-size:12.5px;color:#5d6c96;margin-top:2px;line-height:1.45">Mark every coaster you ride. One coaster, one credit — forever yours.</div></div>
+      </div>
+      <div style="display:flex;gap:14px;background:#fff;border:1.5px solid #d9e2f5;border-radius:20px;padding:16px">
+        <div style="width:42px;height:42px;border-radius:12px;background:#3d5af1;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px;color:#fff;flex:none">★</div>
+        <div><div style="font-size:15px;font-weight:700">Review &amp; explore</div><div style="font-size:12.5px;color:#5d6c96;margin-top:2px;line-height:1.45">Rate parks and coasters. AI distills every community review into themes.</div></div>
+      </div>
+      <div style="display:flex;gap:14px;background:#fff;border:1.5px solid #d9e2f5;border-radius:20px;padding:16px">
+        <div style="width:42px;height:42px;border-radius:12px;background:#0d1b3d;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px;color:#c8f04a;flex:none">▲</div>
+        <div><div style="font-size:15px;font-weight:700">Climb the ranks</div><div style="font-size:12.5px;color:#5d6c96;margin-top:2px;line-height:1.45">From Rookie to Legend — compete with enthusiasts worldwide.</div></div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ ob2 }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px">
+      <div style="font-size:30px;font-weight:700;letter-spacing:-1px;margin-bottom:14px">Hop on<span style="color:#3d5af1">.</span></div>
+      <div onClick="{{ login }}" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;border:1.5px solid #d9e2f5;border-radius:999px;padding:15px;font-size:14.5px;font-weight:700;cursor:pointer" style-hover="border-color:#3d5af1"><span style="color:#3d5af1;font-weight:700">G</span>Continue with Google</div>
+      <div onClick="{{ login }}" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#0d1b3d;color:#fff;border-radius:999px;padding:15px;font-size:14.5px;font-weight:700;cursor:pointer"><span></span>Continue with Apple</div>
+      <div onClick="{{ login }}" style="display:flex;align-items:center;justify-content:center;gap:10px;background:transparent;border:1.5px solid #c3cfea;border-radius:999px;padding:15px;font-size:14.5px;font-weight:700;color:#5d6c96;cursor:pointer" style-hover="border-color:#3d5af1;color:#3d5af1">Sign up with email</div>
+      <div style="font-size:11px;color:#8593b8;text-align:center;margin-top:10px;line-height:1.5">By continuing you agree to our Terms &amp; Privacy Policy.</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ obShowNext }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ obNext }}" style="background:#3d5af1;color:#fff;border-radius:999px;padding:16px;text-align:center;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(61,90,241,.35)" style-hover="background:#2e49d8">Continue</div>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- ================= APP ================= -->
+<sc-if value="{{ showApp }}" hint-placeholder-val="{{ true }}">
+<div style="flex:1;position:relative;overflow:hidden;display:flex;flex-direction:column">
+
+  <!-- ---------- HOME ---------- -->
+  <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+  <div style="flex:1;overflow-y:auto;padding:62px 20px 24px;display:flex;flex-direction:column;gap:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:13px;font-weight:500;color:#5d6c96">Good morning, {{ userName }}</div>
+        <div style="font-size:27px;font-weight:700;letter-spacing:-0.5px">Find your next ride<span style="color:#3d5af1">.</span></div>
+      </div>
+      <div onClick="{{ goProfile }}" style="width:46px;height:46px;border-radius:50%;background:#3d5af1;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px;cursor:pointer">{{ userInitial }}</div>
+    </div>
+    <div style="background:#3d5af1;border-radius:22px;padding:18px;display:flex;align-items:center;gap:14px;color:#fff;position:relative;overflow:hidden">
+      <div style="position:absolute;right:-30px;top:-40px;width:130px;height:130px;border-radius:50%;border:22px solid rgba(200,240,74,.18)"></div>
+      <div style="flex:1;text-align:center;position:relative">
+        <div style="font-size:32px;font-weight:700;line-height:1;color:#c8f04a">{{ creditCount }}</div>
+        <div style="font-size:10.5px;color:rgba(255,255,255,.75);margin-top:3px;letter-spacing:1px">CREDITS</div>
+      </div>
+      <div style="width:1px;align-self:stretch;background:rgba(255,255,255,.25)"></div>
+      <div style="flex:1;text-align:center;position:relative">
+        <div style="font-size:32px;font-weight:700;line-height:1">#{{ myRank }}</div>
+        <div style="font-size:10.5px;color:rgba(255,255,255,.75);margin-top:3px;letter-spacing:1px">GLOBAL</div>
+      </div>
+      <div style="width:1px;align-self:stretch;background:rgba(255,255,255,.25)"></div>
+      <div style="flex:1;text-align:center;position:relative">
+        <div style="font-size:32px;font-weight:700;line-height:1">{{ parksVisited }}</div>
+        <div style="font-size:10.5px;color:rgba(255,255,255,.75);margin-top:3px;letter-spacing:1px">PARKS</div>
+      </div>
+    </div>
+    <div onClick="{{ goExplore }}" style="display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid #d9e2f5;border-radius:999px;padding:13px 18px;color:#8593b8;font-size:14px;cursor:pointer" style-hover="border-color:#3d5af1">⌕ Search parks or coasters…</div>
+    <div style="display:flex;align-items:baseline;justify-content:space-between">
+      <div style="font-size:17px;font-weight:700">Parks near you</div>
+      <div onClick="{{ goExplore }}" style="font-size:12px;font-weight:700;color:#3d5af1;cursor:pointer">See all →</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <sc-for list="{{ nearbyParks }}" as="p" hint-placeholder-count="3">
+        <div onClick="{{ p.open }}" style="background:#fff;border:1.5px solid #d9e2f5;border-radius:22px;overflow:hidden;box-shadow:0 2px 8px rgba(13,27,61,.05);cursor:pointer" style-hover="border-color:#3d5af1">
+          <sc-if value="{{ p.showHero }}" hint-placeholder-val="{{ false }}">
+            <div style="height:110px;background:repeating-linear-gradient(45deg,{{ p.hueA }},{{ p.hueA }} 10px,{{ p.hueB }} 10px,{{ p.hueB }} 20px);display:flex;align-items:center;justify-content:center;position:relative">
+              <span style="font:11px ui-monospace,monospace;color:#7c8bb4">park photo</span>
+              <span style="position:absolute;top:10px;right:12px;background:#3d5af1;color:#fff;font-size:11px;font-weight:700;padding:5px 12px;border-radius:999px">{{ p.kmLabel }}</span>
+            </div>
+          </sc-if>
+          <div style="padding:14px 16px">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div style="font-size:16px;font-weight:700">{{ p.name }}</div>
+              <div style="font-size:13px;font-weight:700;color:#3d5af1">★ {{ p.rating }}</div>
+            </div>
+            <div style="font-size:12px;color:#5d6c96;margin-top:3px">{{ p.meta }}</div>
+            <sc-if value="{{ p.showBar }}" hint-placeholder-val="{{ false }}">
+              <div style="height:8px;background:#eef3fd;border-radius:4px;margin-top:10px;overflow:hidden"><div style="width:{{ p.pct }};height:100%;background:#c8f04a;border-radius:4px"></div></div>
+              <div style="font-size:11px;color:#5d6c96;margin-top:5px">{{ p.progressLabel }}</div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ---------- EXPLORE ---------- -->
+  <sc-if value="{{ isExplore }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;overflow-y:auto;padding:62px 20px 24px;display:flex;flex-direction:column;gap:14px">
+    <div style="font-size:27px;font-weight:700;letter-spacing:-0.5px">Explore<span style="color:#3d5af1">.</span></div>
+    <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid #d9e2f5;border-radius:999px;padding:13px 18px;color:#8593b8;font-size:14px">⌕ Search parks or coasters…</div>
+    <div style="display:flex;gap:8px">
+      <sc-for list="{{ exploreChips }}" as="c" hint-placeholder-count="3">
+        <div onClick="{{ c.set }}" style="background:{{ c.bg }};border:1.5px solid {{ c.bd }};color:{{ c.fg }};font-size:12px;font-weight:{{ c.fw }};padding:8px 15px;border-radius:999px;cursor:pointer">{{ c.label }}</div>
+      </sc-for>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <sc-for list="{{ exploreParks }}" as="p" hint-placeholder-count="5">
+        <div onClick="{{ p.open }}" style="background:#fff;border:1.5px solid #d9e2f5;border-radius:22px;padding:14px 16px;box-shadow:0 2px 8px rgba(13,27,61,.05);cursor:pointer" style-hover="border-color:#3d5af1">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="font-size:16px;font-weight:700">{{ p.name }}</div>
+            <div style="font-size:13px;font-weight:700;color:#3d5af1">★ {{ p.rating }}</div>
+          </div>
+          <div style="font-size:12px;color:#5d6c96;margin-top:3px">{{ p.meta }} · {{ p.kmLabel }}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
+            <div style="flex:1;height:8px;background:#eef3fd;border-radius:4px;overflow:hidden"><div style="width:{{ p.pct }};height:100%;background:#c8f04a;border-radius:4px"></div></div>
+            <div style="font-size:11px;font-weight:700;color:#5d6c96">{{ p.ratio }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ---------- RANKS ---------- -->
+  <sc-if value="{{ isRanks }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;overflow-y:auto;padding:62px 20px 24px;display:flex;flex-direction:column;gap:14px">
+    <div style="font-size:27px;font-weight:700;letter-spacing:-0.5px">Leaderboard<span style="color:#3d5af1">.</span></div>
+    <div style="display:flex;align-items:flex-end;gap:10px;margin-top:6px">
+      <div style="flex:1;background:#fff;border:1.5px solid #d9e2f5;border-radius:18px;padding:14px 10px 12px;text-align:center">
+        <div style="width:44px;height:44px;border-radius:50%;background:#e3e9fd;color:#3d5af1;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 8px">L</div>
+        <div style="font-size:12.5px;font-weight:700;line-height:1.2">LoopHunter</div>
+        <div style="font-size:11px;color:#5d6c96;margin-top:2px">486 credits</div>
+        <div style="font-size:14px;font-weight:700;color:#8593b8;margin-top:6px">2</div>
+      </div>
+      <div style="flex:1.15;background:#0d1b3d;border-radius:20px;padding:18px 10px 14px;text-align:center;color:#fff">
+        <div style="width:50px;height:50px;border-radius:50%;background:#c8f04a;color:#0d1b3d;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:17px">C</div>
+        <div style="font-size:13px;font-weight:700;line-height:1.2">CoasterKing_BR</div>
+        <div style="font-size:11px;color:#8fa0cc;margin-top:2px">512 credits · Legend</div>
+        <div style="font-size:16px;font-weight:700;color:#c8f04a;margin-top:6px">1</div>
+      </div>
+      <div style="flex:1;background:#fff;border:1.5px solid #d9e2f5;border-radius:18px;padding:14px 10px 12px;text-align:center">
+        <div style="width:44px;height:44px;border-radius:50%;background:#e3e9fd;color:#3d5af1;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 8px">A</div>
+        <div style="font-size:12.5px;font-weight:700;line-height:1.2">AirtimeAna</div>
+        <div style="font-size:11px;color:#5d6c96;margin-top:2px">451 credits</div>
+        <div style="font-size:14px;font-weight:700;color:#8593b8;margin-top:6px">3</div>
+      </div>
+    </div>
+    <div style="background:#fff;border:1.5px solid #d9e2f5;border-radius:22px;overflow:hidden">
+      <sc-for list="{{ rankRows }}" as="r" hint-placeholder-count="7">
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:{{ r.bg }};border-bottom:1px solid #eef3fd">
+          <div style="width:34px;font-size:13px;font-weight:700;color:{{ r.rankColor }}">{{ r.rankLabel }}</div>
+          <div style="width:34px;height:34px;border-radius:50%;background:{{ r.avBg }};color:{{ r.avFg }};font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">{{ r.initial }}</div>
+          <div style="flex:1">
+            <div style="font-size:13.5px;font-weight:700">{{ r.name }}</div>
+            <div style="font-size:11px;color:#5d6c96">{{ r.badge }}</div>
+          </div>
+          <div style="font-size:13px;font-weight:700;color:{{ r.credColor }}">{{ r.credits }}</div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="font-size:11px;color:#8593b8;text-align:center">Global ranking · updated hourly</div>
+  </div>
+  </sc-if>
+
+  <!-- ---------- PROFILE ---------- -->
+  <sc-if value="{{ isProfile }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;overflow-y:auto;padding:62px 20px 24px;display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;align-items:center;gap:14px">
+      <div style="width:64px;height:64px;border-radius:50%;background:#3d5af1;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:24px">{{ userInitial }}</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="font-size:21px;font-weight:700">{{ userName }}</div>
+          <sc-if value="{{ isPremium }}" hint-placeholder-val="{{ false }}"><div style="background:#0d1b3d;color:#c8f04a;font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px;letter-spacing:1px">PRO</div></sc-if>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+          <div style="background:#c8f04a;color:#0d1b3d;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px">{{ badgeLabel }}</div>
+          <div style="font-size:12px;color:#5d6c96">#{{ myRank }} global</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <div style="font-size:11.5px;font-weight:700;color:#3d5af1;background:#e3e9fd;padding:6px 12px;border-radius:999px">Instagram</div>
+      <div style="font-size:11.5px;font-weight:700;color:#3d5af1;background:#e3e9fd;padding:6px 12px;border-radius:999px">TikTok</div>
+      <div style="font-size:11.5px;font-weight:700;color:#3d5af1;background:#e3e9fd;padding:6px 12px;border-radius:999px">YouTube</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="background:#fff;border:1.5px solid #d9e2f5;border-radius:18px;padding:14px 16px">
+        <div style="font-size:26px;font-weight:700;color:#3d5af1;line-height:1">{{ creditCount }}</div>
+        <div style="font-size:11px;color:#5d6c96;margin-top:4px;letter-spacing:.5px">CREDITS</div>
+      </div>
+      <div style="background:#fff;border:1.5px solid #d9e2f5;border-radius:18px;padding:14px 16px">
+        <div style="font-size:26px;font-weight:700;line-height:1">{{ parksVisited }}</div>
+        <div style="font-size:11px;color:#5d6c96;margin-top:4px;letter-spacing:.5px">PARKS VISITED</div>
+      </div>
+      <div style="background:#fff;border:1.5px solid #d9e2f5;border-radius:18px;padding:14px 16px">
+        <div style="font-size:26px;font-weight:700;line-height:1">9</div>
+        <div style="font-size:11px;color:#5d6c96;margin-top:4px;letter-spacing:.5px">REVIEWS</div>
+      </div>
+      <div style="background:#fff;border:1.5px solid #d9e2f5;border-radius:18px;padding:14px 16px">
+        <div style="font-size:26px;font-weight:700;line-height:1">{{ myPhotoCount }}</div>
+        <div style="font-size:11px;color:#5d6c96;margin-top:4px;letter-spacing:.5px">PHOTOS SHARED</div>
+      </div>
+    </div>
+    <div style="background:#0d1b3d;border-radius:22px;padding:18px;color:#fff">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <div style="font-size:14px;font-weight:700">Road to {{ nextBadge }}</div>
+        <div style="font-size:12px;color:#8fa0cc">{{ toNextBadge }} credits to go</div>
+      </div>
+      <div style="height:8px;background:rgba(255,255,255,.14);border-radius:4px;margin-top:12px;overflow:hidden"><div style="width:{{ badgePct }};height:100%;background:linear-gradient(90deg,#c8f04a,#e5ff7a);border-radius:4px"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:10.5px;color:#8fa0cc;margin-top:6px"><span>{{ badgeLabel }}</span><span>{{ nextBadge }} · {{ nextBadgeAt }}</span></div>
+    </div>
+    <div style="font-size:15px;font-weight:700;margin-top:4px">Recent credits</div>
+    <div style="background:#fff;border:1.5px solid #d9e2f5;border-radius:22px;overflow:hidden">
+      <sc-for list="{{ recentCredits }}" as="rc" hint-placeholder-count="3">
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #eef3fd">
+          <div style="width:36px;height:36px;border-radius:12px;background:#e3e9fd;color:#3d5af1;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex:none">+1</div>
+          <div style="flex:1">
+            <div style="font-size:13.5px;font-weight:700">{{ rc.name }}</div>
+            <div style="font-size:11.5px;color:#5d6c96">{{ rc.park }}</div>
+          </div>
+          <div style="font-size:11px;color:#8593b8">{{ rc.when }}</div>
+        </div>
+      </sc-for>
+    </div>
+    <div onClick="{{ logout }}" style="text-align:center;font-size:13px;font-weight:700;color:#8593b8;padding:10px;cursor:pointer" style-hover="color:#3d5af1">Sign out</div>
+  </div>
+  </sc-if>
+
+  <!-- ---------- PARK DETAIL (overlay) ---------- -->
+  <sc-if value="{{ showPark }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;inset:0;background:#eef3fd;overflow-y:auto;z-index:5">
+    <div style="height:200px;background:repeating-linear-gradient(45deg,{{ park.hueA }},{{ park.hueA }} 12px,{{ park.hueB }} 12px,{{ park.hueB }} 24px);position:relative;display:flex;align-items:center;justify-content:center">
+      <span style="font:12px ui-monospace,monospace;color:#7c8bb4">park hero photo</span>
+      <div onClick="{{ back }}" style="position:absolute;top:62px;left:16px;width:38px;height:38px;border-radius:50%;background:#fff;border:1.5px solid #d9e2f5;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(13,27,61,.12)">←</div>
+    </div>
+    <div style="padding:18px 20px 28px;display:flex;flex-direction:column;gap:14px">
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="font-size:24px;font-weight:700;letter-spacing:-0.5px">{{ park.name }}</div>
+          <div style="font-size:15px;font-weight:700;color:#3d5af1">★ {{ park.rating }}</div>
+        </div>
+        <div style="font-size:12.5px;color:#5d6c96;margin-top:3px">{{ park.location }} · {{ park.kmLabel }} · {{ park.reviewCount }} reviews</div>
+      </div>
+      <div style="background:#3d5af1;border-radius:20px;padding:14px 16px;color:#fff">
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <div style="font-size:13px;font-weight:700">Your progress here</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.8)">{{ park.ratio }} coasters</div>
+        </div>
+        <div style="height:8px;background:rgba(255,255,255,.22);border-radius:4px;margin-top:10px;overflow:hidden"><div style="width:{{ park.pct }};height:100%;background:#c8f04a;border-radius:4px"></div></div>
+      </div>
+      <div style="display:flex;background:#fff;border:1.5px solid #d9e2f5;border-radius:999px;padding:4px">
+        <sc-for list="{{ parkTabs }}" as="t" hint-placeholder-count="3">
+          <div onClick="{{ t.set }}" style="flex:1;text-align:center;font-size:12.5px;font-weight:700;padding:9px 0;border-radius:999px;background:{{ t.bg }};color:{{ t.fg }};cursor:pointer">{{ t.label }}</div>
+        </sc-for>
+      </div>
+
+      <!-- coasters tab -->
+      <sc-if value="{{ ptCoasters }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <sc-for list="{{ parkCoasters }}" as="c" hint-placeholder-count="5">
+            <div onClick="{{ c.open }}" style="background:#fff;border:1.5px solid #d9e2f5;border-radius:18px;padding:13px 14px;display:flex;align-items:center;gap:12px;cursor:pointer" style-hover="border-color:#3d5af1">
+              <div style="flex:1">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div style="font-size:14.5px;font-weight:700">{{ c.name }}</div>
+                  <div style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px;background:{{ c.stBg }};color:{{ c.stFg }}">{{ c.stLabel }}</div>
+                </div>
+                <div style="font-size:11.5px;color:#5d6c96;margin-top:3px">{{ c.type }} · ★ {{ c.rating }}</div>
+              </div>
+              <div onClick="{{ c.toggle }}" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;cursor:pointer;flex:none;background:{{ c.btnBg }};border:1.5px solid {{ c.btnBd }};color:{{ c.btnFg }}">{{ c.btnGlyph }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <!-- reviews tab -->
+      <sc-if value="{{ ptReviews }}" hint-placeholder-val="{{ false }}">
+        <sc-if value="{{ reviewCtx.hasAi }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#fff;border:1.5px solid #d9e2f5;border-radius:20px;padding:16px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="background:#e3e9fd;color:#3d5af1;font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px;letter-spacing:.5px">AI SUMMARY</div>
+              <div style="font-size:10.5px;color:#8593b8">generated from community reviews</div>
+            </div>
+            <div style="font-size:13px;line-height:1.6;color:#33415e;margin-top:10px">{{ reviewCtx.aiSummary }}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px">
+              <sc-for list="{{ reviewCtx.tags }}" as="tg" hint-placeholder-count="5">
+                <div onClick="{{ tg.toggle }}" style="font-size:11.5px;font-weight:700;padding:6px 11px;border-radius:999px;background:{{ tg.bg }};color:{{ tg.fg }};border:1.5px solid {{ tg.bd }};cursor:pointer">{{ tg.name }} · {{ tg.count }}</div>
+              </sc-for>
+            </div>
+            <sc-if value="{{ reviewCtx.filterOn }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:11px;color:#3d5af1;font-weight:700;margin-top:10px">Showing reviews mentioning "{{ reviewCtx.filterName }}" — tap tag to clear</div>
+            </sc-if>
+          </div>
+        </sc-if>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <sc-for list="{{ reviewCtx.list }}" as="rv" hint-placeholder-count="3">
+            <div style="background:#fff;border:1.5px solid #d9e2f5;border-radius:18px;padding:14px 16px">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:34px;height:34px;border-radius:50%;background:#e3e9fd;color:#3d5af1;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ rv.initial }}</div>
+                <div style="flex:1">
+                  <div style="display:flex;align-items:center;gap:6px">
+                    <div style="font-size:13px;font-weight:700">{{ rv.user }}</div>
+                    <div style="background:#eef3fd;color:#5d6c96;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:999px">{{ rv.badge }}</div>
+                  </div>
+                  <div style="font-size:11px;color:#8593b8">{{ rv.date }}</div>
+                </div>
+                <div style="font-size:12.5px;font-weight:700;color:#3d5af1">{{ rv.stars }}</div>
+              </div>
+              <div style="font-size:12.5px;line-height:1.55;color:#33415e;margin-top:10px">{{ rv.text }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ reviewCtx.empty }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center;padding:20px;font-size:13px;color:#8593b8">No reviews match — try another tag.</div>
+        </sc-if>
+        <div onClick="{{ writeReview }}" style="background:#0d1b3d;color:#fff;border-radius:999px;padding:14px;text-align:center;font-size:14px;font-weight:700;cursor:pointer">Write a review</div>
+      </sc-if>
+
+      <!-- photos tab -->
+      <sc-if value="{{ ptPhotos }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ addPhoto }}" style="border:2px dashed #b9c6e8;border-radius:18px;padding:14px;text-align:center;cursor:pointer" style-hover="border-color:#3d5af1">
+          <div style="font-size:13px;font-weight:700;color:#3d5af1">+ Add a photo</div>
+          <div style="font-size:11px;color:#8593b8;margin-top:3px">{{ photosLeftLabel }}</div>
+        </div>
+        <sc-if value="{{ galleryEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#fff;border:1.5px solid #d9e2f5;border-radius:18px;padding:24px;text-align:center">
+            <div style="font-size:14px;font-weight:700">Visited this park?</div>
+            <div style="font-size:12px;color:#5d6c96;margin-top:4px">Be the first to share a photo!</div>
+          </div>
+        </sc-if>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <sc-for list="{{ galleryPhotos }}" as="ph" hint-placeholder-count="4">
+            <div style="background:#fff;border:1.5px solid #d9e2f5;border-radius:16px;overflow:hidden">
+              <div style="height:{{ ph.h }};background:repeating-linear-gradient(45deg,{{ ph.hueA }},{{ ph.hueA }} 9px,{{ ph.hueB }} 9px,{{ ph.hueB }} 18px);display:flex;align-items:center;justify-content:center;position:relative">
+                <span style="font:10px ui-monospace,monospace;color:#7c8bb4">{{ ph.tag }}</span>
+                <sc-if value="{{ ph.pending }}" hint-placeholder-val="{{ false }}">
+                  <span style="position:absolute;top:8px;left:8px;background:#fff3d6;color:#a06b00;font-size:9.5px;font-weight:700;padding:3px 8px;border-radius:999px">In moderation</span>
+                </sc-if>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 11px">
+                <div style="font-size:11px;font-weight:700;color:#5d6c96">{{ ph.author }}</div>
+                <div onClick="{{ ph.like }}" style="font-size:11.5px;font-weight:700;color:{{ ph.likeColor }};cursor:pointer">♥ {{ ph.likes }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ---------- COASTER DETAIL (overlay) ---------- -->
+  <sc-if value="{{ showCoaster }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;inset:0;background:#eef3fd;overflow-y:auto;z-index:6">
+    <div style="height:190px;background:repeating-linear-gradient(45deg,#c9d6f5,#c9d6f5 12px,#bccbf2 12px,#bccbf2 24px);position:relative;display:flex;align-items:center;justify-content:center">
+      <span style="font:12px ui-monospace,monospace;color:#7c8bb4">coaster photo</span>
+      <div onClick="{{ backToPark }}" style="position:absolute;top:62px;left:16px;width:38px;height:38px;border-radius:50%;background:#fff;border:1.5px solid #d9e2f5;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(13,27,61,.12)">←</div>
+    </div>
+    <div style="padding:18px 20px 28px;display:flex;flex-direction:column;gap:14px">
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="font-size:24px;font-weight:700;letter-spacing:-0.5px">{{ coaster.name }}</div>
+          <div style="font-size:15px;font-weight:700;color:#3d5af1">★ {{ coaster.rating }}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+          <div style="font-size:12.5px;color:#5d6c96">{{ coaster.parkName }}</div>
+          <div style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px;background:#e3e9fd;color:#3d5af1">{{ coaster.type }}</div>
+          <div style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px;background:{{ coaster.stBg }};color:{{ coaster.stFg }}">{{ coaster.stLabel }}</div>
+        </div>
+      </div>
+      <div onClick="{{ coaster.toggle }}" style="border-radius:999px;padding:16px;text-align:center;font-size:15px;font-weight:700;cursor:pointer;background:{{ coaster.ctaBg }};color:{{ coaster.ctaFg }};border:2px solid {{ coaster.ctaBd }};box-shadow:{{ coaster.ctaShadow }}">{{ coaster.ctaLabel }}</div>
+      <sc-if value="{{ coaster.ridden }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ openComposer }}" style="background:#0d1b3d;color:#fff;border-radius:999px;padding:14px;text-align:center;font-size:14px;font-weight:700;cursor:pointer">Write a review</div>
+      </sc-if>
+      <sc-if value="{{ reviewCtxC.hasAi }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#fff;border:1.5px solid #d9e2f5;border-radius:20px;padding:16px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="background:#e3e9fd;color:#3d5af1;font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px;letter-spacing:.5px">AI SUMMARY</div>
+            <div style="font-size:10.5px;color:#8593b8">generated from community reviews</div>
+          </div>
+          <div style="font-size:13px;line-height:1.6;color:#33415e;margin-top:10px">{{ reviewCtxC.aiSummary }}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px">
+            <sc-for list="{{ reviewCtxC.tags }}" as="tg" hint-placeholder-count="4">
+              <div onClick="{{ tg.toggle }}" style="font-size:11.5px;font-weight:700;padding:6px 11px;border-radius:999px;background:{{ tg.bg }};color:{{ tg.fg }};border:1.5px solid {{ tg.bd }};cursor:pointer">{{ tg.name }} · {{ tg.count }}</div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ reviewCtxC.list }}" as="rv" hint-placeholder-count="2">
+          <div style="background:#fff;border:1.5px solid #d9e2f5;border-radius:18px;padding:14px 16px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:34px;height:34px;border-radius:50%;background:#e3e9fd;color:#3d5af1;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ rv.initial }}</div>
+              <div style="flex:1">
+                <div style="display:flex;align-items:center;gap:6px">
+                  <div style="font-size:13px;font-weight:700">{{ rv.user }}</div>
+                  <div style="background:#eef3fd;color:#5d6c96;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:999px">{{ rv.badge }}</div>
+                </div>
+                <div style="font-size:11px;color:#8593b8">{{ rv.date }}</div>
+              </div>
+              <div style="font-size:12.5px;font-weight:700;color:#3d5af1">{{ rv.stars }}</div>
+            </div>
+            <div style="font-size:12.5px;line-height:1.55;color:#33415e;margin-top:10px">{{ rv.text }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  </div>
+
+  <!-- ---------- TAB BAR ---------- -->
+  <div style="display:flex;justify-content:space-around;align-items:center;padding:16px 8px 10px;background:#fff;border-top:1.5px solid #d9e2f5;position:relative;z-index:10">
+    <sc-for list="{{ tabsLeft }}" as="tb" hint-placeholder-count="2">
+      <div onClick="{{ tb.go }}" style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;font-weight:{{ tb.fw }};color:{{ tb.color }};cursor:pointer;width:52px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="{{ tb.sw }}" stroke-linecap="round" stroke-linejoin="round"><path d="{{ tb.d }}"></path></svg>{{ tb.label }}</div>
+    </sc-for>
+    <div onClick="{{ openLog }}" style="width:50px;height:50px;border-radius:50%;background:#3d5af1;color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;box-shadow:0 4px 14px rgba(61,90,241,.35);cursor:pointer" style-hover="background:#2e49d8">+</div>
+    <sc-for list="{{ tabsRight }}" as="tb" hint-placeholder-count="2">
+      <div onClick="{{ tb.go }}" style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;font-weight:{{ tb.fw }};color:{{ tb.color }};cursor:pointer;width:52px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="{{ tb.sw }}" stroke-linecap="round" stroke-linejoin="round"><path d="{{ tb.d }}"></path></svg>{{ tb.label }}</div>
+    </sc-for>
+  </div>
+
+  <!-- ---------- LOG SHEET ---------- -->
+  <sc-if value="{{ logOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeLog }}" style="position:absolute;inset:0;background:rgba(13,27,61,.45);z-index:20"></div>
+    <div style="position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:26px 26px 0 0;padding:18px 20px 30px;z-index:21;animation:mc-sheet .25s ease;max-height:70%;overflow-y:auto">
+      <div style="width:40px;height:4px;border-radius:2px;background:#d9e2f5;margin:0 auto 14px"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:18px;font-weight:700">Log a ride</div>
+        <div onClick="{{ closeLog }}" style="font-size:13px;font-weight:700;color:#8593b8;cursor:pointer">Close</div>
+      </div>
+      <div style="font-size:12px;color:#5d6c96;margin-top:2px">Unridden coasters near you</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">
+        <sc-for list="{{ logList }}" as="lc" hint-placeholder-count="5">
+          <div style="display:flex;align-items:center;gap:12px;background:#eef3fd;border-radius:16px;padding:11px 14px">
+            <div style="flex:1">
+              <div style="font-size:13.5px;font-weight:700">{{ lc.name }}</div>
+              <div style="font-size:11px;color:#5d6c96">{{ lc.park }}</div>
+            </div>
+            <div onClick="{{ lc.mark }}" style="background:#c8f04a;color:#0d1b3d;font-size:12px;font-weight:700;padding:8px 14px;border-radius:999px;cursor:pointer">+ Credit</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ---------- REVIEW COMPOSER ---------- -->
+  <sc-if value="{{ composerOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeComposer }}" style="position:absolute;inset:0;background:rgba(13,27,61,.45);z-index:24"></div>
+    <div style="position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:26px 26px 0 0;padding:18px 20px 30px;z-index:25;animation:mc-sheet .25s ease">
+      <div style="width:40px;height:4px;border-radius:2px;background:#d9e2f5;margin:0 auto 14px"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:18px;font-weight:700">Review {{ composerTarget }}</div>
+        <div onClick="{{ closeComposer }}" style="font-size:13px;font-weight:700;color:#8593b8;cursor:pointer">Close</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:14px;justify-content:center">
+        <sc-for list="{{ composerStars }}" as="cs" hint-placeholder-count="5">
+          <div onClick="{{ cs.set }}" style="font-size:30px;cursor:pointer;color:{{ cs.color }};line-height:1">★</div>
+        </sc-for>
+      </div>
+      <textarea value="{{ composerText }}" onChange="{{ composerSetText }}" placeholder="How was it? Mention theming, queues, airtime…" style="width:100%;box-sizing:border-box;margin-top:14px;background:#eef3fd;border:1.5px solid #d9e2f5;border-radius:16px;padding:13px 15px;font-size:13px;font-family:inherit;color:#0d1b3d;min-height:96px;resize:none;outline:none"></textarea>
+      <div onClick="{{ postReview }}" style="margin-top:12px;background:{{ composerCtaBg }};color:{{ composerCtaFg }};border-radius:999px;padding:15px;text-align:center;font-size:14.5px;font-weight:700;cursor:pointer">Post review</div>
+    </div>
+  </sc-if>
+
+  <!-- ---------- TOAST ---------- -->
+  <sc-if value="{{ toastOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;bottom:92px;left:50%;transform:translateX(-50%);background:#0d1b3d;color:#fff;font-size:13px;font-weight:700;padding:11px 20px;border-radius:999px;white-space:nowrap;z-index:30;animation:mc-toast .25s ease;box-shadow:0 6px 20px rgba(13,27,61,.35)"><span style="color:#c8f04a">{{ toastAccent }}</span> {{ toastText }}</div>
+  </sc-if>
+
+</sc-if>
+</div>
+</x-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:520,&quot;height&quot;:960},&quot;startLoggedIn&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Flow&quot;},&quot;userName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Leo&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Account&quot;},&quot;premium&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Account&quot;}}">
+const ST = {
+  operating: { stLabel: 'Operating', stBg: '#e6f4d9', stFg: '#55830a' },
+  sbno: { stLabel: 'SBNO', stBg: '#fff3d6', stFg: '#a06b00' },
+  under_construction: { stLabel: 'Under construction', stBg: '#e3e9fd', stFg: '#3d5af1' },
+  defunct: { stLabel: 'Defunct', stBg: '#e9edf6', stFg: '#8593b8' }
+};
+const SENT = {
+  positive: { bg: '#eef7d8', fg: '#55830a', bd: '#d5e8a8' },
+  negative: { bg: '#ffe9e3', fg: '#d24a26', bd: '#f5c8ba' },
+  mixed: { bg: '#fff3d6', fg: '#a06b00', bd: '#efd9a2' }
+};
+const RV = (user, badge, stars, date, text, tags) => ({ user, badge, stars, date, text, tags });
+
+const PARKS = [
+  {
+    id: 'beto', name: 'Beto Carrero World', location: 'Penha, SC · Brazil', km: 12, rating: '4.8', reviewCount: 214,
+    hueA: '#dde7fa', hueB: '#d2defa', hero: true,
+    ai: {
+      summary: 'Visitors consistently praise the immersive theming and world-class coaster lineup, with FireWhip cited as the highlight. Long queues on weekends and pricey food inside the park are the most common complaints.',
+      tags: [
+        { name: 'Theming', count: 41, sentiment: 'positive' },
+        { name: 'Queues', count: 33, sentiment: 'negative' },
+        { name: 'Food', count: 18, sentiment: 'mixed' },
+        { name: 'Service', count: 12, sentiment: 'positive' },
+        { name: 'Value', count: 9, sentiment: 'mixed' }
+      ]
+    },
+    reviews: [
+      RV('Marina P.', 'Veteran', '★★★★★', '2 weeks ago', 'Best park in Latin America, no contest. The Theming on the new area is world-class and the staff Service was impeccable. Go on a weekday!', ['Theming', 'Service']),
+      RV('Diego R.', 'Enthusiast', '★★★★', '1 month ago', 'Amazing coaster lineup but the Queues on Saturday were brutal — 90 min for FireWhip. Food is decent but overpriced for what you get.', ['Queues', 'Food', 'Value']),
+      RV('Carla M.', 'Rookie', '★★★★★', '1 month ago', 'My first big park! The Theming blew my mind, everything feels like a movie set. Queues moved faster than expected.', ['Theming', 'Queues'])
+    ],
+    photos: [
+      { id: 'b1', author: 'Marina P.', likes: 128, hueA: '#dde7fa', hueB: '#cdd9f5', h: '150px', tag: 'FireWhip loop' },
+      { id: 'b2', author: 'Diego R.', likes: 96, hueA: '#d8ecdf', hueB: '#c8e2d2', h: '110px', tag: 'park entrance' },
+      { id: 'b3', author: 'Ana T.', likes: 74, hueA: '#fbe9db', hueB: '#f4dcc8', h: '130px', tag: 'night parade' },
+      { id: 'b4', author: 'Rafael S.', likes: 51, hueA: '#e9defa', hueB: '#ded0f4', h: '120px', tag: 'Star Mountain' },
+      { id: 'b5', author: 'Julia F.', likes: 33, hueA: '#dbeef8', hueB: '#c9e3f2', h: '140px', tag: 'castle area' },
+      { id: 'b6', author: 'Pedro L.', likes: 20, hueA: '#f6e3e9', hueB: '#efd2dc', h: '105px', tag: 'kids zone' }
+    ],
+    coasters: [
+      { id: 'fw', name: 'FireWhip', type: 'Inverted', status: 'operating', rating: '4.9',
+        ai: { summary: 'Riders love the intense first drop and relentless pacing — pure Adrenaline from start to finish, and remarkably smooth for an inverted coaster. The single-train operation makes the Queue slow on busy days.',
+          tags: [ { name: 'Adrenaline', count: 38, sentiment: 'positive' }, { name: 'Smoothness', count: 21, sentiment: 'positive' }, { name: 'Queue', count: 17, sentiment: 'negative' }, { name: 'Airtime', count: 9, sentiment: 'positive' } ] },
+        reviews: [
+          RV('Lucas V.', 'Legend', '★★★★★', '3 days ago', 'Still the best inverted in the southern hemisphere. The Adrenaline on that first drop never gets old. Buttery Smoothness after the retrack.', ['Adrenaline', 'Smoothness']),
+          RV('Fer G.', 'Veteran', '★★★★', '2 weeks ago', 'Incredible ride but the Queue crawls — one train ops on a Saturday is criminal.', ['Queue']),
+          RV('Bia N.', 'Enthusiast', '★★★★★', '1 month ago', 'Rode it 6 times in a row. Zero headbanging, all Adrenaline. Sit in the back for the Airtime pop.', ['Adrenaline', 'Airtime', 'Smoothness'])
+        ] },
+      { id: 'sm', name: 'Star Mountain', type: 'Indoor', status: 'operating', rating: '4.3' },
+      { id: 'ba', name: 'Big Apple', type: 'Junior', status: 'operating', rating: '3.2' },
+      { id: 'mo', name: 'Mina de Ouro', type: 'Mine Train', status: 'operating', rating: '4.1' },
+      { id: 'fu', name: 'Furacão', type: 'Spinning', status: 'operating', rating: '3.8' },
+      { id: 'pn', name: 'Pantera Negra', type: 'Launched', status: 'operating', rating: '4.7' },
+      { id: 'zp', name: 'Zeppelin', type: 'Steel Looper', status: 'sbno', rating: '4.0' },
+      { id: 'tv', name: 'Trovão', type: 'Family Boomerang', status: 'operating', rating: '4.4' },
+      { id: 'ek', name: 'Estrela Kids', type: 'Junior', status: 'operating', rating: '2.9' }
+    ]
+  },
+  {
+    id: 'hopi', name: 'Hopi Hari', location: 'Vinhedo, SP · Brazil', km: 92, rating: '4.2', reviewCount: 8,
+    hueA: '#d8ecdf', hueB: '#c8e2d2',
+    reviews: [
+      RV('Tiago B.', 'Veteran', '★★★★', '3 weeks ago', 'Montezum alone is worth the trip — classic wooden roughness in the best way. Park upkeep has improved a lot this year.', []),
+      RV('Lu C.', 'Enthusiast', '★★★', '2 months ago', 'Fun day but half the food stands were closed and Katapul broke down twice.', [])
+    ],
+    photos: [
+      { id: 'h1', author: 'Tiago B.', likes: 44, hueA: '#d8ecdf', hueB: '#c6ddce', h: '130px', tag: 'Montezum turn' },
+      { id: 'h2', author: 'Lu C.', likes: 29, hueA: '#fbe9db', hueB: '#f2d8c4', h: '110px', tag: 'Katapul launch' },
+      { id: 'h3', author: 'Nina R.', likes: 12, hueA: '#dbeef8', hueB: '#c7e0ef', h: '145px', tag: 'main street' }
+    ],
+    coasters: [
+      { id: 'mz', name: 'Montezum', type: 'Wooden', status: 'operating', rating: '4.6',
+        reviews: [
+          RV('Tiago B.', 'Veteran', '★★★★★', '3 weeks ago', 'One of the great woodies of the world. Rattly, fast, glorious.', []),
+          RV('Rê A.', 'Rookie', '★★★★', '1 month ago', 'Scared me half to death. 10/10 would scream again.', [])
+        ] },
+      { id: 'kt', name: 'Katapul', type: 'Launched', status: 'operating', rating: '4.4' },
+      { id: 'vg', name: 'Vurang', type: 'Family', status: 'operating', rating: '3.7' },
+      { id: 'lb', name: 'La Bruxa', type: 'Wild Mouse', status: 'sbno', rating: '3.5' }
+    ]
+  },
+  {
+    id: 'mira', name: 'Mirabilandia', location: 'Olinda, PE · Brazil', km: 2650, rating: '3.9', reviewCount: 3,
+    hueA: '#fbe9db', hueB: '#f4dcc8',
+    coasters: [
+      { id: 'cy', name: 'Cyclone', type: 'Steel Looper', status: 'operating', rating: '3.9' },
+      { id: 'sl', name: 'Super Loop', type: 'Family', status: 'operating', rating: '3.4' }
+    ]
+  },
+  {
+    id: 'europa', name: 'Europa-Park', location: 'Rust · Germany', km: 9412, rating: '4.9', reviewCount: 6,
+    hueA: '#e9defa', hueB: '#ded0f4',
+    coasters: [
+      { id: 'ss', name: 'Silver Star', type: 'Mega', status: 'operating', rating: '4.8' },
+      { id: 'bf', name: 'Blue Fire', type: 'Launched', status: 'operating', rating: '4.7' },
+      { id: 'wo', name: 'Wodan', type: 'Wooden', status: 'operating', rating: '4.8' },
+      { id: 'em', name: 'Euro-Mir', type: 'Spinning', status: 'operating', rating: '4.2' },
+      { id: 'ar', name: 'Arthur', type: 'Inverted Family', status: 'operating', rating: '4.3' },
+      { id: 'vn', name: 'Voltron Nevera', type: 'Multi-launch', status: 'operating', rating: '4.9' }
+    ]
+  },
+  {
+    id: 'sfmm', name: 'Six Flags Magic Mountain', location: 'Valencia, CA · USA', km: 9840, rating: '4.6', reviewCount: 5,
+    hueA: '#dbeef8', hueB: '#c9e3f2',
+    coasters: [
+      { id: 'x2', name: 'X2', type: '4th Dimension', status: 'operating', rating: '4.7' },
+      { id: 'ta', name: 'Tatsu', type: 'Flying', status: 'operating', rating: '4.6' },
+      { id: 'tc', name: 'Twisted Colossus', type: 'Hybrid', status: 'operating', rating: '4.8' }
+    ]
+  }
+];
+
+const RANK_FILL = [
+  { rank: 4, name: 'KredHunter', credits: 448, badge: 'Legend', initial: 'K' },
+  { rank: 5, name: 'WoodieWill', credits: 430, badge: 'Legend', initial: 'W' },
+  { rank: 6, name: 'inversion_iza', credits: 402, badge: 'Veteran', initial: 'I' },
+  { rank: 7, name: 'ParkHopperBR', credits: 388, badge: 'Veteran', initial: 'P' }
+];
+
+class Component extends DCLogic {
+  state = {
+    loggedIn: null, obStep: 0,
+    tab: 'home', parkId: null, coasterId: null, parkTab: 'coasters',
+    ridden: { fw: true, sm: true, ba: true },
+    likes: {}, uploads: {}, myRatings: {}, userReviews: {},
+    composerOpen: false, composerStars: 0, composerText: '',
+    tagFilter: null, logOpen: false, toast: null
+  };
+
+  isLoggedIn() { return this.state.loggedIn ?? (this.props.startLoggedIn ?? false); }
+  credits() { return 44 + Object.keys(this.state.ridden).filter(k => this.state.ridden[k]).length; }
+  badgeInfo() {
+    const c = this.credits();
+    if (c < 25) return { label: 'Rookie', next: 'Enthusiast', at: 25, from: 0 };
+    if (c < 75) return { label: 'Enthusiast', next: 'Veteran', at: 75, from: 25 };
+    if (c < 150) return { label: 'Veteran', next: 'Legend', at: 150, from: 75 };
+    return { label: 'Legend', next: 'Legend', at: c, from: 150 };
+  }
+  showToast(accent, text) {
+    clearTimeout(this._tt);
+    this.setState({ toast: { accent, text } });
+    this._tt = setTimeout(() => this.setState({ toast: null }), 2200);
+  }
+  toggleRide(c, parkName) {
+    const on = !this.state.ridden[c.id];
+    this.setState(s => ({ ridden: { ...s.ridden, [c.id]: on } }));
+    this.showToast(on ? '+1 credit' : '–1 credit', on ? `${c.name} added to your count` : `${c.name} removed`);
+  }
+  decorPark(p) {
+    const total = p.coasters.length;
+    const rid = p.coasters.filter(c => this.state.ridden[c.id]).length;
+    return {
+      ...p,
+      kmLabel: p.km >= 1000 ? `${p.km.toLocaleString('en-US')} km` : `${p.km} km`,
+      meta: `${p.location} · ${total} coasters`,
+      ratio: `${rid}/${total}`,
+      pct: `${total ? Math.round(rid / total * 100) : 0}%`,
+      progressLabel: rid > 0 ? `${rid} of ${total} credits earned` : `No credits here yet`,
+      showBar: true, showHero: !!p.hero,
+      open: () => this.setState({ parkId: p.id, coasterId: null, parkTab: 'coasters', tagFilter: null })
+    };
+  }
+  decorCoaster(c, park) {
+    const ridden = !!this.state.ridden[c.id];
+    const st = ST[c.status] || ST.operating;
+    return {
+      ...c, ...st, ridden, parkName: park.name,
+      btnBg: ridden ? '#c8f04a' : '#fff', btnBd: ridden ? '#c8f04a' : '#c3cfea',
+      btnFg: ridden ? '#0d1b3d' : '#8593b8', btnGlyph: ridden ? '✓' : '+',
+      ctaBg: ridden ? '#fff' : '#c8f04a', ctaFg: '#0d1b3d',
+      ctaBd: ridden ? '#c8f04a' : '#c8f04a',
+      ctaShadow: ridden ? 'none' : '0 4px 14px rgba(200,240,74,.5)',
+      ctaLabel: ridden ? '✓ Ridden — in your credits (tap to undo)' : 'Mark as ridden · +1 credit',
+      open: () => this.setState({ coasterId: c.id, tagFilter: null }),
+      toggle: (e) => { if (e) e.stopPropagation(); this.toggleRide(c, park.name); }
+    };
+  }
+  reviewCtx(entity, kind) {
+    const hasAi = !!entity.ai;
+    const filter = this.state.tagFilter;
+    const mine = this.state.userReviews[entity.id] || [];
+    const all = [...mine, ...(entity.reviews || [])];
+    const list = filter ? all.filter(r => (r.tags || []).includes(filter)) : all;
+    return {
+      hasAi, noAi: !hasAi,
+      aiSummary: hasAi ? entity.ai.summary : '',
+      filterOn: !!filter, filterName: filter || '',
+      tags: hasAi ? entity.ai.tags.map(t => {
+        const active = filter === t.name;
+        const s = SENT[t.sentiment];
+        return { ...t,
+          bg: active ? '#0d1b3d' : s.bg, fg: active ? '#fff' : s.fg, bd: active ? '#0d1b3d' : s.bd,
+          toggle: () => this.setState({ tagFilter: active ? null : t.name })
+        };
+      }) : [],
+      list: list.map(r => ({ ...r, initial: r.user[0] })),
+      empty: all.length > 0 && list.length === 0
+    };
+  }
+  componentWillUnmount() { clearTimeout(this._tt); }
+
+  renderVals() {
+    const s = this.state;
+    const userName = this.props.userName ?? 'Rafa';
+    const premium = this.props.premium ?? false;
+    const loggedIn = this.isLoggedIn();
+    const credits = this.credits();
+    const rank = Math.max(1, 175 - credits);
+    const badge = this.badgeInfo();
+    const parks = PARKS.map(p => this.decorPark(p));
+    const park = s.parkId ? parks.find(p => p.id === s.parkId) : null;
+    const rawPark = s.parkId ? PARKS.find(p => p.id === s.parkId) : null;
+    const rawCoaster = rawPark && s.coasterId ? rawPark.coasters.find(c => c.id === s.coasterId) : null;
+    const coaster = rawCoaster ? this.decorCoaster(rawCoaster, rawPark) : null;
+    const visited = 11 + PARKS.filter(p => p.coasters.some(c => s.ridden[c.id])).length;
+
+    const goTab = (tab) => () => this.setState({ tab, parkId: null, coasterId: null, tagFilter: null, logOpen: false });
+    const tabDefs = [
+      { key: 'home', label: 'Home', d: 'M3.5 11.2 L12 4 l8.5 7.2 M5.8 10.4 V19 a1 1 0 0 0 1 1 h3.4 v-4.6 a1.8 1.8 0 0 1 3.6 0 V20 h3.4 a1 1 0 0 0 1-1 v-8.6' },
+      { key: 'explore', label: 'Explore', d: 'M10.5 17 a6.5 6.5 0 1 1 0-13 a6.5 6.5 0 0 1 0 13 Z M15.3 15.3 L20 20' },
+      { key: 'ranks', label: 'Ranks', d: 'M9.5 20 V5.5 a1 1 0 0 1 1-1 h3 a1 1 0 0 1 1 1 V20 M9.5 20 H4.5 v-6.5 a1 1 0 0 1 1-1 h4 M14.5 20 h5 v-9.5 a1 1 0 0 0-1-1 h-4 M3.5 20 h17' },
+      { key: 'profile', label: 'Profile', d: 'M12 11.2 a3.6 3.6 0 1 0 0-7.2 a3.6 3.6 0 0 0 0 7.2 Z M5 20 c0-3.6 3.1-5.6 7-5.6 s7 2 7 5.6' }
+    ].map(t => {
+      const on = s.tab === t.key && !s.parkId;
+      return { ...t, go: goTab(t.key),
+        color: on ? '#3d5af1' : '#8593b8',
+        fw: on ? 700 : 500, sw: on ? 2.2 : 1.7 };
+    });
+
+    const filt = s.exploreFilter || 'nearby';
+    let exploreParks = [...parks];
+    if (filt === 'nearby') exploreParks.sort((a, b) => a.km - b.km);
+    if (filt === 'top') exploreParks.sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating));
+    if (filt === 'unridden') exploreParks = exploreParks.filter(p => p.ratio.startsWith('0/'));
+    const exploreChips = [
+      { key: 'nearby', label: 'Nearby' }, { key: 'top', label: 'Top rated' }, { key: 'unridden', label: 'Unridden' }
+    ].map(c => {
+      const on = filt === c.key;
+      return { ...c, set: () => this.setState({ exploreFilter: c.key }),
+        bg: on ? '#c8f04a' : '#fff', bd: on ? '#c8f04a' : '#d9e2f5', fg: on ? '#0d1b3d' : '#5d6c96', fw: on ? 700 : 500 };
+    });
+
+    const parkTabs = ['coasters', 'reviews', 'photos'].map(k => ({
+      label: k === 'coasters' ? 'Coasters' : k === 'reviews' ? 'Reviews' : 'Photos',
+      set: () => this.setState({ parkTab: k, tagFilter: null }),
+      bg: s.parkTab === k ? '#0d1b3d' : 'transparent', fg: s.parkTab === k ? '#fff' : '#5d6c96'
+    }));
+
+    const parkCoasters = rawPark ? rawPark.coasters.map(c => this.decorCoaster(c, rawPark)) : [];
+
+    const uploads = rawPark ? (s.uploads[rawPark.id] || 0) : 0;
+    const limit = premium ? 6 : 3;
+    const basePhotos = rawPark ? (rawPark.photos || []) : [];
+    const myTiles = Array.from({ length: uploads }, (_, i) => ({
+      id: `me${i}`, author: `${userName} (you)`, likes: 0, hueA: '#eef3fd', hueB: '#e2eafb', h: '120px', tag: 'your photo', pending: true
+    }));
+    const galleryPhotos = [...myTiles, ...basePhotos].map(ph => {
+      const liked = !!s.likes[ph.id];
+      return { ...ph, pending: !!ph.pending,
+        likes: ph.likes + (liked ? 1 : 0),
+        likeColor: liked ? '#d24a26' : '#8593b8',
+        like: () => this.setState(st => ({ likes: { ...st.likes, [ph.id]: !liked } })) };
+    });
+
+    const nearby = [...parks].sort((a, b) => a.km - b.km).slice(0, 3);
+
+    const ridList = Object.keys(s.ridden).filter(k => s.ridden[k]);
+    const recentCredits = ridList.slice(-4).reverse().map((id, i) => {
+      const p = PARKS.find(pk => pk.coasters.some(c => c.id === id));
+      const c = p.coasters.find(c => c.id === id);
+      return { name: c.name, park: p.name, when: i === 0 ? 'Just now' : ['May 12', 'May 12', 'Apr 30'][i - 1] || 'Apr 30' };
+    });
+
+    const meRow = { rank, name: `${userName} (you)`, credits, badge: badge.label, initial: userName[0], me: true };
+    const around = [
+      { rank: rank - 1, name: 'ThrillTheo', credits: credits + 1, badge: 'Enthusiast', initial: 'T' },
+      meRow,
+      { rank: rank + 1, name: 'gforce_gabi', credits: credits - 1, badge: 'Enthusiast', initial: 'G' }
+    ];
+    const rankRows = [...RANK_FILL, { gap: true }, ...around].map(r => r.gap
+      ? { rankLabel: '···', name: ' ', badge: ' ', credits: ' ', initial: '·', bg: '#fff', rankColor: '#c3cfea', avBg: '#eef3fd', avFg: '#c3cfea', credColor: '#fff' }
+      : { ...r, rankLabel: `#${r.rank}`,
+          bg: r.me ? '#e3e9fd' : '#fff', rankColor: r.me ? '#3d5af1' : '#8593b8',
+          avBg: r.me ? '#3d5af1' : '#eef3fd', avFg: r.me ? '#fff' : '#5d6c96',
+          credColor: r.me ? '#3d5af1' : '#0d1b3d' });
+
+    const logList = [];
+    PARKS.slice(0, 2).forEach(p => p.coasters.forEach(c => {
+      if (!s.ridden[c.id] && c.status === 'operating') logList.push({
+        name: c.name, park: p.name, mark: () => this.toggleRide(c, p.name) });
+    }));
+
+    const rating = rawCoaster ? (s.myRatings[rawCoaster.id] || 0) : 0;
+    const myStars = [1, 2, 3, 4, 5].map(n => ({
+      color: n <= rating ? '#3d5af1' : '#c9d4ee',
+      set: () => { this.setState(st => ({ myRatings: { ...st.myRatings, [rawCoaster.id]: n } })); this.showToast('★', `Rating saved — ${n} stars`); }
+    }));
+
+    const empty = { hasAi: false, noAi: false, aiSummary: '', tags: [], list: [], empty: false, filterOn: false, filterName: '' };
+
+    return {
+      // flow
+      showOnboarding: !loggedIn, showApp: loggedIn,
+      ob0: s.obStep === 0, ob1: s.obStep === 1, ob2: s.obStep === 2,
+      obShowNext: s.obStep < 2,
+      obDots: [0, 1, 2].map(i => ({ bg: i === s.obStep ? '#3d5af1' : '#c9d4ee', w: i === s.obStep ? '26px' : '10px' })),
+      obNext: () => this.setState(st => ({ obStep: st.obStep + 1 })),
+      login: () => { this.setState({ loggedIn: true, tab: 'home' }); this.showToast('Welcome!', `Signed in as ${userName}`); },
+      logout: () => this.setState({ loggedIn: false, obStep: 2, parkId: null, coasterId: null, tab: 'home' }),
+      // identity
+      userName, userInitial: userName[0] || 'R', isPremium: premium,
+      creditCount: credits, myRank: rank, parksVisited: visited,
+      badgeLabel: badge.label, nextBadge: badge.next, nextBadgeAt: badge.at,
+      toNextBadge: Math.max(0, badge.at - credits),
+      badgePct: `${Math.min(100, Math.round((credits - badge.from) / (badge.at - badge.from) * 100))}%`,
+      myPhotoCount: 14 + Object.values(s.uploads).reduce((a, b) => a + b, 0),
+      // nav
+      isHome: s.tab === 'home' && !park, isExplore: s.tab === 'explore' && !park,
+      isRanks: s.tab === 'ranks' && !park, isProfile: s.tab === 'profile' && !park,
+      goExplore: goTab('explore'), goProfile: goTab('profile'),
+      tabsLeft: tabDefs.slice(0, 2), tabsRight: tabDefs.slice(2),
+      // lists
+      nearbyParks: nearby, exploreParks, exploreChips, rankRows, recentCredits,
+      // park detail
+      showPark: !!park && !coaster, park: park || {}, parkTabs, parkCoasters,
+      ptCoasters: s.parkTab === 'coasters', ptReviews: s.parkTab === 'reviews', ptPhotos: s.parkTab === 'photos',
+      reviewCtx: rawPark ? this.reviewCtx(rawPark, 'park') : empty,
+      back: () => this.setState({ parkId: null, tagFilter: null }),
+      writeReview: () => this.setState({ composerOpen: true, composerStars: 0, composerText: '' }),
+      // gallery
+      galleryPhotos, galleryEmpty: galleryPhotos.length === 0,
+      photosLeftLabel: `${Math.max(0, limit - uploads)} of ${limit} uploads left this month${premium ? ' (PRO)' : ''}`,
+      addPhoto: () => {
+        if (uploads >= limit) { this.showToast('Limit', 'Upload limit reached this month'); return; }
+        this.setState(st => ({ uploads: { ...st.uploads, [rawPark.id]: uploads + 1 } }));
+        this.showToast('Uploaded', 'Photo pending moderation');
+      },
+      // coaster detail
+      showCoaster: !!coaster, coaster: coaster || {},
+      reviewCtxC: rawCoaster ? this.reviewCtx(rawCoaster, 'coaster') : empty,
+      backToPark: () => this.setState({ coasterId: null, tagFilter: null }),
+      myStars,
+      // log sheet
+      logOpen: s.logOpen, logList,
+      openLog: () => this.setState({ logOpen: true }),
+      closeLog: () => this.setState({ logOpen: false }),
+      // review composer
+      composerOpen: s.composerOpen,
+      composerTarget: rawCoaster ? rawCoaster.name : (rawPark ? rawPark.name : ''),
+      composerStars: [1, 2, 3, 4, 5].map(n => ({
+        color: n <= s.composerStars ? '#3d5af1' : '#c9d4ee',
+        set: () => this.setState({ composerStars: n })
+      })),
+      composerText: s.composerText,
+      composerSetText: (e) => this.setState({ composerText: e.target.value }),
+      composerCtaBg: s.composerStars > 0 && s.composerText.trim() ? '#c8f04a' : '#e9edf6',
+      composerCtaFg: s.composerStars > 0 && s.composerText.trim() ? '#0d1b3d' : '#8593b8',
+      openComposer: () => this.setState({ composerOpen: true, composerStars: rawCoaster ? (s.myRatings[rawCoaster.id] || 0) : 0, composerText: '' }),
+      closeComposer: () => this.setState({ composerOpen: false }),
+      postReview: () => {
+        if (!(s.composerStars > 0 && s.composerText.trim())) { this.showToast('★', 'Add a rating and some text first'); return; }
+        const target = rawCoaster || rawPark;
+        if (!target) return;
+        const rv = { user: `${userName} (you)`, badge: badge.label, stars: '★'.repeat(s.composerStars), date: 'Just now', text: s.composerText.trim(), tags: [] };
+        this.setState(st => ({
+          userReviews: { ...st.userReviews, [target.id]: [rv, ...(st.userReviews[target.id] || [])] },
+          myRatings: rawCoaster ? { ...st.myRatings, [rawCoaster.id]: s.composerStars } : st.myRatings,
+          composerOpen: false, composerText: '', composerStars: 0
+        }));
+        this.showToast('★', 'Review posted!');
+      },
+      // toast
+      toastOn: !!s.toast, toastAccent: s.toast ? s.toast.accent : '', toastText: s.toast ? s.toast.text : ''
+    };
+  }
+}
+</script>
+</body>
+</html>

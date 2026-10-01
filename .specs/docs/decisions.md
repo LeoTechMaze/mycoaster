@@ -9,7 +9,7 @@
 | Denormalized credit_count      | Yes (trigger)             | Performance: O(1) reads on profile and leaderboard                                             |
 | RCDB scraping                  | n8n workflow              | Scheduled scraping with native retries and logs; upsert via `rcdb_id`                          |
 | Proximity filtering            | lat/lng in PostgreSQL     | No Google Maps API dependency — distance calculated via query                                  |
-| React Native without Expo      | Yes                       | Full control over native modules                                                               |
+| React Native with Expo         | Expo SDK 57 + expo-router | **Revised 2026-08-15** — originally "no Expo, for full native module control". Expo's config plugins + dev client now cover the native modules this project needs (Firebase Auth, location, image picker), and the managed workflow removes the iOS/Android build maintenance cost. expo-router replaces React Navigation. |
 | Videos                         | YouTube URLs only         | Zero storage cost; thumbnail via API; traffic directed to creator                              |
 | Community photos               | Upload with moderation    | Per-user/period limit; seed content for cold start; likes + recency for sorting                |
 | Reviews                        | Overall rating + freetext | Low friction; subcategory ratings replaced by AI-emergent tags                                 |
