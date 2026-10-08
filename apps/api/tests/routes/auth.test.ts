@@ -1,16 +1,17 @@
 // Mock firebase config before any app modules are required.
-// jest.mock is hoisted by Babel/Jest transform so this runs before imports.
+// jest.mock is hoisted above the imports by ts-jest, so this runs first.
 jest.mock('../../src/config/firebase', () => {
   const verifyIdToken = jest.fn();
   return { auth: () => ({ verifyIdToken }) };
 });
 
-const request = require('supertest');
-const app = require('../../src/app');
-const { db } = require('../helpers/db');
-const firebase = require('../../src/config/firebase');
+import request from 'supertest';
+import app from '../../src/app';
+import { db } from '../helpers/db';
+import firebase from '../../src/config/firebase';
 
-const verifyIdToken = firebase.auth().verifyIdToken;
+// Typed as a bare mock: the fixtures below are partial DecodedIdToken payloads.
+const verifyIdToken = firebase.auth().verifyIdToken as jest.Mock;
 
 const TEST_EMAILS = ['newuser@example.com', 'existing@example.com', 'switcher@example.com'];
 

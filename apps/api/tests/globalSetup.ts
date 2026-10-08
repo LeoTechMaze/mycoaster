@@ -1,14 +1,14 @@
 // Runs once before all test suites (separate Node.js context from test workers).
-const path = require('path');
+import path from 'path';
+import dotenv from 'dotenv';
+import knex from 'knex';
 
-require('dotenv').config({
+dotenv.config({
   path: path.resolve(__dirname, '../.env'),
   override: true,
 });
 
-module.exports = async () => {
-  const knex = require('knex');
-
+export default async (): Promise<void> => {
   // Create test DB if it doesn't exist (connect to default 'postgres' DB first)
   const adminDb = knex({
     client: 'pg',
@@ -32,7 +32,7 @@ module.exports = async () => {
   // Run all migrations, reset all data, then seed the test DB.
   // The reset lives here (not in the seed) so the seed file stays safe to
   // run against a real database — CASCADE wipes every user-owned table.
-  const knexConfig = require('../src/config/knexfile');
+  const { default: knexConfig } = await import('../src/config/knexfile');
   const testDb = knex(knexConfig);
   await testDb.migrate.latest();
   await testDb.raw('TRUNCATE TABLE coasters, parks, users CASCADE');
