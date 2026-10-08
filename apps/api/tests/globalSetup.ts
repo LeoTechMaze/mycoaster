@@ -1,12 +1,9 @@
 // Runs once before all test suites (separate Node.js context from test workers).
-import path from 'path';
-import dotenv from 'dotenv';
 import knex from 'knex';
+import { loadTestEnv } from './loadTestEnv';
 
-dotenv.config({
-  path: path.resolve(__dirname, '../.env'),
-  override: true,
-});
+// Aborts before any DB access unless the target database name ends with "_test".
+loadTestEnv();
 
 export default async (): Promise<void> => {
   // Create test DB if it doesn't exist (connect to default 'postgres' DB first)
