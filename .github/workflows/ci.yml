@@ -13,6 +13,10 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  # Diff coverage gate (see docs/REVIEW.md). Pinned; bump deliberately.
+  DIFF_COVER_VERSION: 10.6.0
+
 jobs:
   # Decides which package jobs run. A PR runs only the affected packages;
   # a push to develop/main always runs everything.
@@ -104,6 +108,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          # On a PR the checkout is the merge commit; its first parent is the base
+          # branch tip, which diff coverage compares against
+          fetch-depth: 2
       - uses: ./.github/actions/setup
         with:
           package: '@mycoaster/api'
@@ -111,8 +118,21 @@ jobs:
         run: pnpm --filter @mycoaster/api lint
       - name: Typecheck
         run: pnpm --filter @mycoaster/api typecheck
-      - name: Test
-        run: pnpm --filter @mycoaster/api test
+      - name: Test with coverage
+        run: pnpm --filter @mycoaster/api test:coverage
+      - name: Diff coverage
+        if: github.event_name == 'pull_request'
+        run: pipx run --spec "diff-cover==$DIFF_COVER_VERSION" diff-cover apps/api/coverage/lcov.info --compare-branch=HEAD^1 --fail-under=80
+      - name: Upload coverage
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: coverage-api
+          path: |
+            apps/api/coverage/lcov.info
+            apps/api/coverage/coverage-summary.json
+          if-no-files-found: ignore
+          retention-days: 14
 
   app:
     name: app
@@ -124,6 +144,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          # On a PR the checkout is the merge commit; its first parent is the base
+          # branch tip, which diff coverage compares against
+          fetch-depth: 2
       - uses: ./.github/actions/setup
         with:
           package: '@mycoaster/app'
@@ -131,8 +154,21 @@ jobs:
         run: pnpm --filter @mycoaster/app lint
       - name: Typecheck
         run: pnpm --filter @mycoaster/app typecheck
-      - name: Test
-        run: pnpm --filter @mycoaster/app test
+      - name: Test with coverage
+        run: pnpm --filter @mycoaster/app test:coverage
+      - name: Diff coverage
+        if: github.event_name == 'pull_request'
+        run: pipx run --spec "diff-cover==$DIFF_COVER_VERSION" diff-cover apps/app/coverage/lcov.info --compare-branch=HEAD^1 --fail-under=60
+      - name: Upload coverage
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: coverage-app
+          path: |
+            apps/app/coverage/lcov.info
+            apps/app/coverage/coverage-summary.json
+          if-no-files-found: ignore
+          retention-days: 14
 
   shared:
     name: shared
@@ -144,6 +180,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          # On a PR the checkout is the merge commit; its first parent is the base
+          # branch tip, which diff coverage compares against
+          fetch-depth: 2
       - uses: ./.github/actions/setup
         with:
           package: '@mycoaster/shared'
@@ -151,8 +190,21 @@ jobs:
         run: pnpm --filter @mycoaster/shared lint
       - name: Typecheck
         run: pnpm --filter @mycoaster/shared typecheck
-      - name: Test
-        run: pnpm --filter @mycoaster/shared test
+      - name: Test with coverage
+        run: pnpm --filter @mycoaster/shared test:coverage
+      - name: Diff coverage
+        if: github.event_name == 'pull_request'
+        run: pipx run --spec "diff-cover==$DIFF_COVER_VERSION" diff-cover packages/shared/coverage/lcov.info --compare-branch=HEAD^1 --fail-under=80
+      - name: Upload coverage
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: coverage-shared
+          path: |
+            packages/shared/coverage/lcov.info
+            packages/shared/coverage/coverage-summary.json
+          if-no-files-found: ignore
+          retention-days: 14
 
   # The only check the branch rulesets require. It always runs, and it fails
   # when any job above failed or was cancelled. A skipped job (package not
