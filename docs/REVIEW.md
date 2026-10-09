@@ -21,9 +21,9 @@ They are independent. A task can be complex and low risk, or trivial and high ri
 
 | Area | Paths |
 | --- | --- |
-| Auth and permissions | `apps/api/src/auth/**`, `apps/api/src/middleware/auth*`, any role or ownership check |
+| Auth and permissions | `apps/api/src/auth/**`, `apps/api/src/middlewares/auth*`, `apps/api/src/routes/auth.ts`, any role or ownership check |
 | Payments | `apps/api/src/payments/**` |
-| Secrets and config | `**/.env*`, `apps/api/src/config/**`, `app.config.*`, `eas.json` |
+| Secrets and config | `**/.env*`, `apps/api/src/config/**`, `app.config.*`, `apps/app/app.json`, `eas.json` |
 | Database | `apps/api/migrations/**`, schema files |
 | Infra and CI | `.github/**`, `infra/**`, `Dockerfile*`, `docker-compose*`, `*.tf` |
 | Policy | `REVIEW.md`, `CODEOWNERS`, `.github/risk-paths.yml` |
