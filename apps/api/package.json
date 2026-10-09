@@ -14,7 +14,8 @@
     "migrate:latest": "tsx node_modules/knex/bin/cli.js migrate:latest --knexfile src/config/knexfile.ts",
     "migrate:rollback": "tsx node_modules/knex/bin/cli.js migrate:rollback --knexfile src/config/knexfile.ts",
     "migrate:make": "tsx node_modules/knex/bin/cli.js migrate:make --knexfile src/config/knexfile.ts",
-    "seeds:run": "tsx node_modules/knex/bin/cli.js seed:run --knexfile src/config/knexfile.ts"
+    "seeds:run": "tsx node_modules/knex/bin/cli.js seed:run --knexfile src/config/knexfile.ts",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@mycoaster/shared": "workspace:*",
@@ -38,6 +39,7 @@
     "@types/morgan": "^1.9.10",
     "@types/node": "^26.6.3",
     "@types/supertest": "^6.0.3",
+    "@vitest/coverage-v8": "~4.1.11",
     "esbuild": "^0.28.2",
     "supertest": "^7.2.2",
     "tsx": "^4.23.15",

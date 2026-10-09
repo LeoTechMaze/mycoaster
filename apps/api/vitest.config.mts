@@ -14,5 +14,14 @@ export default defineConfig({
     hookTimeout: 30000,
     // Files share the same test DB, so they run one at a time
     fileParallelism: false,
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.ts'],
+      // lcov feeds diff-cover in CI, with paths from the repo root to match git diff.
+      // json-summary feeds the metrics report.
+      reporter: ['text-summary', ['lcov', { projectRoot: '../..' }], 'json-summary'],
+      // Global floor, see docs/REVIEW.md. Changed code is gated separately in CI.
+      thresholds: { lines: 80, branches: 80, functions: 80, statements: 80 },
+    },
   },
 });

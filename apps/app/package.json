@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "dependencies": {
     "@expo-google-fonts/space-grotesk": "^0.4.1",
-    "@mycoaster/shared": "workspace:*",
     "@expo/ui": "~57.0.8",
+    "@mycoaster/shared": "workspace:*",
     "@react-native-firebase/app": "^26.4.0",
     "@react-native-firebase/auth": "^26.4.0",
     "@react-native-google-signin/google-signin": "^16.1.5",
@@ -55,7 +55,8 @@
     "web": "expo start --web",
     "lint": "eslint .",
     "test": "jest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:coverage": "jest --coverage"
   },
   "private": true
 }

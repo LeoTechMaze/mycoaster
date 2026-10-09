@@ -32,3 +32,6 @@ Thumbs.db
 .claude/progress.md
 .claude/logs/
 .claude/plans/
+
+# Test coverage
+coverage/

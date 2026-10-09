@@ -15,7 +15,8 @@
     "test:api": "pnpm --filter @mycoaster/api test",
     "migrate:latest": "pnpm --filter @mycoaster/api migrate:latest",
     "migrate:rollback": "pnpm --filter @mycoaster/api migrate:rollback",
-    "seeds:run": "pnpm --filter @mycoaster/api seeds:run"
+    "seeds:run": "pnpm --filter @mycoaster/api seeds:run",
+    "test:coverage": "pnpm -r --if-present run test:coverage"
   },
   "devDependencies": {
     "@eslint/js": "~9.39.5",
