@@ -15,7 +15,7 @@ if (!env.FIREBASE_SERVICE_ACCOUNT_PATH) {
   if (!fs.existsSync(serviceAccountPath)) {
     console.warn(`[Firebase] Service account file not found at ${serviceAccountPath} — Admin SDK not initialized`);
   } else {
-    const serviceAccount = require(serviceAccountPath);
+    const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
     admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
     console.log('[Firebase] Admin SDK initialized');
     firebaseAdmin = admin;

@@ -1,6 +1,6 @@
-const request = require('supertest');
-const app = require('../../src/app');
-const { db } = require('../helpers/db');
+import request from 'supertest';
+import app from '../../src/app';
+import { db } from '../helpers/db';
 
 const USER_ID         = '30000000-0000-0000-0000-000000000001';
 const CW_ID           = '10000000-0000-0000-0000-000000004539';

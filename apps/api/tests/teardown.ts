@@ -11,11 +11,11 @@ afterAll(async () => {
   // ioredis: disconnect() is synchronous and disables reconnection. Unlike
   // quit(), it is a safe no-op when lazyConnect never opened the socket
   // (e.g. suites that never hit a redis-backed route).
-  const redis = require('../src/config/redis');
+  const { default: redis } = await import('../src/config/redis');
   redis.disconnect();
 
   // firebase-admin keeps a native gRPC channel + token-refresh timer alive that
   // async_hooks can't surface, so --detectOpenHandles never flags it.
-  const admin = require('firebase-admin');
+  const admin = await import('firebase-admin');
   await Promise.all(admin.apps.map((app) => app && app.delete()));
 });
