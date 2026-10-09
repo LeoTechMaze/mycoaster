@@ -60,15 +60,20 @@ Every PR must pass these checks. Thresholds marked TBD are open decisions.
 
 | Check | API | App |
 | --- | --- | --- |
-| Lint + typecheck | ESLint, `tsc` | ESLint, `tsc` |
-| Unit + integration tests | Vitest/Jest with Postgres + Redis services | Jest + React Native Testing Library |
+| Lint + typecheck | ESLint with type-aware rules, `tsc` | ESLint (Expo config), `tsc` |
+| Unit + integration tests | Vitest with Postgres + Redis services | Jest + React Native Testing Library |
 | Coverage on changed code | TBD % | TBD % |
 | Mutation testing | Stryker on critical modules (auth, ranking) | Stryker on hooks and utils |
-| Cyclomatic complexity | Max TBD per function | Max TBD per function |
-| Module size | Max TBD lines per file | Max TBD lines per file |
+| Cyclomatic complexity | Max 15 per function | Max 20 per function |
+| Module size | Max 400 lines per file | Max 400 lines per file |
 | Dependency audit | `pnpm audit`, Dependabot | same |
 | Secret scan | gitleaks | gitleaks |
 | E2E | API regression suite | Maestro flows (high risk PRs and nightly) |
+
+Lint notes:
+
+- Complexity and module size are enforced by ESLint (`complexity`, `max-lines`, blank lines and comments excluded). Baseline on 2026-10-09: API max 14 per function and 148 lines per source file; App max 18 and 360 lines.
+- In the API, untyped data (`any` and the `no-unsafe-*` rules) is reported as warnings, not errors (310 at baseline). The metrics report tracks this count; the target is 0, and then these rules become errors.
 
 ## PR checklist (authoring agent)
 
