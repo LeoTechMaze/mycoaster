@@ -1,19 +1,15 @@
 // Mock firebase config before any app modules are required.
-// vi.mock is hoisted above the imports by Vitest, so this runs first.
-vi.mock('../../src/config/firebase', () => {
-  const verifyIdToken = vi.fn();
+// vi.hoisted and vi.mock are hoisted above the imports by Vitest, so they run first.
+// The fixtures below are partial DecodedIdToken payloads, so the mock stays untyped.
+const { verifyIdToken } = vi.hoisted(() => ({ verifyIdToken: vi.fn() }));
+vi.mock('../../src/config/firebase', () => ({
   // Vitest mocks are ES modules: the default import needs an explicit `default` key
-  return { default: { auth: () => ({ verifyIdToken }) } };
-});
+  default: { auth: () => ({ verifyIdToken }) },
+}));
 
-import type { Mock } from 'vitest';
 import request from 'supertest';
 import app from '../../src/app';
 import { db } from '../helpers/db';
-import firebase from '../../src/config/firebase';
-
-// Typed as a bare mock: the fixtures below are partial DecodedIdToken payloads.
-const verifyIdToken = firebase.auth().verifyIdToken as Mock;
 
 const TEST_EMAILS = ['newuser@example.com', 'existing@example.com', 'switcher@example.com'];
 

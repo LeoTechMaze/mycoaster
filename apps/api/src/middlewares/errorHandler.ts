@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 
-// eslint-disable-next-line no-unused-vars
 function errorHandler(err: any, _req: Request, res: Response, _next: NextFunction) {
   const isDev = process.env.NODE_ENV === 'development';
 
