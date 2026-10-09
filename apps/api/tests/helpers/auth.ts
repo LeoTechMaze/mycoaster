@@ -1,6 +1,6 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
-function generateToken(payload = {}) {
+export function generateToken(payload: { id?: string; email?: string; [key: string]: unknown } = {}) {
   const { id, email, ...rest } = payload;
   return jwt.sign(
     { sub: id || 'test-user-id', email: email || 'test@example.com', ...rest },
@@ -8,5 +8,3 @@ function generateToken(payload = {}) {
     { expiresIn: '1h' }
   );
 }
-
-module.exports = { generateToken };

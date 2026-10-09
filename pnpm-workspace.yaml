@@ -7,3 +7,6 @@ allowBuilds:
   esbuild: true
   protobufjs: true
   unrs-resolver: true
+
+# Supply-chain policy: only install versions published at least 24h ago
+minimumReleaseAge: 1440

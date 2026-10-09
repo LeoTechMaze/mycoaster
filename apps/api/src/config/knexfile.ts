@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs';
+import dotenv from 'dotenv';
 import type { Knex } from 'knex';
 
 // Resolve .env from the project root regardless of working directory changes
@@ -19,9 +20,9 @@ function findEnvFile(): string | null {
 
 const envPath = findEnvFile();
 if (envPath) {
-  require('dotenv').config({ path: envPath });
+  dotenv.config({ path: envPath });
 } else {
-  require('dotenv').config(); // fallback: let dotenv find it
+  dotenv.config(); // fallback: let dotenv find it
 }
 
 /**
