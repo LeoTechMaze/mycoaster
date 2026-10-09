@@ -135,4 +135,39 @@ describe('POST /api/v1/auth/login', () => {
     expect(res.status).toBe(401);
     expect(res.body.error).toBe('Invalid or expired Firebase token');
   });
+
+  it('returns 422 when the Firebase token has no email claim', async () => {
+    verifyIdToken.mockResolvedValue({
+      uid: 'firebase-uid-no-email',
+      firebase: { sign_in_provider: 'phone' },
+    });
+
+    const res = await request(app)
+      .post('/api/v1/auth/login')
+      .send({ token: 'fake-firebase-token' });
+
+    expect(res.status).toBe(422);
+    expect((res.body as { error: string }).error).toBe(
+      'Firebase token is missing required claims (uid, email)'
+    );
+  });
+
+  it('falls back to the email provider for an unknown sign-in provider', async () => {
+    verifyIdToken.mockResolvedValue({
+      uid: 'firebase-uid-new',
+      email: 'newuser@example.com',
+      name: 'New User',
+      firebase: { sign_in_provider: 'custom' },
+    });
+
+    const res = await request(app)
+      .post('/api/v1/auth/login')
+      .send({ token: 'fake-firebase-token' });
+
+    expect(res.status).toBe(200);
+    const dbUser = await db('users')
+      .where({ firebase_uid: 'firebase-uid-new' })
+      .first<{ auth_provider: string }>('auth_provider');
+    expect(dbUser.auth_provider).toBe('email');
+  });
 });
