@@ -1,0 +1,39 @@
+# Code owners for MyCoaster
+#
+# Only HIGH RISK paths are listed (see "High risk paths" in docs/REVIEW.md).
+# A PR touching any of them needs the Engineer's approval, because the
+# develop and main rulesets enable "Require review from Code Owners".
+# Everything else has no code owner on purpose, so low-risk PRs can later
+# merge without a human (Phase C).
+#
+# Syntax follows .gitignore: a leading "/" anchors to the repo root, a
+# pattern without "/" matches at any depth. When several lines match a
+# file, the LAST matching line wins.
+
+# Auth and permissions
+/apps/api/src/auth/                 @LeoTechMaze
+/apps/api/src/middlewares/auth*     @LeoTechMaze
+/apps/api/src/routes/auth.ts        @LeoTechMaze
+
+# Payments
+/apps/api/src/payments/             @LeoTechMaze
+
+# Secrets and config
+.env*                               @LeoTechMaze
+/apps/api/src/config/               @LeoTechMaze
+app.config.*                        @LeoTechMaze
+/apps/app/app.json                  @LeoTechMaze
+eas.json                            @LeoTechMaze
+
+# Database
+/apps/api/migrations/               @LeoTechMaze
+
+# Infra and CI
+/.github/                           @LeoTechMaze
+/infra/                             @LeoTechMaze
+Dockerfile*                         @LeoTechMaze
+docker-compose*                     @LeoTechMaze
+*.tf                                @LeoTechMaze
+
+# Policy (this file lives under /.github/, so it is already covered)
+REVIEW.md                           @LeoTechMaze
