@@ -56,13 +56,14 @@ The ticket states the complexity level. A PR for a high complexity task links it
 
 ## Quality gates
 
-Every PR must pass these checks. Thresholds marked TBD are open decisions.
+Every PR must pass these checks.
 
 | Check | API | App |
 | --- | --- | --- |
 | Lint + typecheck | ESLint with type-aware rules, `tsc` | ESLint (Expo config), `tsc` |
 | Unit + integration tests | Vitest with Postgres + Redis services | Jest + React Native Testing Library |
-| Coverage on changed code | TBD % | TBD % |
+| Coverage on changed code | 80% of changed lines | 60% of changed lines |
+| Global coverage floor | 80% lines, branches, functions, statements | 5% (same four metrics) |
 | Mutation testing | Stryker on critical modules (auth, ranking) | Stryker on hooks and utils |
 | Cyclomatic complexity | Max 15 per function | Max 20 per function |
 | Module size | Max 400 lines per file | Max 400 lines per file |
@@ -73,7 +74,18 @@ Every PR must pass these checks. Thresholds marked TBD are open decisions.
 Lint notes:
 
 - Complexity and module size are enforced by ESLint (`complexity`, `max-lines`, blank lines and comments excluded). Baseline on 2026-10-09: API max 14 per function and 148 lines per source file; App max 18 and 360 lines.
+- Routes in the app (`apps/app/src/app/**`) stay thin: they read data through hooks and compose components. ESLint warns above 150 lines per route file, complexity 8, and on direct imports of `@/lib/api` or `@/constants/mock-data`. At baseline (2026-10-09) there are 12 warnings; they become errors once the existing routes are refactored.
 - In the API, untyped data (`any` and the `no-unsafe-*` rules) is reported as warnings, not errors (310 at baseline). The metrics report tracks this count; the target is 0, and then these rules become errors.
+
+Coverage notes:
+
+- Measured with Vitest (v8) in `api` and `shared`, and Jest in `app`. Run `pnpm test:coverage` at the root or in a package.
+- **Changed code**: on every PR, `diff-cover` reads each package's `lcov.info` and fails when the lines the PR adds or changes are covered below the threshold (`shared` uses 80%, like the API). Files with no coverage data in the diff (docs, config, tests) do not count.
+- **Global floor**: enforced by the test runner config, so it also runs locally. It blocks regressions only; raise it by hand when coverage grows.
+- The app excludes routes (`src/app/**`) and `src/constants/mock-data.ts` from coverage: logic belongs in components, hooks and `lib`, where it is measured.
+- `shared` has no global floor until it has tests.
+- Baseline on 2026-10-09 (lines / branches / functions / statements): API 88 / 81 / 81 / 87 (83 tests), App 11 / 10 / 8 / 11 (6 tests), Shared 0 (no tests).
+- CI uploads `lcov.info` and `coverage-summary.json` per package as the `coverage-<package>` artifact.
 
 ## PR checklist (authoring agent)
 
