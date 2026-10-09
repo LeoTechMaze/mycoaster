@@ -10,6 +10,7 @@ import { useColorScheme } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import AppStack from '@/components/app-stack';
+import { AuthProvider } from '@/lib/auth';
 import '@/lib/shared-resolution-proof';
 
 SplashScreen.preventAutoHideAsync();
@@ -28,8 +29,10 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppStack />
+      <AuthProvider>
+        <AnimatedSplashOverlay />
+        <AppStack />
+      </AuthProvider>
     </ThemeProvider>
   );
 }
