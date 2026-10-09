@@ -62,7 +62,7 @@ router.get('/:id', validate(uuidParams('id'), 'params'), async (req, res) => {
   const park: Record<string, unknown> = {};
   for (const f of PARK_EMBED_FIELDS) {
     park[f] = row[`_park_${f}`];
-    delete row[`_park_${f}`];
+    Reflect.deleteProperty(row, `_park_${f}`);
   }
 
   // Ticket 8: end-to-end proof that @mycoaster/shared resolves correctly in
