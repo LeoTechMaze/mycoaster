@@ -46,6 +46,7 @@ jobs:
               - '.npmrc'
               - '.nvmrc'
               - 'tsconfig.base.json'
+              - 'eslint.base.mjs'
               - '.github/workflows/ci.yml'
               - '.github/actions/**'
             shared:
@@ -106,6 +107,8 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           package: '@mycoaster/api'
+      - name: Lint
+        run: pnpm --filter @mycoaster/api lint
       - name: Typecheck
         run: pnpm --filter @mycoaster/api typecheck
       - name: Test
@@ -124,6 +127,8 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           package: '@mycoaster/app'
+      - name: Lint
+        run: pnpm --filter @mycoaster/app lint
       - name: Typecheck
         run: pnpm --filter @mycoaster/app typecheck
       - name: Test
@@ -142,6 +147,8 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           package: '@mycoaster/shared'
+      - name: Lint
+        run: pnpm --filter @mycoaster/shared lint
       - name: Typecheck
         run: pnpm --filter @mycoaster/shared typecheck
       - name: Test
