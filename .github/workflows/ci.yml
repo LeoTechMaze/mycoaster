@@ -1,0 +1,171 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [develop, main]
+
+# A new push to the same PR cancels the run still in progress
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # Decides which package jobs run. A PR runs only the affected packages;
+  # a push to develop/main always runs everything.
+  changes:
+    name: changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      api: ${{ github.event_name == 'push' || steps.filter.outputs.api == 'true' }}
+      app: ${{ github.event_name == 'push' || steps.filter.outputs.app == 'true' }}
+      shared: ${{ github.event_name == 'push' || steps.filter.outputs.shared == 'true' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: filter
+        if: github.event_name == 'pull_request'
+        with:
+          # Root config and CI changes affect every package.
+          # A change in packages/shared also triggers api and app, which import it.
+          filters: |
+            root: &root
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - '.npmrc'
+              - '.nvmrc'
+              - 'tsconfig.base.json'
+              - '.github/workflows/ci.yml'
+              - '.github/actions/**'
+            shared:
+              - *root
+              - 'packages/shared/**'
+            api:
+              - *root
+              - 'packages/shared/**'
+              - 'apps/api/**'
+            app:
+              - *root
+              - 'packages/shared/**'
+              - 'apps/app/**'
+
+  api:
+    name: api
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # Test-only values for throwaway CI services, not secrets
+      NODE_ENV: test
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_TEST_DB: coaster_tracker_test
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+      JWT_SECRET: ci-only-jwt-secret-not-used-anywhere-else
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          package: '@mycoaster/api'
+      - name: Typecheck
+        run: pnpm --filter @mycoaster/api typecheck
+      - name: Test
+        run: pnpm --filter @mycoaster/api test
+
+  app:
+    name: app
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          package: '@mycoaster/app'
+      - name: Typecheck
+        run: pnpm --filter @mycoaster/app typecheck
+      - name: Test
+        run: pnpm --filter @mycoaster/app test
+
+  shared:
+    name: shared
+    needs: changes
+    if: needs.changes.outputs.shared == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          package: '@mycoaster/shared'
+      - name: Typecheck
+        run: pnpm --filter @mycoaster/shared typecheck
+      - name: Test
+        run: pnpm --filter @mycoaster/shared test
+
+  # The only check the branch rulesets require. It always runs, and it fails
+  # when any job above failed or was cancelled. A skipped job (package not
+  # affected by the PR) counts as success.
+  ci-ok:
+    name: ci-ok
+    needs: [changes, api, app, shared]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check job results
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Job results: $RESULTS"
+          for result in $RESULTS; do
+            case "$result" in
+              success|skipped) ;;
+              *) echo "::error::A required job finished as '$result'"; exit 1 ;;
+            esac
+          done
+          echo "All required jobs passed or were skipped"

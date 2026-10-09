@@ -1,7 +1,7 @@
-const request = require('supertest');
-const app = require('../../src/app');
-const { db } = require('../helpers/db');
-const { generateToken } = require('../helpers/auth');
+import request from 'supertest';
+import app from '../../src/app';
+import { db } from '../helpers/db';
+import { generateToken } from '../helpers/auth';
 
 const USER_ID    = '30000000-0000-0000-0000-000000000001';
 const USER_EMAIL = 'test@mycoaster.app';
